@@ -12,6 +12,8 @@ namespace Wallet_grupo1
             base.OnModelCreating(modelBuilder);
         }
 
-       public DbSet<User> Users => Set<User>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Role> Roles => Set<Role>();
+
     }
 }
