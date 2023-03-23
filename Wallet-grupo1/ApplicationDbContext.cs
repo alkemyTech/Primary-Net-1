@@ -13,5 +13,8 @@ namespace Wallet_grupo1
         }
 
        public DbSet<User> Users => Set<User>();
+       public DbSet <fixedTermDeposit> fixedTermDeposits=> Set<fixedTermDeposit>();
+      
+
     }
 }
