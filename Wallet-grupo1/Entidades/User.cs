@@ -1,9 +1,11 @@
-﻿namespace Wallet_grupo1.Entidades
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Wallet_grupo1.Entidades
 {
     public class User
     {
         public int Id { get; set; }
-
         public string first_name { get; set; } = null!;
 
         public string last_name { get; set;} = null!;
