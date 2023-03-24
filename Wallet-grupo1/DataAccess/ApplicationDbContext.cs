@@ -16,5 +16,7 @@ namespace Wallet_grupo1.DataAccess
         public DbSet<User> Users => Set<User>();
         public DbSet<Role> Roles => Set<Role>();
 
+        public DbSet<Account> Accounts => Set<Account>();
+
     }
 }
