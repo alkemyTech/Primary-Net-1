@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wallet_grupo1.Entidades;
 
-namespace Wallet_grupo1
+namespace Wallet_grupo1.DataAccess
 {
     public class ApplicationDbContext: DbContext
     {
