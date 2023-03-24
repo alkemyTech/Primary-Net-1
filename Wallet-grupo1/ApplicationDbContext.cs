@@ -13,5 +13,6 @@ namespace Wallet_grupo1
         }
 
        public DbSet<User> Users => Set<User>();
+       public DbSet<Transaction> Transactions => Set<Transaction>();
     }
 }
