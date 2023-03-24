@@ -1,4 +1,4 @@
-﻿namespace Wallet_grupo1.DataAccess;
+﻿namespace Wallet_grupo1.DataAccess.Repositories;
 
 public interface IRepository<T> where T : class
 {

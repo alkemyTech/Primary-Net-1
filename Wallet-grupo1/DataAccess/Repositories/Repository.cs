@@ -1,9 +1,9 @@
-﻿namespace Wallet_grupo1.DataAccess;
+﻿namespace Wallet_grupo1.DataAccess.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {
     protected readonly ApplicationDbContext _context;
-    
+
     public Repository(ApplicationDbContext context)
     {
         _context = context;

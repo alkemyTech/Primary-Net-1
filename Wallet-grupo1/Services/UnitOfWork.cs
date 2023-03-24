@@ -1,15 +1,19 @@
 ﻿using Wallet_grupo1.DataAccess;
+using Wallet_grupo1.DataAccess.Repositories;
 
 namespace Wallet_grupo1.Services;
 
 public class UnitOfWork : IUnitOfWork
 {
     private ApplicationDbContext _context;
-    
+
+    public UserRepository UserRepo { get; private set; }
+
     public UnitOfWork(ApplicationDbContext context)
     {
         //TODO: Inicializar cada uno de los repositorios concretos
         _context = context;
+        UserRepo = new UserRepository(_context);
     }
     
     public void Dispose()
