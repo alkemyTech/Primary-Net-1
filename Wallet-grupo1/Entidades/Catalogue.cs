@@ -1,31 +1,28 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Wallet_grupo1.Entidades;
+
+namespace Wallet_grupo1.Entidades;
 
 [Table("Catalogues")]
 public class Catalogue
-{
+{ 
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
     public int Id { get; set; }
 
     [Required]
-    [Column("user_id")]
-    public int UserId { get; set; }
-
-    [ForeignKey("UserId")]
-    public virtual User User { get; set; }
+    [Column("product_description")]
+    [StringLength(250)]
+    public string ProductDescription { get; set; } = null!;
 
     [Required]
-    [Column("to_account_id")]
-    public int To_account_id { get; set; }
+    [Column("image")]
+    [StringLength(250)]
+    public string Image { get; set; } = null!;
 
-    [ForeignKey("To_account_id")]
-    public virtual Account To_account { get; set; }
-
-    public decimal Amount { get; set; }
-
-    public DateTime CreationDate { get; set; }
-
-    public DateTime ClosingDate { get; set; }
+    [Required]
+    [Column("points")]
+    public double Points { get; set; }
 }
