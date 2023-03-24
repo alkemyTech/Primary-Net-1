@@ -11,11 +11,12 @@ namespace Wallet_grupo1.DataAccess
         {
             base.OnModelCreating(modelBuilder);
         }
- 
+        
         public DbSet<User> Users => Set<User>();
         public DbSet<FixedTermDeposit> FixedTermDeposits => Set<FixedTermDeposit>();
         public DbSet<Role> Roles => Set<Role>();
         public DbSet<Account> Accounts => Set<Account>();
         public DbSet<Transaction> Transactions => Set<Transaction>();
+        public DbSet<Catalogue> Catalogues => Set<Catalogue>();
     }
 }
