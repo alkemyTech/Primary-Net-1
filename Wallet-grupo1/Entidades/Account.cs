@@ -25,6 +25,6 @@ namespace Wallet_grupo1.Entidades
         public int user_id { get; set; }
 
         [ForeignKey("user_id")]
-        public virtual int User_id{ get; set; }
+        public virtual User User{ get; set; }
     }
 }
