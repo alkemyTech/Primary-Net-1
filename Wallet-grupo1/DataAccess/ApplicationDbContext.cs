@@ -12,6 +12,7 @@ namespace Wallet_grupo1.DataAccess
             base.OnModelCreating(modelBuilder);
         }
 
+        public DbSet <fixedTermDeposit> fixedTermDeposits=> Set<fixedTermDeposit>();
         public DbSet<User> Users => Set<User>();
         public DbSet<Role> Roles => Set<Role>();
 
