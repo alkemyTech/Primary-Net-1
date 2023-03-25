@@ -9,6 +9,7 @@ public class UnitOfWork : IUnitOfWork
 
     public UserRepository UserRepo { get; private set; }
     public TransactionRepository TransactionRepo { get; private set; }
+    public AccountRepository AccountRepo { get; }
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -16,6 +17,7 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
         UserRepo = new UserRepository(_context);
         TransactionRepo = new TransactionRepository(_context);
+        AccountRepo = new AccountRepository(_context);
     }
     
     public void Dispose()
@@ -23,8 +25,8 @@ public class UnitOfWork : IUnitOfWork
         _context.Dispose();
     }
 
-    public int complete()
+    public Task<int> Complete()
     {
-        return _context.SaveChanges();
+        return _context.SaveChangesAsync();
     }
 }

@@ -1,4 +1,4 @@
-﻿using Wallet_grupo1.Entidades;
+﻿using Microsoft.EntityFrameworkCore;
 namespace Wallet_grupo1.DataAccess.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
@@ -10,19 +10,18 @@ public class Repository<T> : IRepository<T> where T : class
         _context = context;
     }
 
-    public List<T> GetAll()
+    public Task<List<T>> GetAll()
     {
-        return _context.Set<T>().ToList();
+        return _context.Set<T>().ToListAsync();
     }
 
-    public T? GetById(int id)
+    public async Task<T?> GetById(int id)
     {
-        return _context.Set<T>().Find(id);
+        return await _context.FindAsync<T>(id);
     }
 
     public virtual void Insert(T entity)
     {
-        //TODO: Manejo de excepcion? Que el ID no este en el Set...
         _context.Set<T>().Add(entity);
     }
 
@@ -36,8 +35,4 @@ public class Repository<T> : IRepository<T> where T : class
         _context.Set<T>().Update(entity);
     }
 
-    Task<IEnumerable<Transaction>> IRepository<T>.GetAll()
-    {
-        throw new NotImplementedException();
-    }
 }
