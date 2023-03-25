@@ -1,4 +1,5 @@
-﻿namespace Wallet_grupo1.DataAccess.Repositories;
+﻿using Wallet_grupo1.Entidades;
+namespace Wallet_grupo1.DataAccess.Repositories;
 
 public class Repository<T> : IRepository<T> where T : class
 {
@@ -33,5 +34,10 @@ public class Repository<T> : IRepository<T> where T : class
     public void Update(T entity)
     {
         _context.Set<T>().Update(entity);
+    }
+
+    Task<IEnumerable<Transaction>> IRepository<T>.GetAll()
+    {
+        throw new NotImplementedException();
     }
 }

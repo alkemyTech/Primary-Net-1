@@ -8,4 +8,5 @@ public interface IUnitOfWork : IDisposable
     int complete();
 
     public UserRepository UserRepo { get; }
+    public TransactionRepository TransactionRepo { get; }
 }

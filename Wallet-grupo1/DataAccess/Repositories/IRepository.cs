@@ -1,4 +1,6 @@
-﻿namespace Wallet_grupo1.DataAccess.Repositories;
+﻿using Wallet_grupo1.Entidades;
+
+namespace Wallet_grupo1.DataAccess.Repositories;
 
 public interface IRepository<T> where T : class
 {
@@ -11,4 +13,5 @@ public interface IRepository<T> where T : class
     public void Delete(T entity);
 
     public void Update(T entity);
+    Task<IEnumerable<Transaction>> GetAll();
 }
