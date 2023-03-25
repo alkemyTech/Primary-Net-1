@@ -8,12 +8,14 @@ public class UnitOfWork : IUnitOfWork
     private ApplicationDbContext _context;
 
     public UserRepository UserRepo { get; private set; }
+    public AccountRepository AccountRepo { get; }
 
     public UnitOfWork(ApplicationDbContext context)
     {
         //TODO: Inicializar cada uno de los repositorios concretos
         _context = context;
         UserRepo = new UserRepository(_context);
+        AccountRepo = new AccountRepository(_context);
     }
     
     public void Dispose()
@@ -21,8 +23,8 @@ public class UnitOfWork : IUnitOfWork
         _context.Dispose();
     }
 
-    public int complete()
+    public Task<int> Complete()
     {
-        return _context.SaveChanges();
+        return _context.SaveChangesAsync();
     }
 }

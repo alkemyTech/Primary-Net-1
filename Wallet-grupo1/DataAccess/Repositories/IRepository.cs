@@ -2,9 +2,9 @@
 
 public interface IRepository<T> where T : class
 {
-    public List<T> GetAll();
+    public Task<List<T>> GetAll();
 
-    public T? GetById(int id);
+    public Task<T?> GetById(int id);
 
     public void Insert(T entity);
 

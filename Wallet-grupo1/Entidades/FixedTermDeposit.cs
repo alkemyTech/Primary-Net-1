@@ -26,10 +26,13 @@ namespace Wallet_grupo1.Entidades
         [ForeignKey("To_account_id")]
         public virtual Account To_account { get; set; }
 
+        [Column("amount")]
         public decimal Amount { get; set; }
-
+        
+        [Column("creation_date")]
         public DateTime CreationDate { get; set; }
 
+        [Column("closing_date")]
         public DateTime ClosingDate { get; set; }
         
         
