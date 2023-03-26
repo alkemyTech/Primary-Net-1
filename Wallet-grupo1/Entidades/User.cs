@@ -13,26 +13,34 @@ namespace Wallet_grupo1.Entidades
 
         [Required]
         [StringLength(20)]
-        public string first_name { get; set; } = null!;
+        [Column ("first_name")]
+        public string FirstName { get; set; } = null!;
 
         [Required]
+        [Column("last_name")]
         [StringLength(20)]
-        public string last_name { get; set;} = null!;
+        public string LastName { get; set;} = null!;
 
         [Required]
         [StringLength(50)]
-        public string email { get; set; } = null!;
+        [Column("email")]
+        public string Email { get; set; } = null!;
 
         [Required]
         [StringLength(20)]
-        public string password { get; set; } = null!;
+        [Column("password")]
+        public string Password { get; set; } = null!;
 
         [Required]
-        public double points { get; set; }
+        [Column("points")]
+        public double Points { get; set; }
+        
+        [ForeignKey(name: "RolId")]
+        [NotMapped]
+        public Role Role { get; set; }
 
-        [Required]
-        [ForeignKey(name: "Role")]
-        public int rol_Id { get; set; }
+        [Column("rol_Id")]
+        public int RolId { get; set; }
 
     }
 }

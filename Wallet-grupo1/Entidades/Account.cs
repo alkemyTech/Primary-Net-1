@@ -9,22 +9,28 @@ namespace Wallet_grupo1.Entidades
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Column("id")]
         public int Id { get; set; }
 
         [Required]
-        public DateTime creationDate { get; set; }
+        [Column("creationDate")]
+        public DateTime CreationDate { get; set; }
 
         [Required]
         [Precision(18,2)]
-        public decimal money { get; set; }
+        [Column("money")]
+        public decimal Money { get; set; }
 
         [Required]
-        public bool isBlocked { get; set; }
+        [Column("isBlocked")]
+        public bool IsBlocked { get; set; }
 
-        [Required]
-        public int user_id { get; set; }
+
+        [Column("user_id")]
+        public int UserId { get; set; }
 
         [ForeignKey("user_id")]
+        [NotMapped]
         public virtual User User{ get; set; }
     }
 }

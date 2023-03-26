@@ -12,18 +12,20 @@ namespace Wallet_grupo1.Entidades
         [Column("id")]
         public int Id { get; set; }
 
-        [Required]
+        
         [Column("user_id")]
         public int UserId { get; set; }
 
         [ForeignKey("UserId")]
+        [NotMapped]
         public virtual User User { get; set; }
 
-        [Required]
+        
         [Column("to_account_id")]
         public int To_account_id { get; set; }
 
         [ForeignKey("To_account_id")]
+        [NotMapped]
         public virtual Account To_account { get; set; }
 
         [Column("amount")]

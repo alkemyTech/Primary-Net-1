@@ -24,24 +24,26 @@ public class Transaction
     [StringLength(30)]
     public string Type { get; set; }
     
-    [Required]
+   
     [Column("account_id")]
     public int Account_id { get; set; }
     
     [ForeignKey("Account_id")]
+    [NotMapped]
     public virtual Account Account { get; set; }
     
-    [Required]
+
     [Column("user_id")]
     public int User_id;
     
     [ForeignKey("User_id")]
+    [NotMapped]
     public virtual User User { get; set; }
-    
-    [Required]
+  
     [Column("to_account_id")]
     public int To_account_id { get; set; }
     
     [ForeignKey("To_account_id")]
+    [NotMapped]
     public virtual Account To_account { get; set; }
 }
