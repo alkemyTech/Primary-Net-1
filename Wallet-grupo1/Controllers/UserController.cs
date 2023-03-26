@@ -10,35 +10,60 @@ namespace Wallet_grupo1.Controllers
     [Route("/api/user")]
     public class UserController : Controller
     {
-        private readonly ApplicationDbContext _context;
 
+        IUnitOfWork Unit;
 
-        public UserController(ApplicationDbContext context)
+        public UserController(IUnitOfWork unit)
         {
-            this._context = context;
+            this.Unit = unit;
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post(User user)
+        public async Task<ActionResult> InsertUser(User user)
         {
-            var unit = new UnitOfWork(_context);
-            try
-            {
-                unit.UserRepo.Insert(user);
-                unit.complete();
+            await Unit.UserRepo.Insert(user);
+            await Unit.Complete();
+            return Ok(user);
+        }
 
-            }catch(Exception ex)
+        public async Task<ActionResult<IEnumerable<User>>> GetAll()
+        {
+            var users = await Unit.UserRepo.GetAll();   
+            if(users != null)
             {
-
+                return users;
+            }else
+            {
+                return NotFound();
             }
-            finally
-            {
-                unit.Dispose();
-            }
+        }
 
+        public async Task<ActionResult<User>> GetById(int id)
+        {
+            var user = await Unit.UserRepo.GetById(id);
+
+            if(user != null)
+            {
+                return user;
+            }else
+            {
+                return NotFound();
+            }    
+        }
+
+        public async Task<ActionResult> Delete(User user)
+        {
+            await Unit.UserRepo.Delete(user);
+            await Unit.Complete();
             return Ok();
         }
 
+        public async Task<ActionResult> Update(User user)
+        {
+            await Unit.UserRepo.Update(user);
+            await Unit.Complete();
+            return Ok();
+        }
        
     }
 }

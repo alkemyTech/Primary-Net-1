@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Wallet_grupo1.DataAccess.Repositories;
 
@@ -11,28 +12,30 @@ public class Repository<T> : IRepository<T> where T : class
         _context = context;
     }
 
-    public Task<List<T>> GetAll()
+    public virtual async Task<List<T>> GetAll()
     {
-        return _context.Set<T>().ToListAsync();
+        return await _context.Set<T>().ToListAsync();
     }
 
-    public async Task<T?> GetById(int id)
+    public virtual async Task<T?> GetById(int id)
     {
-        return await _context.FindAsync<T>(id);
+        return await _context.Set<T>().FindAsync(id);
     }
 
-    public virtual void Insert(T entity)
+    public virtual async Task<bool> Insert(T entity)
     {
-        _context.Set<T>().Add(entity);
+        await _context.Set<T>().AddAsync(entity);
+        return true;
     }
 
-    public void Delete(T entity)
+    public virtual Task<bool> Delete(T entity)
     {
-        _context.Set<T>().Remove(entity);
+        throw new NotImplementedException();
     }
 
-    public void Update(T entity)
+    public virtual Task<bool> Update(T entity)
     {
-        _context.Set<T>().Update(entity);
+        throw new NotImplementedException();
     }
+
 }
