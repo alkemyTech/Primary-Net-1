@@ -1,101 +1,89 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Services;
 
-namespace Wallet_grupo1.Controllers
+public class CatalogueController : Controller
 {
-    [ApiController]
-    [Route("/api/catalogo")]
-    public class CatalogoController : ControllerBase
+    private readonly ApplicationDbContext _context;
+
+    public CatalogueController(ApplicationDbContext context)
     {
-        private readonly ApplicationDbContext context;
+        _context = context;
+    }
 
-        public CatalogoController(ApplicationDbContext context)
+    // Obtiene todos los catálogos
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        List<Catalogue> catalogues;
+        using (var uof = new UnitOfWork(_context))
         {
-            this.context = context;
+            // Carga todos los catálogos de la base de datos utilizando el repositorio de catálogos
+            catalogues = await uof.CatalogueRepo.GetAll();
         }
+        // Retorna un código 200 (OK) con la lista de catálogos
+        return Ok(catalogues);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Catalogue>>> GetAll()
+    // Obtiene un catálogo por su ID
+    [HttpGet]
+    public async Task<IActionResult> GetById(int id)
+    {
+        Catalogue? catalogue;
+        using (var uof = new UnitOfWork(_context))
         {
-            return await context.Catalogues.ToListAsync();
+            // Obtiene el catálogo con el ID especificado utilizando el repositorio de catálogos
+            catalogue = await uof.CatalogueRepo.GetById(id);
         }
+        // Si no se encuentra un catálogo con el ID especificado, retorna un código 404 (Not Found)
+        if (catalogue is null) return NotFound();
+        // Si se encuentra el catálogo, retorna un código 200 (OK) con el catálogo encontrado
+        return Ok(catalogue);
+    }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Catalogue>> GetById(int id)
+    // Crea un nuevo catálogo
+    [HttpPost]
+    public IActionResult Create([FromBody] Catalogue catalogue)
+    {
+        using (var uof = new UnitOfWork(_context))
         {
-            var catalogo = await context.Catalogues.FindAsync(id);
-
-            if (catalogo is null)
-            {
-                return NotFound();
-            }
-
-            return catalogo;
+            // Agrega el nuevo catálogo a la base de datos utilizando el repositorio de catálogos
+            uof.CatalogueRepo.Insert(catalogue);
+            // Guarda los cambios en la base de datos
+            uof.Complete();
         }
+        // Retorna un código 201 (Created) con el nuevo catálogo creado y su URL de ubicación
+        return CreatedAtAction(nameof(GetById), new { id = catalogue.Id }, catalogue);
+    }
 
-        [HttpPost]
-        public async Task<ActionResult<Catalogue>> Insert(Catalogue catalogo)
+    // Elimina un catálogo existente
+    [HttpPost]
+    public IActionResult Delete([FromBody] Catalogue catalogue)
+    {
+        using (var uof = new UnitOfWork(_context))
         {
-            context.Catalogues.Add(catalogo);
-            await context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = catalogo.Id }, catalogo);
+            // Elimina el catálogo especificado de la base de datos utilizando el repositorio de catálogos
+            uof.CatalogueRepo.Delete(catalogue);
+            // Guarda los cambios en la base de datos
+            uof.Complete();
         }
+        // Retorna un código 204 (No Content) si la eliminación fue exitosa
+        return NoContent();
+    }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, Catalogue catalogo)
+    // Actualiza un catálogo existente
+    [HttpPut]
+    public IActionResult Update([FromBody] Catalogue catalogue)
+    {
+        using (var uof = new UnitOfWork(_context))
         {
-            if (id != catalogo.Id)
-            {
-                return BadRequest();
-            }
-
-            context.Entry(catalogo).State = EntityState.Modified;
-
-            try
-            {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CatalogoExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            // Actualiza el catálogo especificado en la base de datos utilizando el repositorio de catálogos
+            uof.CatalogueRepo.Update(catalogue);
+            // Guarda los cambios en la base de datos
+            uof.Complete();
         }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var catalogo = await context.Catalogues.FindAsync(id);
-
-            if (catalogo is null)
-            {
-                return NotFound();
-            }
-
-            context.Catalogues.Remove(catalogo);
-            await context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool CatalogoExists(int id)
-        {
-            return context.Catalogues.Any(c => c.Id == id);
-        }
+        // Retorna un código 204 (No Content) si la actualización fue exitosa
+        return NoContent();
     }
 }
