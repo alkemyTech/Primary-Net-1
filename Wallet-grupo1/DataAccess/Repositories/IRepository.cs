@@ -6,9 +6,9 @@ public interface IRepository<T> where T : class
 
     public Task<T?> GetById(int id);
 
-    public void Insert(T entity);
+    public Task<bool> Insert(T entity);
 
-    public void Delete(T entity);
+    public Task<bool> Delete(T entity);
 
-    public void Update(T entity);
+    public Task<bool> Update(T entity);
 }
