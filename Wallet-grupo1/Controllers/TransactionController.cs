@@ -7,8 +7,6 @@ using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers
 {
-    [ApiController]
-    [Route("[api/Transaction]")]
     public class TransactionController : Controller
     {
         private readonly ApplicationDbContext _context;

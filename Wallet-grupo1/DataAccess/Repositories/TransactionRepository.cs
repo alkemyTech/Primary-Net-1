@@ -21,7 +21,8 @@ namespace Wallet_grupo1.DataAccess.Repositories
             }
             catch (Exception ex)
             {
-                
+                Console.WriteLine($"Error durante GetAll: {ex.Message}");
+                throw;
             }
 
         }
@@ -29,9 +30,19 @@ namespace Wallet_grupo1.DataAccess.Repositories
         public async Task<Transaction> GetByid(int id)
         {
 
+            try
+            {
+                return await _context.Set<Transaction>().FindAsync(id);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Errir con ID {id}: {ex.Message}");
+                throw;
+            }
+
         }
 
-        public async void Insert(Transaction transaction)
+        public override async Task<bool> Insert(Transaction transaction)
         {
             try 
             {
@@ -41,18 +52,16 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 {
                     _context.Set<Transaction>().Add(transaction);
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
-
+                return false;
             }
         }
-        //public void Insert(Transaction transaction)
-        //{
-        //    _context.Transactions.Insert(transaction);
-        //}
 
-        public async void Delete(Transaction transaction)
+        public override async Task<bool> Delete(Transaction transaction)
         {
             try
             {
@@ -62,22 +71,17 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 {
                    _context.Set<Transaction>().Remove(transaction);
                 }
+
+                return true;
                 
             }
             catch (Exception ex)
             {
-
+                return false;
             }
         }
         
-        
-        //public void Delete(Transaction transaction)
-        //{
-        //    _context.Transactions.Delete(transaction);
-        //}
-
-
-        public override async void Update(Transaction transaction)
+        public override async Task<bool> Update(Transaction transaction)
         {
             
             try
@@ -87,28 +91,29 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 if (existingTransaction == null)
                 {
                     _context.Set<Transaction>().Add(transaction);
+
+                    
                 }
                 else
                 {
                     existingTransaction.Amount = transaction.Amount;
                     existingTransaction.Date = transaction.Date;
                     existingTransaction.Type = transaction.Type;
-
-                    //Las claves foraneas se actualizan??
+                    existingTransaction.Account_id = transaction.Account_id;
+                    existingTransaction.User_id = transaction.User_id;
+                    existingTransaction.To_account_id = transaction.To_account_id;
                 }
+
+                return true;
 
             }
             catch(Exception ex)
             {
-
+                return false;
             }
 
         }
 
-        //public void Update(Transaction transaction)
-        //{ 
-        //    _context.Transactions.Update(transaction);
-        //}
         public void SaveChanges()
         {
             _context.SaveChanges();
