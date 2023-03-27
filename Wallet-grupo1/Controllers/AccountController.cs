@@ -27,8 +27,8 @@ public class AccountController : Controller
         return Ok(accounts);
     }
     
-    [HttpGet]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById([FromRoute] int id)
     {
         Account? account;
 
@@ -43,36 +43,46 @@ public class AccountController : Controller
     }
     
     [HttpPost]
-    public IActionResult Insert([FromBody] Account account)
+    public async Task<IActionResult> Insert([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Insert(account);
-            uof.Complete();
+            await uof.AccountRepo.Insert(account);
+            await uof.Complete();
         }  
 
         return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
     } 
     
     [HttpPost]
-    public IActionResult Delete([FromBody] Account account)
+    public async Task<IActionResult> Delete([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Delete(account);
-            uof.Complete();
+            var result = await uof.AccountRepo.Delete(account);
+
+            if (!result)
+                return StatusCode(500, $"No se pudo eliminar la account con id: {account.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+            
+            await uof.Complete();
         }
 
         return Ok();
     }
     
     [HttpPut]
-    public IActionResult Update([FromBody] Account account)
+    public async Task<IActionResult> Update([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Update(account);
-            uof.Complete();
+            var result = await uof.AccountRepo.Update(account);
+            
+            if (!result)
+                return StatusCode(500, $"No se pudo actualizar la account con id: {account.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+            
+            await uof.Complete();
         }
 
         return Ok();
