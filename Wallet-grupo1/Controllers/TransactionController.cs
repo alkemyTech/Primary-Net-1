@@ -28,14 +28,14 @@ namespace Wallet_grupo1.Controllers
             return Ok(transactions);
         }
 
-        [HttpGet]
+        [HttpGet("{id: int}")]
         public async Task<IActionResult> GetById(int id)
         {
             Transaction? transaction;
 
             using(var uof = new UnitOfWork(_context))
             {
-                transaction = await uof.TransactionRepo.GetByid(id);
+                transaction = await uof.TransactionRepo.GetById(id);
             }
 
             if (transaction == null) 
