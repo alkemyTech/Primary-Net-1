@@ -13,54 +13,6 @@ namespace Wallet_grupo1.DataAccess.Repositories
             _context = context;
         }
 
-        public override async Task<List<Transaction>> GetAll()
-        {
-            try
-            {
-                return await _context.Set<Transaction>().ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error durante GetAll: {ex.Message}");
-                throw;
-            }
-
-        }
-
-        public async Task<Transaction> GetByid(int id)
-        {
-
-            try
-            {
-                return await _context.Set<Transaction>().FindAsync(id);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Errir con ID {id}: {ex.Message}");
-                throw;
-            }
-
-        }
-
-        public override async Task<bool> Insert(Transaction transaction)
-        {
-            try 
-            {
-                var existingTransaction = await _context.Transactions.Where(x => x.Id == transaction.Id).FirstOrDefaultAsync();
-
-                if (existingTransaction == null)
-                {
-                    _context.Set<Transaction>().Add(transaction);
-                }
-
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
-
         public override async Task<bool> Delete(Transaction transaction)
         {
             try
@@ -113,12 +65,6 @@ namespace Wallet_grupo1.DataAccess.Repositories
             }
 
         }
-
-        public void SaveChanges()
-        {
-            _context.SaveChanges();
-        }
-
 
     }
 }
