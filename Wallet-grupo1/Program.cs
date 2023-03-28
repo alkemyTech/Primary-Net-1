@@ -3,6 +3,8 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Wallet_grupo1.Controllers;
+using Microsoft.EntityFrameworkCore;
+using Wallet_grupo1;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,12 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
 });
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
+    options.UseSqlServer("name=DefaultConnection");
+});
+
 
 var app = builder.Build();
 
