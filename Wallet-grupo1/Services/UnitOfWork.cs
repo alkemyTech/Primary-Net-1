@@ -11,6 +11,7 @@ public class UnitOfWork : IUnitOfWork
     public TransactionRepository TransactionRepo { get; private set; }
     public AccountRepository AccountRepo { get; }
     public CatalogueRepository CatalogueRepo { get;}
+    public FixedTermDepositRepository FixedRepo {get;}
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -20,6 +21,7 @@ public class UnitOfWork : IUnitOfWork
         TransactionRepo = new TransactionRepository(_context);
         AccountRepo = new AccountRepository(_context);
         CatalogueRepo = new CatalogueRepository(_context);
+        FixedRepo = new FixedTermDepositRepository(_context);
     }
     
     public void Dispose()

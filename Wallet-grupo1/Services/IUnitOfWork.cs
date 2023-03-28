@@ -8,6 +8,7 @@ public interface IUnitOfWork : IDisposable
     public UserRepository UserRepo { get; }
     public TransactionRepository TransactionRepo { get; }
     public AccountRepository AccountRepo { get; }
+    public FixedTermDepositRepository FixedRepo {get;}
 
     Task<int> Complete();
 }
