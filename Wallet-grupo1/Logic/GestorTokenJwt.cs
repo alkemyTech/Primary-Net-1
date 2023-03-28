@@ -20,8 +20,8 @@ public class GestorTokenJwt
         var claims = new[]
         {
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-            new Claim(ClaimTypes.Role, user.Role.Name)
+            new Claim(ClaimTypes.Name, $"{user.First_name} {user.Last_name}"),
+            new Claim(ClaimTypes.Role, user.Rol.Name.ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
