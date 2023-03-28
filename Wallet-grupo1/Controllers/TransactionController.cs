@@ -46,36 +46,36 @@ namespace Wallet_grupo1.Controllers
         }
 
         [HttpPost]
-        public IActionResult Insert([FromBody]Transaction transaction) 
+        public async Task<IActionResult> Insert([FromBody]Transaction transaction) 
         {
             using(var uof = new UnitOfWork(_context))
             {
-                uof.TransactionRepo.Insert(transaction);
-                uof.Complete();
+                await uof.TransactionRepo.Insert(transaction);
+                await uof.Complete();
             }
 
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, transaction);
         }
 
         [HttpPost]
-        public IActionResult Delete([FromBody] Transaction transaction)
+        public async Task<IActionResult> Delete([FromBody] Transaction transaction)
         {
             using (var uof = new UnitOfWork(_context))
             {
-                uof.TransactionRepo.Delete(transaction);
-                uof.Complete();
+                await uof.TransactionRepo.Delete(transaction);
+                await uof.Complete();
             }
 
             return Ok();
         }
 
         [HttpPost]
-        public IActionResult Update([FromBody]Transaction transaction)
+        public async Task<IActionResult> Update([FromBody]Transaction transaction)
         {
             using ( var uof = new UnitOfWork(_context))
             {
-                uof.TransactionRepo.Update(transaction);
-                uof.Complete();
+                await uof.TransactionRepo.Update(transaction);
+                await uof.Complete();
             }
 
             return Ok();

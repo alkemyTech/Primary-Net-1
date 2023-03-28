@@ -44,14 +44,14 @@ public class CatalogueController : Controller
 
     // Crea un nuevo catálogo
     [HttpPost]
-    public IActionResult Create([FromBody] Catalogue catalogue)
+    public async Task<IActionResult> Create([FromBody] Catalogue catalogue)
     {
         using (var uof = new UnitOfWork(_context))
         {
             // Agrega el nuevo catálogo a la base de datos utilizando el repositorio de catálogos
-            uof.CatalogueRepo.Insert(catalogue);
+            await uof.CatalogueRepo.Insert(catalogue);
             // Guarda los cambios en la base de datos
-            uof.Complete();
+            await uof.Complete();
         }
         // Retorna un código 201 (Created) con el nuevo catálogo creado y su URL de ubicación
         return CreatedAtAction(nameof(GetById), new { id = catalogue.Id }, catalogue);
@@ -59,14 +59,14 @@ public class CatalogueController : Controller
 
     // Elimina un catálogo existente
     [HttpPost]
-    public IActionResult Delete([FromBody] Catalogue catalogue)
+    public async Task<IActionResult> Delete([FromBody] Catalogue catalogue)
     {
         using (var uof = new UnitOfWork(_context))
         {
             // Elimina el catálogo especificado de la base de datos utilizando el repositorio de catálogos
-            uof.CatalogueRepo.Delete(catalogue);
+            await uof.CatalogueRepo.Delete(catalogue);
             // Guarda los cambios en la base de datos
-            uof.Complete();
+            await uof.Complete();
         }
         // Retorna un código 204 (No Content) si la eliminación fue exitosa
         return NoContent();
@@ -74,14 +74,14 @@ public class CatalogueController : Controller
 
     // Actualiza un catálogo existente
     [HttpPut]
-    public IActionResult Update([FromBody] Catalogue catalogue)
+    public async Task<IActionResult> Update([FromBody] Catalogue catalogue)
     {
         using (var uof = new UnitOfWork(_context))
         {
             // Actualiza el catálogo especificado en la base de datos utilizando el repositorio de catálogos
-            uof.CatalogueRepo.Update(catalogue);
+            await uof.CatalogueRepo.Update(catalogue);
             // Guarda los cambios en la base de datos
-            uof.Complete();
+            await uof.Complete();
         }
         // Retorna un código 204 (No Content) si la actualización fue exitosa
         return NoContent();

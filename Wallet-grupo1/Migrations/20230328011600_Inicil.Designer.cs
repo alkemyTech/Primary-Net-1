@@ -12,8 +12,8 @@ using Wallet_grupo1;
 namespace Wallet_grupo1.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230328001706_Inicial")]
-    partial class Inicial
+    [Migration("20230328011600_Inicil")]
+    partial class Inicil
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
