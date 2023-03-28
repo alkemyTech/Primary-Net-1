@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
@@ -93,5 +95,41 @@ public class AccountController : Controller
         }
 
         return Ok();
+    }
+
+    [Authorize]
+    [HttpPost("{id}")]
+    public async  Task<IActionResult> Deposit([FromRoute] int id, [FromBody] decimal aumentoSaldo, [FromBody] string concept)
+    {
+        //Get token del header y validacion
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return Unauthorized("No se proporcionó un token de seguridad válido.");
+        
+        string jwtToken = authorizationHeader.Substring(7);
+        
+        // Extraigo el userid del token (es un claim)
+        var userIdToken = GestorTokenJwt.ObtenerUserIdDeToken(jwtToken);
+        if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+
+        Account? account;
+        using (var uof = new UnitOfWork(_context))
+        {
+            account = uof.AccountRepo.GetById(id).Result;
+        }
+
+        if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {id}.");
+        
+        // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
+        if (!account.validateUser(Int32.Parse(userIdToken))) 
+            return Forbid("La cuenta no pertenece al usuario loggeado.");
+
+        // Delego al gestor la logica del deposito.
+        await new GestorOperaciones(_context).Depositar(account, aumentoSaldo, concept);
+
+        return Ok($"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
     }
 }

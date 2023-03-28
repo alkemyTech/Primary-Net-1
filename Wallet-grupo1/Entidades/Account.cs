@@ -20,5 +20,8 @@ namespace Wallet_grupo1.Entidades
         List<AccountTransaction> TransactionList { get; set; } = new List<AccountTransaction>();
 
         
+    public bool validateUser(int id)
+    {
+        return this.User.Id == id;
     }
 }

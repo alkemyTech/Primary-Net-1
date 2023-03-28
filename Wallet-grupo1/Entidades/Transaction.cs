@@ -14,6 +14,8 @@ public class Transaction
     public DateTime Date { get; set; }
 
     public Account Account { get; set; } = null!;
+    
+    public string Concept { get; set; }
 }
 
 

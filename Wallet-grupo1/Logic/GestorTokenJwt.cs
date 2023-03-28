@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Wallet_grupo1.Entidades;
 
@@ -20,7 +21,7 @@ public class GestorTokenJwt
         var claims = new[]
         {
             new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, $"{user.First_name} {user.Last_name}"),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Role, user.Rol.Name.ToString())
         };
 
@@ -34,5 +35,14 @@ public class GestorTokenJwt
             );
 
         return new JwtSecurityTokenHandler().WriteToken(securityToken);
+    }
+
+    public static string? ObtenerUserIdDeToken(string jwtToken)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var securityToken = (JwtSecurityToken)tokenHandler.ReadToken(jwtToken);
+        var userId = securityToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+
+        return userId;
     }
 }
