@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
+[Route("Account")]
 public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -14,6 +16,7 @@ public class AccountController : Controller
         _context = context;
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -27,8 +30,9 @@ public class AccountController : Controller
         return Ok(accounts);
     }
     
-    [HttpGet]
-    public async Task<IActionResult> GetById(int id)
+    [Authorize(Policy = "Admin")]
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById([FromRoute] int id)
     {
         Account? account;
 
@@ -42,37 +46,50 @@ public class AccountController : Controller
         return Ok(account);
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpPost]
-    public IActionResult Insert([FromBody] Account account)
+    public async Task<IActionResult> Insert([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Insert(account);
-            uof.Complete();
+            await uof.AccountRepo.Insert(account);
+            await uof.Complete();
         }  
 
         return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
     } 
     
+    [Authorize(Policy = "Admin")]
     [HttpPost]
-    public IActionResult Delete([FromBody] Account account)
+    public async Task<IActionResult> Delete([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Delete(account);
-            uof.Complete();
+            var result = await uof.AccountRepo.Delete(account);
+
+            if (!result)
+                return StatusCode(500, $"No se pudo eliminar la account con id: {account.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+                                       
+            await uof.Complete();
         }
 
         return Ok();
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpPut]
-    public IActionResult Update([FromBody] Account account)
+    public async Task<IActionResult> Update([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Update(account);
-            uof.Complete();
+            var result = await uof.AccountRepo.Update(account);
+            
+            if (!result)
+                return StatusCode(500, $"No se pudo actualizar la account con id: {account.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción."); 
+                                       
+            await uof.Complete();
         }
 
         return Ok();

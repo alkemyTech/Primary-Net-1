@@ -1,14 +1,20 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Wallet_grupo1.DataAccess;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using System.Security.AccessControl;
+
 using Wallet_grupo1.Entidades;
 
 namespace Wallet_grupo1.Controllers
 {
+
     [Authorize] // solo usuarios autenticados pueden acceder a este controlador
+    [Route("Transaction")]
+
     public class TransactionController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -31,6 +37,7 @@ namespace Wallet_grupo1.Controllers
         }
 
         [HttpGet("{id}")]
+
         public async Task<ActionResult<Transaction>> GetById([FromRoute] int id)
         {
             // obtener el ID del usuario autenticado
@@ -65,12 +72,15 @@ namespace Wallet_grupo1.Controllers
 
             using (var uof = new UnitOfWork(_context))
             {
+
                 uof.TransactionRepo.Insert(transaction);
                 await uof.CompleteAsync();
+
             }
 
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, transaction);
         }
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
@@ -80,6 +90,7 @@ namespace Wallet_grupo1.Controllers
 
             using (var uof = new UnitOfWork(_context))
             {
+
                 var transaction = await uof.TransactionRepo.GetById(id);
                 if (transaction == null)
                 {
@@ -94,16 +105,19 @@ namespace Wallet_grupo1.Controllers
 
                 uof.TransactionRepo.Delete(transaction);
                 await uof.CompleteAsync();
+
             }
 
             return Ok();
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Transaction transaction)
         {
             if (id != transaction.Id)
             {
+
                 return BadRequest();
             }
 
@@ -121,6 +135,7 @@ namespace Wallet_grupo1.Controllers
 
                 uof.TransactionRepo.Update(existingTransaction);
                 await uof.CompleteAsync();
+
             }
 
             return Ok();

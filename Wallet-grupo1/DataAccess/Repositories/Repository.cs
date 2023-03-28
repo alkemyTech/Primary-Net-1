@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Wallet_grupo1.Entidades;
 
 namespace Wallet_grupo1.DataAccess.Repositories;
 

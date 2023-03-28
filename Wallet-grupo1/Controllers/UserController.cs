@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Wallet_grupo1.DataAccess;
@@ -21,8 +21,11 @@ namespace Wallet_grupo1.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> InsertUser(User user)
         {
+
             await _unitOfWork.UserRepo.Insert(user);
             await _unitOfWork.CompleteAsync();
+              Unit.Dispose();
+
             return Ok(user);
         }
 
@@ -35,10 +38,17 @@ namespace Wallet_grupo1.Controllers
                 return Ok(users);
             }
             else
+
             {
+
                 return NotFound();
             }
+
+            Unit.Dispose();
+            return users;
+            
         }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById(int id)
@@ -47,13 +57,16 @@ namespace Wallet_grupo1.Controllers
 
             if (user != null)
             {
+
                 return Ok(user);
             }
             else
+
             {
                 return NotFound();
             }
         }
+
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
@@ -91,6 +104,7 @@ namespace Wallet_grupo1.Controllers
             existingUser.FechaNacimiento = user.FechaNacimiento;
 
             await _unitOfWork.CompleteAsync();
+
 
             return Ok();
         }
