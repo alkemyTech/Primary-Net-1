@@ -24,12 +24,13 @@ namespace Wallet_grupo1.DataAccess.Repositories
                     return false;
                 }
 
-                user.first_name = entity.first_name;
-                user.last_name = entity.last_name;
-                user.password = entity.password;
-                user.email = entity.email;
-                user.points = entity.points;
-                user.rol_Id = entity.rol_Id;
+                user.First_name = entity.First_name;
+                user.Last_name = entity.Last_name;
+                user.Password = entity.Password;
+                user.Email = entity.Email;
+                user.Points = entity.Points;
+                user.Rol_Id = entity.Rol_Id;
+                user.Rol = entity.Rol;
                 
                 _context.Users.Update(user);
 

@@ -7,10 +7,10 @@ namespace Wallet_grupo1.DataAccess.Repositories
 {
     public class TransactionRepository : Repository<Transaction>
     {
-        private readonly ApplicationDbContext _context;
+        
         public TransactionRepository(ApplicationDbContext context) : base(context)
         {
-            _context = context;
+       
         }
 
         public override async Task<bool> Delete(Transaction transaction)
@@ -27,7 +27,7 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 return true;
                 
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -59,7 +59,7 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 return true;
 
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return false;
             }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Security.AccessControl;
-using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
 
