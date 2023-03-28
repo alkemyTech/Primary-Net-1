@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using System.Security.AccessControl;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
-using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers
 {
+    [Authorize] // solo usuarios autenticados pueden acceder a este controlador
     public class TransactionController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -17,7 +19,7 @@ namespace Wallet_grupo1.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<List<Transaction>>> GetAll()
         {
             List<Transaction> transactions;
             using (var uof = new UnitOfWork(_context))
@@ -28,55 +30,97 @@ namespace Wallet_grupo1.Controllers
             return Ok(transactions);
         }
 
-        [HttpGet("{id: int}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Transaction>> GetById([FromRoute] int id)
         {
-            Transaction? transaction;
+            // obtener el ID del usuario autenticado
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            using(var uof = new UnitOfWork(_context))
+            Transaction transaction;
+
+            using (var uof = new UnitOfWork(_context))
             {
                 transaction = await uof.TransactionRepo.GetById(id);
             }
 
-            if (transaction == null) 
+            if (transaction == null)
             {
                 return NotFound();
+            }
+
+            // verificar si la transacción pertenece al usuario autenticado
+            if (transaction.UserId != userId)
+            {
+                return Forbid();
             }
 
             return Ok(transaction);
         }
 
         [HttpPost]
-        public IActionResult Insert([FromBody]Transaction transaction) 
+        public async Task<ActionResult<Transaction>> Insert(Transaction transaction)
         {
-            using(var uof = new UnitOfWork(_context))
+            // establecer el ID del usuario autenticado como propietario de la transacción
+            transaction.UserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            using (var uof = new UnitOfWork(_context))
             {
                 uof.TransactionRepo.Insert(transaction);
-                uof.Complete();
+                await uof.CompleteAsync();
             }
 
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id }, transaction);
         }
 
-        [HttpPost]
-        public IActionResult Delete([FromBody] Transaction transaction)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            // obtener el ID del usuario autenticado 
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             using (var uof = new UnitOfWork(_context))
             {
+                var transaction = await uof.TransactionRepo.GetById(id);
+                if (transaction == null)
+                {
+                    return NotFound();
+                }
+
+                // verificar si la transacción pertenece al usuario autenticado
+                if (transaction.UserId != userId)
+                {
+                    return Forbid();
+                }
+
                 uof.TransactionRepo.Delete(transaction);
-                uof.Complete();
+                await uof.CompleteAsync();
             }
 
             return Ok();
         }
 
-        [HttpPost]
-        public IActionResult Update([FromBody]Transaction transaction)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Transaction transaction)
         {
-            using ( var uof = new UnitOfWork(_context))
+            if (id != transaction.Id)
             {
-                uof.TransactionRepo.Update(transaction);
-                uof.Complete();
+                return BadRequest();
+            }
+
+            using (var uof = new UnitOfWork(_context))
+            {
+                var existingTransaction = await uof.TransactionRepo.GetById(id);
+                if (existingTransaction == null)
+                {
+                    return NotFound();
+                }
+
+                existingTransaction.Amount = transaction.Amount;
+                existingTransaction.Description = transaction.Description;
+                existingTransaction.Type = transaction.Type;
+
+                uof.TransactionRepo.Update(existingTransaction);
+                await uof.CompleteAsync();
             }
 
             return Ok();
