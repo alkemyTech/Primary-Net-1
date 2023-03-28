@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1;
 using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
@@ -16,6 +17,7 @@ public class CatalogueController : Controller
     }
 
     // Obtiene todos los catálogos
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -30,6 +32,7 @@ public class CatalogueController : Controller
     }
 
     // Obtiene un catálogo por su ID
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetById(int id)
     {

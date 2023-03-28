@@ -61,7 +61,6 @@ public class AccountController : Controller
         return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
     } 
     
-    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Delete([FromBody] Account account)
     {
@@ -79,7 +78,6 @@ public class AccountController : Controller
         return Ok();
     }
     
-    [Authorize(Policy = "Admin")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Account account)
     {

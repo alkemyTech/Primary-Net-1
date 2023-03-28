@@ -1,4 +1,6 @@
 ﻿//using Microsoft.AspNetCore.Authorization;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
@@ -16,6 +18,7 @@ public class RoleController : Controller
         _context = context;
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -29,6 +32,7 @@ public class RoleController : Controller
         return Ok(rolesPresent);
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {

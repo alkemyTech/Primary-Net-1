@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.DataAccess.Repositories;
 using Wallet_grupo1.Entidades;
@@ -29,7 +30,8 @@ namespace Wallet_grupo1.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = user.Id}, user);
         }
-
+    
+        [Authorize(Policy = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
         {
@@ -43,7 +45,7 @@ namespace Wallet_grupo1.Controllers
             return Ok(users);
         }
 
-
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById([FromRoute] int id)
         {
