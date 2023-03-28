@@ -6,6 +6,7 @@ using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers
 {
+    [Route("Transaction")]
     public class TransactionController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -27,7 +28,7 @@ namespace Wallet_grupo1.Controllers
             return Ok(transactions);
         }
 
-        [HttpGet("{id: int}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             Transaction? transaction;
