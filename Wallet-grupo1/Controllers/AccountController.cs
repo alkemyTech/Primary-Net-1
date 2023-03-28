@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
@@ -59,7 +61,6 @@ public class AccountController : Controller
         return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
     } 
     
-    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Delete([FromBody] Account account)
     {
@@ -77,7 +78,6 @@ public class AccountController : Controller
         return Ok();
     }
     
-    [Authorize(Policy = "Admin")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Account account)
     {

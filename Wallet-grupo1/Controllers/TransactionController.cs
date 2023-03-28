@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using Wallet_grupo1.DataAccess;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Security.AccessControl;
-
+using Microsoft.IdentityModel.Tokens;
 using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers
@@ -24,23 +25,55 @@ namespace Wallet_grupo1.Controllers
         {
             _context = context;
         }
-
+        
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<Transaction>>> GetAll()
         {
+            //Get token del header y validacion
+            string? authorizationHeader = Request.Headers["Authorization"];
+
+            if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+
+            if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+                return Unauthorized("No se proporcionó un token de seguridad válido.");
+        
+            string jwtToken = authorizationHeader.Substring(7);
+        
+            // Extraigo el userid del token (es un claim)
+            var userIdToken = GestorTokenJwt.ObtenerUserIdDeToken(jwtToken);
+            if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+            
             List<Transaction> transactions;
             using (var uof = new UnitOfWork(_context))
             {
                 transactions = await uof.TransactionRepo.GetAll();
             }
 
-            return Ok(transactions);
+            var transactionsDeUser = 
+                transactions.FindAll(x => x.Account.User.Id == userIdToken).OrderByDescending(x => x.Date);
+        
+            return Ok(transactionsDeUser);
         }
-
+        
+        [Authorize]
         [HttpGet("{id}")]
-
         public async Task<ActionResult<Transaction>> GetById([FromRoute] int id)
         {
+            //Get token del header y validacion
+            string? authorizationHeader = Request.Headers["Authorization"];
+
+            if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+
+            if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+                return Unauthorized("No se proporcionó un token de seguridad válido.");
+        
+            string jwtToken = authorizationHeader.Substring(7);
+        
+            // Extraigo el userid del token (es un claim)
+            var userIdToken = GestorTokenJwt.ObtenerUserIdDeToken(jwtToken);
+            if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+            
             Transaction? transaction;
             using (var uof = new UnitOfWork(_context))
             {
@@ -48,6 +81,8 @@ namespace Wallet_grupo1.Controllers
             }
 
             if (transaction is null) return NotFound();
+            if (!transaction.validateUser(userIdToken)) 
+                return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta.");
 
             return Ok(transaction);
         }
