@@ -47,13 +47,10 @@ namespace Wallet_grupo1.Controllers
             List<Transaction> transactions;
             using (var uof = new UnitOfWork(_context))
             {
-                transactions = await uof.TransactionRepo.GetAll();
+                transactions = await uof.TransactionRepo.TransactionsOfUser(userIdToken);
             }
 
-            var transactionsDeUser = 
-                transactions.FindAll(x => x.Account.User.Id == userIdToken).OrderByDescending(x => x.Date);
-        
-            return Ok(transactionsDeUser);
+            return Ok(transactions);
         }
         
         [Authorize]

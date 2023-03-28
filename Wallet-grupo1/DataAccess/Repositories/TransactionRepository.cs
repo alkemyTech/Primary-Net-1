@@ -13,6 +13,12 @@ namespace Wallet_grupo1.DataAccess.Repositories
        
         }
 
+        public async Task<List<Transaction>> TransactionsOfUser(int userId)
+        {
+            return await _context.Transactions.Where(x => x.Account.User.Id == userId).
+                OrderByDescending(x => x.Date).ToListAsync();
+        }
+
         public override async Task<bool> Delete(Transaction transaction)
         {
             try
