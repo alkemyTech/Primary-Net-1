@@ -117,9 +117,7 @@ namespace Wallet_grupo1.Migrations
                     Amount = table.Column<decimal>(type: "decimal(2,0)", precision: 2, nullable: false),
                     TransactionType = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    AccountId = table.Column<int>(type: "int", nullable: false),
-                    To_accountId = table.Column<int>(type: "int", nullable: false)
+                    AccountId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,12 +125,6 @@ namespace Wallet_grupo1.Migrations
                     table.ForeignKey(
                         name: "FK_Transactions_Accounts_AccountId",
                         column: x => x.AccountId,
-                        principalTable: "Accounts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Transactions_Accounts_To_accountId",
-                        column: x => x.To_accountId,
                         principalTable: "Accounts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -152,11 +144,6 @@ namespace Wallet_grupo1.Migrations
                 name: "IX_Transactions_AccountId",
                 table: "Transactions",
                 column: "AccountId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Transactions_To_accountId",
-                table: "Transactions",
-                column: "To_accountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_RolId",

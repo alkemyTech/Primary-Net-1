@@ -16,10 +16,7 @@ namespace Wallet_grupo1
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<FixedTermDeposit>().HasOne(e => e.Account).WithMany().OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Transaction>().HasOne(e => e.Account).WithMany().OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Account>().HasOne(e => e.User).WithMany().OnDelete(DeleteBehavior.NoAction);
-            modelBuilder.Entity<Transaction>().HasOne(e => e.To_account).WithMany().OnDelete(DeleteBehavior.NoAction);
+            
         }
 
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)

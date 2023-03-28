@@ -143,22 +143,12 @@ namespace Wallet_grupo1.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("To_accountId")
-                        .HasColumnType("int");
-
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("To_accountId");
 
                     b.ToTable("Transactions");
                 });
@@ -207,7 +197,7 @@ namespace Wallet_grupo1.Migrations
             modelBuilder.Entity("Wallet_grupo1.Entidades.Account", b =>
                 {
                     b.HasOne("Wallet_grupo1.Entidades.User", "User")
-                        .WithMany()
+                        .WithMany("Accounts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -234,15 +224,7 @@ namespace Wallet_grupo1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Wallet_grupo1.Entidades.Account", "To_account")
-                        .WithMany()
-                        .HasForeignKey("To_accountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Account");
-
-                    b.Navigation("To_account");
                 });
 
             modelBuilder.Entity("Wallet_grupo1.Entidades.User", b =>
@@ -254,6 +236,11 @@ namespace Wallet_grupo1.Migrations
                         .IsRequired();
 
                     b.Navigation("Rol");
+                });
+
+            modelBuilder.Entity("Wallet_grupo1.Entidades.User", b =>
+                {
+                    b.Navigation("Accounts");
                 });
 #pragma warning restore 612, 618
         }

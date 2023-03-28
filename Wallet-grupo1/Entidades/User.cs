@@ -19,7 +19,7 @@ namespace Wallet_grupo1.Entidades
         
         public Role Rol { get; set; } = null!;
 
-        
+        public List<Account> Accounts { get; set; } = new List<Account>();
 
     }
 }

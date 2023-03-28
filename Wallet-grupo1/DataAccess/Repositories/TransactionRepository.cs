@@ -50,9 +50,9 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 {
                     existingTransaction.Amount = transaction.Amount;
                     existingTransaction.Date = transaction.Date;
-                    existingTransaction.Type = transaction.Type;
-                    existingTransaction.Account = transaction.Account;
-                    existingTransaction.To_account = transaction.To_account;
+                    existingTransaction.TransactionType= transaction.TransactionType;
+                   
+                   
                    
 
                 }

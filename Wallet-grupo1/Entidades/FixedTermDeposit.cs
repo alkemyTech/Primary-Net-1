@@ -9,7 +9,7 @@ namespace Wallet_grupo1.Entidades
       
         public int Id { get; set; }
 
-        public Account Account { get; set; } = null!;
+        public Account Account { get; set; } = new Account();
 
         public decimal Amount { get; set; }
 

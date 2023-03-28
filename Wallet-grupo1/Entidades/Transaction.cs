@@ -13,11 +13,7 @@ public class Transaction
 
     public DateTime Date { get; set; }
 
-    public string Type { get; set; } = null!;
-
     public Account Account { get; set; } = null!;
-
-    public Account To_account { get; set; } = null!;
 }
 
 

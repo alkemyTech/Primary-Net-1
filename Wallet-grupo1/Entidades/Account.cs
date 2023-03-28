@@ -16,5 +16,9 @@ namespace Wallet_grupo1.Entidades
         public bool Is_blocked { get; set; }
 
         public User User { get; set; } = null!;
+
+        List<AccountTransaction> TransactionList { get; set; } = new List<AccountTransaction>();
+
+        
     }
 }
