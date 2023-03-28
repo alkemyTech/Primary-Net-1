@@ -26,7 +26,7 @@ public class AccountRepository : Repository<Account>
             if (account is null) return false;
 
             account.Money = entity.Money;
-            account.IsBlocked = entity.IsBlocked;
+            account.Is_blocked = entity.Is_blocked;
 
             _context.Accounts.Update(account);
         }
