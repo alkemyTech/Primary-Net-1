@@ -3,6 +3,9 @@ using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
 
+namespace Wallet_grupo1.Controllers;
+
+[Route("Catalogue")]
 public class CatalogueController : Controller
 {
     private readonly ApplicationDbContext _context;

@@ -60,6 +60,17 @@ namespace Wallet_grupo1.DataAccess.Repositories
 
             return true;
         }
-
+        
+        /// <summary>
+        ///  Método para validar credenciales. Si son válidas devuelve el User correspondiente, si no, devuelve NULL.
+        /// </summary>
+        /// <param name="email">EMAIL correspondiente al User que se quiere loggear</param>
+        /// <param name="pwd">pwd asociada a ese mail y User</param>
+        /// <returns>User en caso de ser correctas las credenciales. NULL en caso de que no.</returns>
+        public async Task<User?> AuthenticateCredentials(string email, string pwd)
+        {
+            return await _context.Users.SingleOrDefaultAsync(x => x.Email == email && x.Password == pwd);
+        }
+        
     }
 }

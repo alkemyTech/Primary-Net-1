@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
+[Route("Account")]
 public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -14,6 +16,7 @@ public class AccountController : Controller
         _context = context;
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -27,6 +30,7 @@ public class AccountController : Controller
         return Ok(accounts);
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
@@ -42,6 +46,7 @@ public class AccountController : Controller
         return Ok(account);
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Insert([FromBody] Account account)
     {
@@ -54,6 +59,7 @@ public class AccountController : Controller
         return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
     } 
     
+    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Delete([FromBody] Account account)
     {
@@ -71,6 +77,7 @@ public class AccountController : Controller
         return Ok();
     }
     
+    [Authorize(Policy = "Admin")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Account account)
     {
