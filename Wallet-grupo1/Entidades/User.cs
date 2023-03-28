@@ -19,7 +19,7 @@ namespace Wallet_grupo1.Entidades
         
         public Role Rol { get; set; } = null!;
 
-        public int Rol_Id { get; set; }
+        
 
     }
 }

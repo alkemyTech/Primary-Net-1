@@ -43,9 +43,6 @@ namespace Wallet_grupo1.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.Property<int>("User_id")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
@@ -87,6 +84,9 @@ namespace Wallet_grupo1.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccountId")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Amount")
                         .HasPrecision(2)
                         .HasColumnType("decimal");
@@ -97,23 +97,9 @@ namespace Wallet_grupo1.Migrations
                     b.Property<DateTime>("Creation_date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("To_accountId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("To_account_id")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("User_id")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("To_accountId");
-
-                    b.HasIndex("UserId");
+                    b.HasIndex("AccountId");
 
                     b.ToTable("FixedTermDeposits");
                 });
@@ -131,10 +117,8 @@ namespace Wallet_grupo1.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -152,9 +136,6 @@ namespace Wallet_grupo1.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Account_id")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Amount")
                         .HasPrecision(2)
                         .HasColumnType("decimal");
@@ -165,7 +146,7 @@ namespace Wallet_grupo1.Migrations
                     b.Property<int>("To_accountId")
                         .HasColumnType("int");
 
-                    b.Property<int>("To_account_id")
+                    b.Property<int>("TransactionType")
                         .HasColumnType("int");
 
                     b.Property<string>("Type")
@@ -173,16 +154,11 @@ namespace Wallet_grupo1.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 
                     b.HasIndex("To_accountId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Transactions");
                 });
@@ -221,9 +197,6 @@ namespace Wallet_grupo1.Migrations
                     b.Property<int>("RolId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Rol_Id")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("RolId");
@@ -236,7 +209,7 @@ namespace Wallet_grupo1.Migrations
                     b.HasOne("Wallet_grupo1.Entidades.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -244,21 +217,13 @@ namespace Wallet_grupo1.Migrations
 
             modelBuilder.Entity("Wallet_grupo1.Entidades.FixedTermDeposit", b =>
                 {
-                    b.HasOne("Wallet_grupo1.Entidades.Account", "To_account")
+                    b.HasOne("Wallet_grupo1.Entidades.Account", "Account")
                         .WithMany()
-                        .HasForeignKey("To_accountId")
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Wallet_grupo1.Entidades.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("To_account");
-
-                    b.Navigation("User");
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("Wallet_grupo1.Entidades.Transaction", b =>
@@ -272,20 +237,12 @@ namespace Wallet_grupo1.Migrations
                     b.HasOne("Wallet_grupo1.Entidades.Account", "To_account")
                         .WithMany()
                         .HasForeignKey("To_accountId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Wallet_grupo1.Entidades.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Account");
 
                     b.Navigation("To_account");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Wallet_grupo1.Entidades.User", b =>

@@ -15,8 +15,6 @@ namespace Wallet_grupo1.Entidades
 
         public bool Is_blocked { get; set; }
 
-        public int User_id { get; set; }
-
         public User User { get; set; } = null!;
     }
 }

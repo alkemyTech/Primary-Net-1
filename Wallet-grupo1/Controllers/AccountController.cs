@@ -42,36 +42,36 @@ public class AccountController : Controller
     }
     
     [HttpPost]
-    public IActionResult Insert([FromBody] Account account)
+    public async Task<ActionResult> Insert([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Insert(account);
-            uof.Complete();
+            await uof.AccountRepo.Insert(account);
+            await uof.Complete();
         }  
 
         return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
     } 
     
     [HttpPost]
-    public IActionResult Delete([FromBody] Account account)
+    public async Task<ActionResult> Delete([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Delete(account);
-            uof.Complete();
+            await uof.AccountRepo.Delete(account);
+            await uof.Complete();
         }
 
         return Ok();
     }
     
     [HttpPut]
-    public IActionResult Update([FromBody] Account account)
+    public async Task<ActionResult> Update([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            uof.AccountRepo.Update(account);
-            uof.Complete();
+            await uof.AccountRepo.Update(account);
+            await uof.Complete();
         }
 
         return Ok();

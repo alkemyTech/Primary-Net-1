@@ -9,19 +9,21 @@ public class Transaction
 
     public decimal Amount { get; set; }
 
+    public TransactionType TransactionType { get; set; }
+
     public DateTime Date { get; set; }
 
     public string Type { get; set; } = null!;
 
-    public int Account_id { get; set; }
-
     public Account Account { get; set; } = null!;
 
-    public int User_id;
-
-    public User User { get; set; } = null!;
-
-    public int To_account_id { get; set; }
-
     public Account To_account { get; set; } = null!;
+}
+
+
+
+public enum TransactionType
+{
+    Payment,
+    Deposit
 }

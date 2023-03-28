@@ -29,8 +29,8 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 user.Password = entity.Password;
                 user.Email = entity.Email;
                 user.Points = entity.Points;
-                user.Rol_Id = entity.Rol_Id;
                 user.Rol = entity.Rol;
+               
                 
                 _context.Users.Update(user);
 
