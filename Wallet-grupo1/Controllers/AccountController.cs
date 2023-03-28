@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
 
@@ -26,8 +27,8 @@ public class AccountController : Controller
         return Ok(accounts);
     }
     
-    [HttpGet]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById([FromRoute] int id)
     {
         Account? account;
 
@@ -42,7 +43,7 @@ public class AccountController : Controller
     }
     
     [HttpPost]
-    public async Task<ActionResult> Insert([FromBody] Account account)
+    public async Task<IActionResult> Insert([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
@@ -54,11 +55,16 @@ public class AccountController : Controller
     } 
     
     [HttpPost]
-    public async Task<ActionResult> Delete([FromBody] Account account)
+    public async Task<IActionResult> Delete([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            await uof.AccountRepo.Delete(account);
+            var result = await uof.AccountRepo.Delete(account);
+
+            if (!result)
+                return StatusCode(500, $"No se pudo eliminar la account con id: {account.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+                                       
             await uof.Complete();
         }
 
@@ -66,11 +72,16 @@ public class AccountController : Controller
     }
     
     [HttpPut]
-    public async Task<ActionResult> Update([FromBody] Account account)
+    public async Task<IActionResult> Update([FromBody] Account account)
     {
         using (var uof = new UnitOfWork(_context))
         {
-            await uof.AccountRepo.Update(account);
+            var result = await uof.AccountRepo.Update(account);
+            
+            if (!result)
+                return StatusCode(500, $"No se pudo actualizar la account con id: {account.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción."); 
+                                       
             await uof.Complete();
         }
 
