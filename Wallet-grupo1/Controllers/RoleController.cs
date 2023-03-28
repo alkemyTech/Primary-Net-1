@@ -81,7 +81,7 @@ public class RoleController : Controller
             var result = await uof.RoleRepo.Update(roleToUpdate);
             
             if (!result)
-                return StatusCode(500, $"No se pudo actualizar la account con id: {roleToUpdate.Id}" +
+                return StatusCode(500, $"No se pudo actualizar el rol con id: {roleToUpdate.Id}" +
                                        $" porque no existe o porque no se pudo completar la transacción."); 
                                        
             await uof.Complete();
