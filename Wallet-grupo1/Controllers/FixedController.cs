@@ -13,7 +13,7 @@ public class FixedController : Controller
     {
         _context = context;
     }
-    
+    //Obtenemos todos los Fixed
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -26,7 +26,7 @@ public class FixedController : Controller
 
         return Ok(Fixed);
     }
-    
+    // Obtiene un Fixed mediante el ID
     [HttpGet]
     public async Task<IActionResult> GetById(int id)
     {
@@ -53,7 +53,7 @@ public class FixedController : Controller
 
         return CreatedAtAction(nameof(GetById), new { id = Fixed.Id}, Fixed);
     } 
-    
+     // Elimina un Fixed existente
     [HttpPost]
     public IActionResult Delete([FromBody] FixedTermDeposit Fixed)
     {
@@ -66,6 +66,8 @@ public class FixedController : Controller
         return Ok();
     }
     [HttpPut]
+
+    ///Actualiza un Fixed existente
     public IActionResult Update([FromBody] FixedTermDeposit Fixed)
     {
         using (var uof = new UnitOfWork(_context))
