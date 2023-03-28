@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
@@ -64,7 +64,7 @@ public class AccountController : Controller
             if (!result)
                 return StatusCode(500, $"No se pudo eliminar la account con id: {account.Id}" +
                                        $" porque no existe o porque no se pudo completar la transacción.");
-            
+                                       
             await uof.Complete();
         }
 
@@ -80,8 +80,8 @@ public class AccountController : Controller
             
             if (!result)
                 return StatusCode(500, $"No se pudo actualizar la account con id: {account.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción.");
-            
+                                       $" porque no existe o porque no se pudo completar la transacción."); 
+                                       
             await uof.Complete();
         }
 

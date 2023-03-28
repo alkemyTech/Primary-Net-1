@@ -23,27 +23,33 @@ namespace Wallet_grupo1.Controllers
         {
             await Unit.UserRepo.Insert(user);
             await Unit.Complete();
+            Unit.Dispose();
             return Ok(user);
         }
 
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
         {
-            var users = await Unit.UserRepo.GetAll();   
-            if(users != null)
+            var users = await Unit.UserRepo.GetAll();
+            if (users == null)
             {
-                return users;
-            }else
-            {
+
                 return NotFound();
             }
+
+            Unit.Dispose();
+            return users;
+            
         }
 
-        public async Task<ActionResult<User>> GetById(int id)
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<User>> GetById( [FromRoute]int id)
         {
             var user = await Unit.UserRepo.GetById(id);
 
             if(user != null)
             {
+                Unit.Dispose();
                 return user;
             }else
             {
@@ -51,17 +57,21 @@ namespace Wallet_grupo1.Controllers
             }    
         }
 
+        [HttpDelete]
         public async Task<ActionResult> Delete(User user)
         {
             await Unit.UserRepo.Delete(user);
             await Unit.Complete();
+            Unit.Dispose();
             return Ok();
         }
 
+        [HttpPut]
         public async Task<ActionResult> Update(User user)
         {
             await Unit.UserRepo.Update(user);
             await Unit.Complete();
+            Unit.Dispose();
             return Ok();
         }
        

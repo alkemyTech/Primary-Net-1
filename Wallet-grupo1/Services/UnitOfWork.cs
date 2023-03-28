@@ -1,5 +1,4 @@
-﻿using Wallet_grupo1.DataAccess;
-using Wallet_grupo1.DataAccess.Repositories;
+﻿using Wallet_grupo1.DataAccess.Repositories;
 
 namespace Wallet_grupo1.Services;
 
