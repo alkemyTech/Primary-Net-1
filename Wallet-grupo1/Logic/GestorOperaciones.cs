@@ -37,8 +37,36 @@ public class GestorOperaciones
         }
     }
 
-    public async Task Transferir(Account account, decimal aumentoSaldo, string concept)
+    public async Task Transferir(Account account, decimal montoTransferido, string concept, bool esEnvio)
     {
-        throw new NotImplementedException();
+        // Actualizo saldo
+        if (esEnvio == true)
+        {
+            account.Money -= montoTransferido;
+        }
+        else
+        {
+            account.Money += montoTransferido;
+        }
+        
+        using (var uof = new UnitOfWork(_context))
+        {
+            await uof.AccountRepo.Update(account);
+        }
+
+        // Loggeamos la transaction
+        var transaction = new Transaction()
+        {
+            Amount = montoTransferido,
+            TransactionType = TransactionType.Payment,
+            Account = account,
+            Date = DateTime.Now,
+            Concept = concept
+        };
+
+        using (var uof = new UnitOfWork(_context))
+        {
+            await uof.TransactionRepo.Insert(transaction);
+        }
     }
 }
