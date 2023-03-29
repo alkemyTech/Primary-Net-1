@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.DataAccess.Repositories;
 using Wallet_grupo1.Entidades;
@@ -6,64 +9,96 @@ using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers
 {
-    [ApiController]
-    [Route("/api/user")]
+    [Route("User")]
     public class UserController : Controller
     {
+        private readonly ApplicationDbContext _context;
 
-        IUnitOfWork Unit;
-
-        public UserController(IUnitOfWork unit)
+        public UserController(ApplicationDbContext context)
         {
-            this.Unit = unit;
+            _context = context;
         }
 
         [HttpPost]
-        public async Task<ActionResult> InsertUser(User user)
+        public async Task<ActionResult<User>> InsertUser(User user)
         {
-            await Unit.UserRepo.Insert(user);
-            await Unit.Complete();
+            using (var uof = new UnitOfWork(_context))
+            {
+                await uof.UserRepo.Insert(user);
+                await uof.Complete();
+            }  
+
+            return CreatedAtAction(nameof(GetById), new { id = user.Id}, user);
+        }
+    
+        [Authorize(Policy = "Admin")]
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<User>>> GetAll()
+        {
+            List<User> users;
+        
+            using (var uof = new UnitOfWork(_context))
+            {
+                users = await uof.UserRepo.GetAll();
+            }
+
+            return Ok(users);
+        }
+
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<User>> GetById([FromRoute] int id)
+        {
+            User? user;
+
+            using (var uof = new UnitOfWork(_context))
+            {
+                user = await uof.UserRepo.GetById(id);
+            }
+
+            if (user is null) return NotFound();
+        
             return Ok(user);
         }
 
-        public async Task<ActionResult<IEnumerable<User>>> GetAll()
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete([FromRoute] int id)
         {
-            var users = await Unit.UserRepo.GetAll();   
-            if(users != null)
+            
+            using (var uof = new UnitOfWork(_context))
             {
-                return users;
-            }else
-            {
-                return NotFound();
+                var user = await uof.UserRepo.GetById(id);
+
+                if (user is null) return NotFound($"No se encontro ningun user con el id: {id}.");
+                
+                var result = await uof.UserRepo.Delete(user);
+
+                if (!result)
+                    return StatusCode(500, $"No se pudo eliminar el user con id: {id}" +
+                                           $" porque no existe o porque no se pudo completar la transacción.");
+                                       
+                await uof.Complete();
             }
-        }
 
-        public async Task<ActionResult<User>> GetById(int id)
-        {
-            var user = await Unit.UserRepo.GetById(id);
-
-            if(user != null)
-            {
-                return user;
-            }else
-            {
-                return NotFound();
-            }    
-        }
-
-        public async Task<ActionResult> Delete(User user)
-        {
-            await Unit.UserRepo.Delete(user);
-            await Unit.Complete();
             return Ok();
         }
 
-        public async Task<ActionResult> Update(User user)
+        [HttpPut("{id}")]
+        public async Task<ActionResult> Update(int id, User user)
         {
-            await Unit.UserRepo.Update(user);
-            await Unit.Complete();
+            using (var uof = new UnitOfWork(_context))
+            {
+                var result = await uof.UserRepo.Update(user);
+            
+                if (!result)
+                    return StatusCode(500, $"No se pudo actualizar el user con id: {user.Id}" +
+                                           $" porque no existe o porque no se pudo completar la transacción."); 
+                                       
+                await uof.Complete();
+            }
+            
             return Ok();
         }
-       
     }
 }

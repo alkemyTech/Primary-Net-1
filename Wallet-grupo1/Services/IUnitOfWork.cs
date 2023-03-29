@@ -9,6 +9,9 @@ public interface IUnitOfWork : IDisposable
     public TransactionRepository TransactionRepo { get; }
     public AccountRepository AccountRepo { get; }
     public FixedTermDepositRepository FixedRepo {get;}
+    public CatalogueRepository CatalogueRepo { get; }
+    public RoleRepository RoleRepo { get; }
+
 
     Task<int> Complete();
 }

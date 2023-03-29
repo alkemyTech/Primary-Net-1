@@ -4,33 +4,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Wallet_grupo1.Entidades
 {
-    [Table("Accounts")]
     public class Account
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
+       
         public int Id { get; set; }
+       
+        public DateTime Creation_date { get; set; }
 
-        [Required]
-        [Column("creationDate")]
-        public DateTime CreationDate { get; set; }
-
-        [Required]
-        [Precision(18,2)]
-        [Column("money")]
         public decimal Money { get; set; }
 
-        [Required]
-        [Column("isBlocked")]
-        public bool IsBlocked { get; set; }
+        public bool Is_blocked { get; set; }
 
+        public User User { get; set; } = null!;
 
-        [Column("user_id")]
-        public int UserId { get; set; }
+        List<AccountTransaction> TransactionList { get; set; } = new List<AccountTransaction>();
 
-        [ForeignKey("user_id")]
-        [NotMapped]
-        public virtual User User{ get; set; }
+        
+    public bool validateUser(int id)
+    {
+        return this.User.Id == id;
     }
 }
