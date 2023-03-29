@@ -167,9 +167,7 @@ public class AccountController : Controller
             return Forbid("La cuenta no pertenece al usuario loggeado.");
 
         // Delego al gestor la logica del deposito.
-        // Si es un envio va true, caso contrario si se recibe la transferencia es false
-        await new GestorOperaciones(_context).Transferir(account, montoTransferido, concept, true);
-        await new GestorOperaciones(_context).Transferir(toAccount, montoTransferido, concept, false);
+        await new GestorOperaciones(_context).Transferir(account, toAccount, montoTransferido, concept);
 
         return Ok($"Transferencia realizada con éxito.");
     }
