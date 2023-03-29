@@ -6,9 +6,9 @@ namespace Wallet_grupo1.Entidades
 {
     public class Account
     {
-       
+
         public int Id { get; set; }
-       
+
         public DateTime Creation_date { get; set; }
 
         public decimal Money { get; set; }
@@ -19,9 +19,11 @@ namespace Wallet_grupo1.Entidades
 
         List<AccountTransaction> TransactionList { get; set; } = new List<AccountTransaction>();
 
-        
-    public bool validateUser(int id)
-    {
-        return this.User.Id == id;
+
+        public bool validateUser(int id)
+        {
+            return this.User.Id == id;
+        }
+
     }
 }
