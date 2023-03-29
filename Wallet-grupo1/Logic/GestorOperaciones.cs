@@ -57,6 +57,7 @@ public class GestorOperaciones
             Amount = montoTransferido,
             TransactionType = TransactionType.Payment,
             Account = account,
+            //toAccount = toAccount,
             Date = DateTime.Now,
             Concept = concept
         };
