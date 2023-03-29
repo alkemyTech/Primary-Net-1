@@ -135,5 +135,19 @@ namespace Wallet_grupo1.Controllers
 
             return Ok();
         }
+        [HttpGet("{userId}")]
+        public async Task<List<Transaction>> TransactionsOfUser([FromBody]int userId)
+        {
+            using (var uof = new UnitOfWork(_context))
+            {
+                var resultado = await uof.TransactionRepo.TransactionsOfUser(userId);
+
+                await uof.Complete();
+
+                return resultado;
+            }
+        
+        }
+
     }
 }
