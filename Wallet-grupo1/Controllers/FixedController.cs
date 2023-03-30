@@ -78,5 +78,19 @@ public class FixedController : Controller
 
         return Ok();
     }
+    
+    [HttpGet("{userId}")]
+    public async Task<List<FixedTermDeposit>> FixedTermsOfUser([FromBody]int userId)
+    {
+        using (var uof = new UnitOfWork(_context))
+        {
+            var resultado = await uof.FixedRepo.FixedTermsOfUser(userId);
+
+            await uof.Complete();
+
+            return resultado;
+        }
+        
+    }
 
 }
