@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Primary_Wallet_pilot.DatabaseSeeding;
-using Primary_Wallet_pilot.Entities;
+using Wallet_grupo1.DatabaseSeeding;
+using Wallet_grupo1.Entities;
 
-namespace Primary_Wallet_pilot.DataAccess.DatabaseSeeding;
+namespace Wallet_grupo1.DataAccess.DatabaseSeeding;
 
 public class RoleSeeder : IEntitySeeder
 {

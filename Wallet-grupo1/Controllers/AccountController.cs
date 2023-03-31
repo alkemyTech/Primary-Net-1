@@ -1,52 +1,54 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Wallet_grupo1.DataAccess;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
-[Route("Account")]
+[ApiController]
+[Route("/api/account")]
 public class AccountController : Controller
 {
+    private readonly UnitOfWork _unitOfWork;
     private readonly ApplicationDbContext _context;
     
-    public AccountController(ApplicationDbContext context)
+    public AccountController(UnitOfWork unitOfWork, ApplicationDbContext context)
     {
-        _context = context;
+        _unitOfWork = unitOfWork;
+        _context = context; 
     }
     
     [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        List<Account> accounts;
+        var accounts = await _unitOfWork.AccountRepo.GetAll();
         
-        using (var uof = new UnitOfWork(_context))
+        if (accounts.Count < 1)
         {
-            accounts = await uof.AccountRepo.GetAll();
+            //TODO refactor con manejo de errores y respuestas vacias
+            return NotFound();
         }
-
         return Ok(accounts);
     }
     
     [Authorize(Policy = "Admin")]
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById([FromRoute] int id)
+    public async Task<ActionResult> GetById(int id)
     {
-        Account? account;
+        var account = await _unitOfWork.AccountRepo.GetById(id);
 
-        using (var uof = new UnitOfWork(_context))
+        if (account == null)
         {
-            account = await uof.AccountRepo.GetById(id);
+            //TODO refactor con manejo de errores y respuestas vacias
+            return NotFound();
         }
-
-        if (account is null) return NotFound();
         
         return Ok(account);
     }
+
     
     [Authorize(Policy = "Admin")]
     [HttpPost]
@@ -114,19 +116,17 @@ public class AccountController : Controller
         if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
 
         Account? account;
-        using (var uof = new UnitOfWork(_context))
-        {
-            account = uof.AccountRepo.GetById(id).Result;
-        }
+        
+        account = _unitOfWork.AccountRepo.GetById(id).Result;
 
         if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {id}.");
         
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
-        if (!account.validateUser(Int32.Parse(userIdToken))) 
+        if (!ValidateUser(Int32.Parse(userIdToken))) 
             return Forbid("La cuenta no pertenece al usuario loggeado.");
 
         // Delego al gestor la logica del deposito.
-        await new GestorOperaciones(_context).Depositar(account, aumentoSaldo, concept);
+        await new GestorOperaciones(_context).Deposit(account, aumentoSaldo, concept);
 
         return Ok($"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
     }
@@ -157,17 +157,18 @@ public class AccountController : Controller
             toAccount = uof.AccountRepo.GetById(idReceptor).Result;
         }
 
+        //TODO manejo de errores y respuestas vacias
         if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {id}.");
         if (toAccount is null) return NotFound($"No se encontró ninguna cuenta con el número: {idReceptor}.");
 
         if (account.Money < montoTransferido) return StatusCode(500, $"El monto a enviar es mayor al que contiene en la cuenta.");
 
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
-        if (!account.validateUser(Int32.Parse(userIdToken)))
+        if (!account.ValidateUser(Int32.Parse(userIdToken)))
             return Forbid("La cuenta no pertenece al usuario loggeado.");
 
-        // Delego al gestor la logica del deposito.
-        await new GestorOperaciones(_context).Transferir(account, toAccount, montoTransferido, concept);
+        // Delego al gestor la logica del transferir el dinero.
+        await new GestorOperaciones(_context).Transfer(account, toAccount, montoTransferido, concept);
 
         return Ok($"Transferencia realizada con éxito.");
     }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Wallet_grupo1;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;

@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Wallet_grupo1.DataAccess;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Security.AccessControl;
 using Microsoft.IdentityModel.Tokens;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
@@ -78,7 +77,7 @@ namespace Wallet_grupo1.Controllers
             }
 
             if (transaction is null) return NotFound();
-            if (!transaction.validateUser(userIdToken)) 
+            if (!ValidateUser(Int32.Parse(userIdToken))) 
                 return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta.");
 
             return Ok(transaction);

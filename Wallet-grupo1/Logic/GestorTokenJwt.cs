@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.Logic;
 
@@ -20,9 +20,12 @@ public class GestorTokenJwt
     {
         var claims = new[]
         {
+            new Claim(JwtRegisteredClaimNames.Sub,  _config["Jwt:Subject"]),
+            new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
+            new Claim(JwtRegisteredClaimNames.Iat,  DateTime.UtcNow.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.Rol.Name.ToString())
+            new Claim(ClaimTypes.Role, user.Role.Name)
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
