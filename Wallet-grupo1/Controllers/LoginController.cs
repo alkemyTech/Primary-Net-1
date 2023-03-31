@@ -1,29 +1,27 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
-namespace Wallet_grupo1.Controllers
-{ 
-    
-[ApiController]
-[Route("/api/login")]
+namespace Wallet_grupo1.Controllers;
+
+[Route("api")]
 public class LoginController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private GestorTokenJwt _gestorToken;
+    private TokenJwtHelper _token;
     private readonly IUnitOfWork _unitOfWork;
 
-    public LoginController(IUnitOfWork unitOfWork, ApplicationDbContext context, IConfiguration config)
+    public LoginController(IUnitOfWork unitOfWork, IConfiguration config)
     {
         _unitOfWork = unitOfWork;
-        _context = context;
-        _gestorToken = new GestorTokenJwt(config);
+        _token = new TokenJwtHelper(config);
     }
     
-    [HttpPost]
+    [HttpPost("login")]
     public async Task<IActionResult> Login()
     {
         var authHeader = Request.Headers["Authorization"].ToString();
@@ -36,22 +34,19 @@ public class LoginController : Controller
 
         
         var userCredentials = await _unitOfWork.UserRepo.AuthenticateCredentials(credentials[0], credentials[1]);
-        
 
         if (userCredentials is null) return Unauthorized("Las credenciales son incorrectas.");
         
-        return Ok(_gestorToken.GenerateToken(userCredentials));
+        return Ok(_token.GenerateToken(userCredentials));
     }
     
-    [HttpPost("/api/register")]
+    [HttpPost("register")]
     public async Task<IActionResult> Register(User user)
     {
         await _unitOfWork.UserRepo.Insert(user);
 
-        var token = _gestorToken.GenerateToken(user);
+        var token = _token.GenerateToken(user);
 
         return Ok(token);
     }
-}
-
 }

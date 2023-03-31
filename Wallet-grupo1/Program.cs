@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Wallet_grupo1.Controllers;
 using Microsoft.EntityFrameworkCore;
 using Wallet_grupo1;
+using Wallet_grupo1.DataAccess;
+using Wallet_grupo1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,6 +16,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWorkService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -30,14 +34,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "Admin"));
+    options.AddPolicy("Admin", policy => policy.RequireClaim(ClaimTypes.Role, "1"));
 });
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer("name=DefaultConnection");
 });
-
 
 var app = builder.Build();
 

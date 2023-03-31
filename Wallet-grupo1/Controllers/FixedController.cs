@@ -5,38 +5,29 @@ using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
+[Route("api/deposit")]
 public class FixedController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IUnitOfWork _unitOfWorkService;
     
-    public FixedController(ApplicationDbContext context)
+    public FixedController(IUnitOfWork unitOfWork)
     {
-        _context = context;
+        _unitOfWorkService = unitOfWork;
     }
     //Obtenemos todos los Fixed
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        List<FixedTermDeposit> Fixed;
-        
-        using (var uof = new UnitOfWork(_context))
-        {
-            Fixed = await uof.FixedRepo.GetAll();
-        }
-
+        var Fixed = await _unitOfWorkService.FixedRepo.GetAll();
         return Ok(Fixed);
     }
+    
     // Obtiene un Fixed mediante el ID
-    [HttpGet]
-    public async Task<IActionResult> GetById(int id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        FixedTermDeposit? Fixed;
-
-        using (var uof = new UnitOfWork(_context))
-        {
-            Fixed = await uof.FixedRepo.GetById(id);
-        }
-
+        var Fixed = await _unitOfWorkService.FixedRepo.GetById(id);
+        
         if (Fixed is null) return NotFound();
         
         return Ok(Fixed);
@@ -45,24 +36,27 @@ public class FixedController : Controller
     [HttpPost]
     public IActionResult Insert([FromBody] FixedTermDeposit Fixed)
     {
-        using (var uof = new UnitOfWork(_context))
-        {
-            uof.FixedRepo.Insert(Fixed);
-            uof.Complete();
-        }  
+        _unitOfWorkService.FixedRepo.Insert(Fixed);
+        _unitOfWorkService.Complete();
 
         return CreatedAtAction(nameof(GetById), new { id = Fixed.Id}, Fixed);
     } 
      // Elimina un Fixed existente
-    [HttpPost]
-    public IActionResult Delete([FromBody] FixedTermDeposit Fixed)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
     {
-        using (var uof = new UnitOfWork(_context))
-        {
-            uof.FixedRepo.Delete(Fixed);
-            uof.Complete();
-        }
+        var fixedTermDeposit = await _unitOfWorkService.FixedRepo.GetById(id);
 
+        if (fixedTermDeposit is null) return NotFound($"No se encontro ningun plazo fijo con el id: {id}.");
+        
+        var result = await _unitOfWorkService.FixedRepo.Delete(fixedTermDeposit);
+
+        if (!result)
+            return StatusCode(500, $"No se pudo eliminar el plazo fijo con id: {id}" +
+                                   $" porque no existe o porque no se pudo completar la transacción.");
+                                       
+        await _unitOfWorkService.Complete();
+        
         return Ok();
     }
     [HttpPut]
@@ -70,27 +64,20 @@ public class FixedController : Controller
     ///Actualiza un Fixed existente
     public IActionResult Update([FromBody] FixedTermDeposit Fixed)
     {
-        using (var uof = new UnitOfWork(_context))
-        {
-            uof.FixedRepo.Update(Fixed);
-            uof.Complete();
-        }
-
+        _unitOfWorkService.FixedRepo.Update(Fixed);
+        _unitOfWorkService.Complete();
+        
         return Ok();
     }
     
     [HttpGet("{userId}")]
     public async Task<List<FixedTermDeposit>> FixedTermsOfUser([FromBody]int userId)
     {
-        using (var uof = new UnitOfWork(_context))
-        {
-            var resultado = await uof.FixedRepo.FixedTermsOfUser(userId);
+        var resultado = await _unitOfWorkService.FixedRepo.FixedTermsOfUser(userId);
+        await _unitOfWorkService.Complete();
 
-            await uof.Complete();
+        return resultado;
 
-            return resultado;
-        }
-        
     }
 
 }

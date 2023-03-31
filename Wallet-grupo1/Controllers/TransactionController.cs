@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Security.AccessControl;
 using Microsoft.IdentityModel.Tokens;
+using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
@@ -14,15 +16,15 @@ namespace Wallet_grupo1.Controllers
 {
 
     [Authorize] // solo usuarios autenticados pueden acceder a este controlador
-    [Route("Transaction")]
+    [Route("api/transaction")]
 
     public class TransactionController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUnitOfWork _unitOfWorkService;
 
-        public TransactionController(ApplicationDbContext context)
+        public TransactionController(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWorkService = unitOfWork;
         }
         
         [Authorize]
@@ -40,15 +42,11 @@ namespace Wallet_grupo1.Controllers
             string jwtToken = authorizationHeader.Substring(7);
         
             // Extraigo el userid del token (es un claim)
-            var userIdToken = GestorTokenJwt.ObtenerUserIdDeToken(jwtToken);
+            var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
             if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
             
-            List<Transaction> transactions;
-            using (var uof = new UnitOfWork(_context))
-            {
-                transactions = await uof.TransactionRepo.TransactionsOfUser(userIdToken);
-            }
-
+            var transactions = await _unitOfWorkService.TransactionRepo.TransactionsOfUser(int.Parse(userIdToken));
+            
             return Ok(transactions);
         }
         
@@ -67,17 +65,15 @@ namespace Wallet_grupo1.Controllers
             string jwtToken = authorizationHeader.Substring(7);
         
             // Extraigo el userid del token (es un claim)
-            var userIdToken = GestorTokenJwt.ObtenerUserIdDeToken(jwtToken);
+            var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
             if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
             
-            Transaction? transaction;
-            using (var uof = new UnitOfWork(_context))
-            {
-                transaction = await uof.TransactionRepo.GetById(id);
-            }
-
+            var transaction = await _unitOfWorkService.TransactionRepo.GetById(id);
             if (transaction is null) return NotFound();
-            if (!ValidateUser(Int32.Parse(userIdToken))) 
+            var account = await _unitOfWorkService.AccountRepo.GetById(transaction.AccountId);
+            if (account is null) return NotFound();
+            
+            if (account.UserId != int.Parse(userIdToken))
                 return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta.");
 
             return Ok(transaction);
@@ -86,12 +82,9 @@ namespace Wallet_grupo1.Controllers
         [HttpPost]
         public async Task<ActionResult<Transaction>> Insert(Transaction transaction)
         {
-            using (var uof = new UnitOfWork(_context))
-            {
-                await uof.TransactionRepo.Insert(transaction);
-                await uof.Complete();
-            }  
-
+            await _unitOfWorkService.TransactionRepo.Insert(transaction);
+            await _unitOfWorkService.Complete();
+            
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id}, transaction);
         }
 
@@ -99,20 +92,17 @@ namespace Wallet_grupo1.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            using (var uof = new UnitOfWork(_context))
-            {
-                var transaction = await uof.TransactionRepo.GetById(id);
+            var transaction = await _unitOfWorkService.TransactionRepo.GetById(id);
 
-                if (transaction is null) return NotFound($"No se encontro ninguna transacción con el id: {id}.");
+            if (transaction is null) return NotFound($"No se encontro ninguna transacción con el id: {id}.");
                 
-                var result = await uof.TransactionRepo.Delete(transaction);
+            var result = await _unitOfWorkService.TransactionRepo.Delete(transaction);
 
-                if (!result)
-                    return StatusCode(500, $"No se pudo eliminar la transacción con id: {id}" +
+            if (!result)
+                return StatusCode(500, $"No se pudo eliminar la transacción con id: {id}" +
                                            $" porque no existe o porque no se pudo completar la transacción.");
-                                       
-                await uof.Complete();
-            }
+            
+            await _unitOfWorkService.Complete();
 
             return Ok();
         }
@@ -121,31 +111,26 @@ namespace Wallet_grupo1.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] Transaction transaction)
         {
-            using (var uof = new UnitOfWork(_context))
-            {
-                var result = await uof.TransactionRepo.Update(transaction);
+
+            var result = await _unitOfWorkService.TransactionRepo.Update(transaction);
             
-                if (!result)
-                    return StatusCode(500, $"No se pudo actualizar la transaccion con id: {transaction.Id}" +
+            if (!result)
+                return StatusCode(500, $"No se pudo actualizar la transaccion con id: {transaction.Id}" +
                                            $" porque no existe o porque no se pudo completar la transacción."); 
                                        
-                await uof.Complete();
-            }
+            await _unitOfWorkService.Complete();
 
             return Ok();
         }
+        
         [HttpGet("{userId}")]
         public async Task<List<Transaction>> TransactionsOfUser([FromBody]int userId)
         {
-            using (var uof = new UnitOfWork(_context))
-            {
-                var resultado = await uof.TransactionRepo.TransactionsOfUser(userId);
+            var resultado = await _unitOfWorkService.TransactionRepo.TransactionsOfUser(userId);
 
-                await uof.Complete();
+            await _unitOfWorkService.Complete();
 
-                return resultado;
-            }
-        
+            return resultado;
         }
 
     }

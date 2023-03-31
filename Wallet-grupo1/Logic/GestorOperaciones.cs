@@ -1,25 +1,23 @@
-﻿using Wallet_grupo1.Entities;
+﻿using Wallet_grupo1.DataAccess;
+using Wallet_grupo1.Entities;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Logic;
 
 public class GestorOperaciones
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IUnitOfWork _unitOfWorkService;
     
-    public GestorOperaciones(ApplicationDbContext context)
+    public GestorOperaciones(IUnitOfWork unitOfWork)
     {
-        _context = context;
+        _unitOfWorkService = unitOfWork;
     }
 
     public async Task Deposit(Account account, decimal aumentoSaldo, string concept)
     {
         // Actualizo saldo
         account.Money += aumentoSaldo;
-        using (var uof = new UnitOfWork(_context))
-        {
-            await uof.AccountRepo.Update(account);
-        }
+        await _unitOfWorkService.AccountRepo.Update(account);
         
         // Loggeamos la transaction
         var transaction = new Transaction()
@@ -30,11 +28,8 @@ public class GestorOperaciones
             Date = DateTime.Now,
             Concept = concept
         };
-
-        using (var uof = new UnitOfWork(_context))
-        {
-            await uof.TransactionRepo.Insert(transaction);
-        }
+        
+        await _unitOfWorkService.TransactionRepo.Insert(transaction);
     }
 
     public async Task Transfer(Account account, Account toAccount, decimal montoTransferido, string concept)
@@ -43,14 +38,10 @@ public class GestorOperaciones
 
         account.Money -= montoTransferido;
         toAccount.Money += montoTransferido;
-    
         
-        using (var uof = new UnitOfWork(_context))
-        {
-            await uof.AccountRepo.Update(account);
-            await uof.AccountRepo.Update(toAccount);
-        }
-
+        await _unitOfWorkService.AccountRepo.Update(account);
+        await _unitOfWorkService.AccountRepo.Update(toAccount);
+        
         // Loggeamos la transaction
         var transaction = new Transaction()
         {
@@ -62,15 +53,7 @@ public class GestorOperaciones
             Concept = concept
         };
 
-        using (var uof = new UnitOfWork(_context))
-        {
-            await uof.TransactionRepo.Insert(transaction);
-        }
-        
+
+        await _unitOfWorkService.TransactionRepo.Insert(transaction);
     }
-    
-    //
-    //public bool ValidateUser(){
-    //    
-    //}
 }

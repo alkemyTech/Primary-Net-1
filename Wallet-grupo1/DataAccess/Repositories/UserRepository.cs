@@ -1,10 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
+﻿using Microsoft.EntityFrameworkCore;
+using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
-using Wallet_grupo1.Services.Repositories.Interfaces;
 
-namespace Wallet_grupo1.Services.Repositories
+namespace Wallet_grupo1.DataAccess.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {

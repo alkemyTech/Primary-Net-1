@@ -1,8 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Wallet_grupo1.Services.Repositories.Interfaces;
+﻿using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
 
-namespace Wallet_grupo1.Services.Repositories
+namespace Wallet_grupo1.DataAccess.Repositories
 {
 
     public class AccountRepository : Repository<Account>, IAccountRepository

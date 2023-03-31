@@ -1,8 +1,9 @@
-﻿using Wallet_grupo1.Services.Repositories;
+﻿using Wallet_grupo1.DataAccess;
+using Wallet_grupo1.DataAccess.Repositories;
 
 namespace Wallet_grupo1.Services;
 
-public class UnitOfWork : IUnitOfWork
+public class UnitOfWorkService : IUnitOfWork
 {
     private ApplicationDbContext _context;
 
@@ -13,7 +14,7 @@ public class UnitOfWork : IUnitOfWork
     public FixedTermDepositRepository FixedRepo {get;}
     public RoleRepository RoleRepo { get; }
 
-    public UnitOfWork(ApplicationDbContext context)
+    public UnitOfWorkService(ApplicationDbContext context)
     {
         _context = context;
         UserRepo = new UserRepository(_context);

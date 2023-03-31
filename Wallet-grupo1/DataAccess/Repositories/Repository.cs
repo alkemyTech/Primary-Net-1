@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Wallet_grupo1.Entities;
-using Wallet_grupo1.Services.Repositories.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 
-namespace Wallet_grupo1.Services.Repositories{
+namespace Wallet_grupo1.DataAccess.Repositories{
 
 public class Repository<T> : IRepository<T> where T : class
 {
