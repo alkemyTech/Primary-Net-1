@@ -1,4 +1,4 @@
-﻿using Wallet_grupo1.DataAccess.Repositories;
+﻿using Wallet_grupo1.Services.Repositories;
 
 namespace Wallet_grupo1.Services;
 
@@ -15,7 +15,6 @@ public class UnitOfWork : IUnitOfWork
 
     public UnitOfWork(ApplicationDbContext context)
     {
-        //TODO: Inicializar cada uno de los repositorios concretos
         _context = context;
         UserRepo = new UserRepository(_context);
         TransactionRepo = new TransactionRepository(_context);

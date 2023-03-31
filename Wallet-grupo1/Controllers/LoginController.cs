@@ -1,27 +1,29 @@
 ﻿using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Wallet_grupo1.DataAccess;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
-namespace Wallet_grupo1.Controllers;
-
-[Route("Login")]
+namespace Wallet_grupo1.Controllers
+{ 
+    
+[ApiController]
+[Route("/api/login")]
 public class LoginController : Controller
 {
     private readonly ApplicationDbContext _context;
     private GestorTokenJwt _gestorToken;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public LoginController(ApplicationDbContext context, IConfiguration config)
+    public LoginController(IUnitOfWork unitOfWork, ApplicationDbContext context, IConfiguration config)
     {
+        _unitOfWork = unitOfWork;
         _context = context;
         _gestorToken = new GestorTokenJwt(config);
     }
     
     [HttpPost]
-    [Route("Login")]
     public async Task<IActionResult> Login()
     {
         var authHeader = Request.Headers["Authorization"].ToString();
@@ -32,15 +34,24 @@ public class LoginController : Controller
         var token = authHeader.Substring("Basic ".Length).Trim();
         var credentials = Encoding.UTF8.GetString(Convert.FromBase64String(token)).Split(':');
 
-        User user;
         
-        using (var uof = new UnitOfWork(_context))
-        {
-            user = await uof.UserRepo.AuthenticateCredentials(credentials[0], credentials[1]);
-        }
+        var userCredentials = await _unitOfWork.UserRepo.AuthenticateCredentials(credentials[0], credentials[1]);
+        
 
-        if (user is null) return Unauthorized("Las credenciales son incorrectas.");
+        if (userCredentials is null) return Unauthorized("Las credenciales son incorrectas.");
         
-        return Ok(_gestorToken.GenerateToken(user));
+        return Ok(_gestorToken.GenerateToken(userCredentials));
     }
+    
+    [HttpPost("/api/register")]
+    public async Task<IActionResult> Register(User user)
+    {
+        await _unitOfWork.UserRepo.Insert(user);
+
+        var token = _gestorToken.GenerateToken(user);
+
+        return Ok(token);
+    }
+}
+
 }

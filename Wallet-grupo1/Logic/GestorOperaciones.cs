@@ -1,4 +1,4 @@
-﻿using Wallet_grupo1.Entidades;
+﻿using Wallet_grupo1.Entities;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Logic;
@@ -12,7 +12,7 @@ public class GestorOperaciones
         _context = context;
     }
 
-    public async Task Depositar(Account account, decimal aumentoSaldo, string concept)
+    public async Task Deposit(Account account, decimal aumentoSaldo, string concept)
     {
         // Actualizo saldo
         account.Money += aumentoSaldo;
@@ -25,7 +25,7 @@ public class GestorOperaciones
         var transaction = new Transaction()
         {
             Amount = aumentoSaldo,
-            TransactionType = TransactionType.Deposit,
+            Type = TransactionType.Deposit,
             Account = account,
             Date = DateTime.Now,
             Concept = concept
@@ -37,7 +37,7 @@ public class GestorOperaciones
         }
     }
 
-    public async Task Transferir(Account account, Account toAccount, decimal montoTransferido, string concept)
+    public async Task Transfer(Account account, Account toAccount, decimal montoTransferido, string concept)
     {
         // Actualizo saldo
 
@@ -55,7 +55,7 @@ public class GestorOperaciones
         var transaction = new Transaction()
         {
             Amount = montoTransferido,
-            TransactionType = TransactionType.Payment,
+            Type = TransactionType.Payment,
             Account = account,
             //toAccount = toAccount,
             Date = DateTime.Now,
@@ -66,5 +66,11 @@ public class GestorOperaciones
         {
             await uof.TransactionRepo.Insert(transaction);
         }
+        
     }
+    
+    //
+    //public bool ValidateUser(){
+    //    
+    //}
 }

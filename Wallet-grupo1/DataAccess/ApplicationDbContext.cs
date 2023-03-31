@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.DataAccess.DatabaseSeeding;
+using Wallet_grupo1.DatabaseSeeding;
+using Wallet_grupo1.Entities;
+using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1
 {
@@ -17,11 +20,12 @@ namespace Wallet_grupo1
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Defino que una cuenta solo puede estar asociada a un usuario, el que la crea
-            modelBuilder.Entity<Account>()
-                .HasOne(a => a.User)
-                .WithMany(u => u.Accounts)
-                .HasForeignKey(t => t.UserId)
-                .OnDelete(DeleteBehavior.ClientCascade);
+            //Dejo comentado esto mientras hacemos pruebas con relacion 1user1account
+            //modelBuilder.Entity<Account>()
+            //    .HasOne(a => a.User)
+            //   .WithMany(u => u.Accounts)
+            //   .HasForeignKey(t => t.UserId)
+            //   .OnDelete(DeleteBehavior.ClientCascade);
             
             //Especifico las relaciones de navegacion para transaccion y mantengo un comportamiento de borrado en nulo
             //debido a que una fila de transaccion puede contener mas de una cuenta (la que mueve el dinero y la que lo recibe)

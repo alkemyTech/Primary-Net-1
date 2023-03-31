@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Primary_Wallet_pilot.DatabaseSeeding;
+namespace Wallet_grupo1.DatabaseSeeding;
 
 public interface IEntitySeeder
 {

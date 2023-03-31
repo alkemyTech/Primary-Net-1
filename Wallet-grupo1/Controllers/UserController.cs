@@ -2,33 +2,39 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Wallet_grupo1.DataAccess;
-using Wallet_grupo1.DataAccess.Repositories;
-using Wallet_grupo1.Entidades;
 using Wallet_grupo1.Services;
+using Wallet_grupo1.Logic;
+using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.Controllers
 {
-    [Route("User")]
+    [ApiController]
+    [Route("/api/user")]
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UnitOfWork _unitOfWork;
 
-        public UserController(ApplicationDbContext context)
+        public UserController(UnitOfWork unitOfWork, ApplicationDbContext context)
         {
             _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpPost]
         public async Task<ActionResult<User>> InsertUser(User user)
         {
-            using (var uof = new UnitOfWork(_context))
+            if (!ModelState.IsValid) return new JsonResult("Something Went Wrong") { StatusCode = 500 };
+            
+            if(user.Password != null)
             {
-                await uof.UserRepo.Insert(user);
-                await uof.Complete();
-            }  
-
-            return CreatedAtAction(nameof(GetById), new { id = user.Id}, user);
+                var newPass = PasswordEncrypt.EncryptPassword(user.Password).ToString();
+                user.Password = newPass;
+            }
+            
+            await _unitOfWork.UserRepo.Insert(user);
+            await _unitOfWork.Complete();
+            return CreatedAtAction("GetById", new { user.Id }, user);
         }
     
         [Authorize(Policy = "Admin")]

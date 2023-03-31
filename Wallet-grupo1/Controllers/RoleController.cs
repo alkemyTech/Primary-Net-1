@@ -1,21 +1,22 @@
 ﻿//using Microsoft.AspNetCore.Authorization;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Wallet_grupo1.DataAccess;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
-[Route("Role")]
+[ApiController]
+[Route("/api/role")]
 public class RoleController : Controller
 {
     private readonly ApplicationDbContext _context;
+    private readonly UnitOfWork _unitOfWork;
     
-    public RoleController(ApplicationDbContext context)
+    public RoleController(UnitOfWork unitOfWork, ApplicationDbContext context)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
     }
     
     [Authorize(Policy = "Admin")]
@@ -33,16 +34,11 @@ public class RoleController : Controller
     }
     
     [Authorize(Policy = "Admin")]
-    [HttpGet]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        Role? roleToFind;
-
-        using (var uof = new UnitOfWork(_context))
-        {
-            roleToFind = await uof.RoleRepo.GetById(id);
-        }
-
+        var roleToFind = await _unitOfWork.RoleRepo.GetById(id);
+        
         if (roleToFind is null) return NotFound();
         
         return Ok(roleToFind);
@@ -51,15 +47,15 @@ public class RoleController : Controller
     [HttpPost]
     public async Task<IActionResult> Insert([FromBody] Role newRole)
     {
-        using (var uof = new UnitOfWork(_context))
-        {
-            await uof.RoleRepo.Insert(newRole);
-            await uof.Complete();
-        }  
+        if (!ModelState.IsValid)
+            return new JsonResult("Hubo un problema insertando el nuevo rol en la DB") { StatusCode = 500 };
+        
+        await _unitOfWork.RoleRepo.Insert(newRole);
+        await _unitOfWork.Complete();
 
-        return CreatedAtAction(nameof(GetById), new { id = newRole.Id}, newRole);
-    } 
-    
+        return CreatedAtAction("GetById", new { newRole.Id }, newRole);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Delete([FromBody] Role roleToDelete)
     {
@@ -73,7 +69,6 @@ public class RoleController : Controller
                                        
             await uof.Complete();
         }
-
         return Ok();
     }
     

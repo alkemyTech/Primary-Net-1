@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
+using Wallet_grupo1.Services.Repositories.Interfaces;
 
-namespace Wallet_grupo1.DataAccess.Repositories
+namespace Wallet_grupo1.Services.Repositories
 {
-    public class UserRepository : Repository<User>
+    public class UserRepository : Repository<User>, IUserRepository
     {
         
         public UserRepository(ApplicationDbContext context) : base(context)
@@ -24,13 +25,12 @@ namespace Wallet_grupo1.DataAccess.Repositories
                     return false;
                 }
 
-                user.First_name = entity.First_name;
-                user.Last_name = entity.Last_name;
+                user.FirstName = entity.FirstName;
+                user.LastName = entity.FirstName;
                 user.Password = entity.Password;
                 user.Email = entity.Email;
                 user.Points = entity.Points;
-                user.Rol = entity.Rol;
-               
+                user.Role = entity.Role;
                 
                 _context.Users.Update(user);
 

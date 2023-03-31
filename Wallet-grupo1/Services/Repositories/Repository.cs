@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Wallet_grupo1.Entidades;
+using Wallet_grupo1.Entities;
+using Wallet_grupo1.Services.Repositories.Interfaces;
 
-namespace Wallet_grupo1.DataAccess.Repositories;
+namespace Wallet_grupo1.Services.Repositories{
 
 public class Repository<T> : IRepository<T> where T : class
 {
@@ -38,5 +39,7 @@ public class Repository<T> : IRepository<T> where T : class
     {
         throw new NotImplementedException();
     }
+
+}
 
 }
