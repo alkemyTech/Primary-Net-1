@@ -1,10 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wallet_grupo1.DataAccess.DatabaseSeeding;
-using Wallet_grupo1.DatabaseSeeding;
-using Wallet_grupo1.Entities;
 using Wallet_grupo1.Entities;
 
-namespace Wallet_grupo1
+namespace Wallet_grupo1.DataAccess
 {
     public class ApplicationDbContext : DbContext
     {
@@ -63,14 +61,5 @@ namespace Wallet_grupo1
             base.OnModelCreating(modelBuilder); 
         }
 
-        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
-        {
-            configurationBuilder.Properties<decimal>().HavePrecision(2);
-            configurationBuilder.Properties<decimal>().HaveColumnType("decimal");
-            configurationBuilder.Properties<string>().HaveMaxLength(20);
-        }
-
-       
-        
     }
 }

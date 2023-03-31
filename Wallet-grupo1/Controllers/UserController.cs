@@ -2,23 +2,22 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Services;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 
 namespace Wallet_grupo1.Controllers
 {
-    [ApiController]
     [Route("/api/user")]
     public class UserController : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly UnitOfWork _unitOfWork;
+        private readonly UnitOfWorkService _unitOfWorkService;
 
-        public UserController(UnitOfWork unitOfWork, ApplicationDbContext context)
+        public UserController(UnitOfWorkService unitOfWorkService)
         {
-            _context = context;
-            _unitOfWork = unitOfWork;
+            _unitOfWorkService = unitOfWorkService;
         }
 
         [HttpPost]
@@ -26,14 +25,11 @@ namespace Wallet_grupo1.Controllers
         {
             if (!ModelState.IsValid) return new JsonResult("Something Went Wrong") { StatusCode = 500 };
             
-            if(user.Password != null)
-            {
-                var newPass = PasswordEncrypt.EncryptPassword(user.Password).ToString();
-                user.Password = newPass;
-            }
-            
-            await _unitOfWork.UserRepo.Insert(user);
-            await _unitOfWork.Complete();
+            var newPass = PasswordEncryptHelper.EncryptPassword(user.Password);
+            user.Password = newPass;
+
+            await _unitOfWorkService.UserRepo.Insert(user);
+            await _unitOfWorkService.Complete();
             return CreatedAtAction("GetById", new { user.Id }, user);
         }
     
@@ -41,13 +37,7 @@ namespace Wallet_grupo1.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
         {
-            List<User> users;
-        
-            using (var uof = new UnitOfWork(_context))
-            {
-                users = await uof.UserRepo.GetAll();
-            }
-
+            var users = await _unitOfWorkService.UserRepo.GetAll();
             return Ok(users);
         }
 
@@ -55,13 +45,7 @@ namespace Wallet_grupo1.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById([FromRoute] int id)
         {
-            User? user;
-
-            using (var uof = new UnitOfWork(_context))
-            {
-                user = await uof.UserRepo.GetById(id);
-            }
-
+            var user = await _unitOfWorkService.UserRepo.GetById(id);
             if (user is null) return NotFound();
         
             return Ok(user);
@@ -71,21 +55,17 @@ namespace Wallet_grupo1.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
         {
-            
-            using (var uof = new UnitOfWork(_context))
-            {
-                var user = await uof.UserRepo.GetById(id);
+            var user = await _unitOfWorkService.UserRepo.GetById(id);
 
-                if (user is null) return NotFound($"No se encontro ningun user con el id: {id}.");
+            if (user is null) return NotFound($"No se encontro ningun user con el id: {id}.");
                 
-                var result = await uof.UserRepo.Delete(user);
+            var result = await _unitOfWorkService.UserRepo.Delete(user);
 
-                if (!result)
-                    return StatusCode(500, $"No se pudo eliminar el user con id: {id}" +
-                                           $" porque no existe o porque no se pudo completar la transacción.");
+            if (!result)
+                return StatusCode(500, $"No se pudo eliminar el user con id: {id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
                                        
-                await uof.Complete();
-            }
+            await _unitOfWorkService.Complete();
 
             return Ok();
         }
@@ -93,16 +73,13 @@ namespace Wallet_grupo1.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, User user)
         {
-            using (var uof = new UnitOfWork(_context))
-            {
-                var result = await uof.UserRepo.Update(user);
+            var result = await _unitOfWorkService.UserRepo.Update(user);
             
-                if (!result)
-                    return StatusCode(500, $"No se pudo actualizar el user con id: {user.Id}" +
-                                           $" porque no existe o porque no se pudo completar la transacción."); 
+            if (!result)
+                return StatusCode(500, $"No se pudo actualizar el user con id: {user.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción."); 
                                        
-                await uof.Complete();
-            }
+            await _unitOfWorkService.Complete();
             
             return Ok();
         }

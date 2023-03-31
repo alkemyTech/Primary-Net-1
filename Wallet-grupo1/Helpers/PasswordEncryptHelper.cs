@@ -1,9 +1,9 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Wallet_grupo1.Logic
+namespace Wallet_grupo1.Helpers
 {
-    public class PasswordEncrypt
+    public class PasswordEncryptHelper
     {
         public static string  EncryptPassword(string str)
         {

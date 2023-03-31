@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Wallet_grupo1.DatabaseSeeding;
 using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.DatabaseSeeding;

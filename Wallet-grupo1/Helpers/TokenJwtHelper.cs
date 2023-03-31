@@ -1,17 +1,16 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Wallet_grupo1.Entities;
 
-namespace Wallet_grupo1.Logic;
+namespace Wallet_grupo1.Helpers;
 
-public class GestorTokenJwt
+public class TokenJwtHelper
 {
     private IConfiguration _config;
 
-    public GestorTokenJwt(IConfiguration config)
+    public TokenJwtHelper(IConfiguration config)
     {
         this._config = config;
     }
@@ -25,7 +24,7 @@ public class GestorTokenJwt
             new Claim(JwtRegisteredClaimNames.Iat,  DateTime.UtcNow.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Role, user.Role.Name)
+            new Claim(ClaimTypes.Role, user.RoleId.ToString())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));

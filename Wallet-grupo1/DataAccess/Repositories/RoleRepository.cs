@@ -1,8 +1,8 @@
-﻿using Wallet_grupo1.Entities;
-using Microsoft.EntityFrameworkCore;
-using Wallet_grupo1.Services.Repositories.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using Wallet_grupo1.DataAccess.Repositories.Interfaces;
+using Wallet_grupo1.Entities;
 
-namespace Wallet_grupo1.Services.Repositories;
+namespace Wallet_grupo1.DataAccess.Repositories;
 
 public class RoleRepository : Repository<Role>, IRoleRepository
 {
@@ -15,11 +15,11 @@ public class RoleRepository : Repository<Role>, IRoleRepository
     {
         try
         {
-            var user =  await _context.Roles.Where(role => role.Id == roleToDelete.Id).FirstOrDefaultAsync();
+            var role =  await _context.Roles.Where(role => role.Id == roleToDelete.Id).FirstOrDefaultAsync();
 
-            if (roleToDelete != null)
+            if (role != null)
             {
-                _context.Roles.Remove(roleToDelete);
+                _context.Roles.Remove(role);
             }
         }
         catch(Exception)
