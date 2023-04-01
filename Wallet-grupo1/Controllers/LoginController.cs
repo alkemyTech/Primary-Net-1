@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Wallet_grupo1.DataAccess;
+using Wallet_grupo1.DTOs;
 using Wallet_grupo1.Entities;
 using Wallet_grupo1.Helpers;
+using Wallet_grupo1.Infrastructure;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
@@ -21,6 +23,10 @@ public class LoginController : Controller
         _token = new TokenJwtHelper(config);
     }
     
+    /// <summary>
+    /// Endpoint encargado del logueo de un usuario en el sistema. Cualquier usuario del sistema puede acceder a el.
+    /// </summary>
+    /// <returns>Un token de autorización necesario para el uso del resto del sistema.</returns>
     [HttpPost("login")]
     public async Task<IActionResult> Login()
     {
@@ -31,7 +37,7 @@ public class LoginController : Controller
         
         var token = authHeader.Substring("Basic ".Length).Trim();
         var credentials = Encoding.UTF8.GetString(Convert.FromBase64String(token)).Split(':');
-
+        credentials[1] = PasswordEncryptHelper.EncryptPassword(credentials[1]);
         
         var userCredentials = await _unitOfWork.UserRepo.AuthenticateCredentials(credentials[0], credentials[1]);
 
@@ -40,13 +46,21 @@ public class LoginController : Controller
         return Ok(_token.GenerateToken(userCredentials));
     }
     
+    /// <summary>
+    /// Endpoint encargado del registro de nuevos usuarios. Cualquier usuario del sistema puede accederlo.
+    /// </summary>
+    /// <param name="dto">Datos necesarios: FirstName, LastName, Email y Password</param>
     [HttpPost("register")]
-    public async Task<IActionResult> Register(User user)
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
+        var user = new User(dto);
+
+        if (await _unitOfWork.UserRepo.ExisteUsuario(user)) return ResponseFactory.CreateErrorResponse(409,
+            "Ya existe un usuario registrado con ese mail o nombre y apellido.");
+        
         await _unitOfWork.UserRepo.Insert(user);
+        await _unitOfWork.Complete();
 
-        var token = _token.GenerateToken(user);
-
-        return Ok(token);
+        return ResponseFactory.CreateSuccessfullyResponse(201, "Usuario registrado con éxito!");
     }
 }
