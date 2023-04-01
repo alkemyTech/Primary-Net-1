@@ -13,9 +13,9 @@ namespace Wallet_grupo1.Controllers
     [Route("/api/user")]
     public class UserController : Controller
     {
-        private readonly UnitOfWorkService _unitOfWorkService;
+        private readonly IUnitOfWork _unitOfWorkService;
 
-        public UserController(UnitOfWorkService unitOfWorkService)
+        public UserController(IUnitOfWork unitOfWorkService)
         {
             _unitOfWorkService = unitOfWorkService;
         }
