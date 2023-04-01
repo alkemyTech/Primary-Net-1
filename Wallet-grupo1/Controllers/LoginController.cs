@@ -56,7 +56,7 @@ public class LoginController : Controller
         var user = new User(dto);
 
         if (await _unitOfWork.UserRepo.ExisteUsuario(user)) return ResponseFactory.CreateErrorResponse(409,
-            "Ya existe un usuario registrado con ese mail o nombre y apellido.");
+            $"Ya existe un usuario registrado con el email: {user.Email}.");
         
         await _unitOfWork.UserRepo.Insert(user);
         await _unitOfWork.Complete();

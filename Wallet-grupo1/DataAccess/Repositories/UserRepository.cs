@@ -73,15 +73,14 @@ namespace Wallet_grupo1.DataAccess.Repositories
         
         
         /// <summary>
-        /// Método encargado de validar que no exista ningun usario en la BD que contenta el mismo mail o la misma
-        /// combinacion de nombre y apellido.
+        /// Método encargado de validar que no exista ningun usario en la BD que contenta el mismo email.
         /// </summary>
         /// <param name="user">Usuario el cual se quiera validar que no exista en la BD</param>
         /// <returns>bool: true si existe, false si no existe</returns>
         public async Task<bool> ExisteUsuario(User user)
         {
             return await _context.Users
-                .Where(x => x.Email == user.Email || x.FirstName + x.LastName == user.FirstName + user.LastName)
+                .Where(x => x.Email == user.Email)
                 .AnyAsync();
         }
         
