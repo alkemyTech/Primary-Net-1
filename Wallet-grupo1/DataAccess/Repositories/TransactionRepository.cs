@@ -42,6 +42,7 @@ namespace Wallet_grupo1.DataAccess.Repositories{
             
             try
             {
+                // Verifico la existencia de la transaccion a actualizar y luego la actualizo
                 var existingTransaction = await _context.Transactions.Where(x => x.Id == transaction.Id).FirstOrDefaultAsync();
 
                 if (existingTransaction == null)
