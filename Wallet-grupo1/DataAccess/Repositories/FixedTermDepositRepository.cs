@@ -19,5 +19,24 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 .OrderByDescending(x => x.CreationDate)
                 .ToListAsync();
         }
+
+        public async Task<bool> DeleteFixedTermsByAccount(int accounId)
+        {
+            try
+            {
+                // Elimino las Transaction con el Id de la Account
+                var fixedTermDeposits = await _context.FixedTermDeposits.Where(x => x.AccountId == accounId).ToListAsync();
+
+                if (fixedTermDeposits != null)
+                {
+                    _context.FixedTermDeposits.RemoveRange(fixedTermDeposits);
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
