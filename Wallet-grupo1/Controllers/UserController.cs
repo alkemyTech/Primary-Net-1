@@ -51,14 +51,38 @@ namespace Wallet_grupo1.Controllers
             return Ok(user);
         }
 
-
+        [Authorize(Policy = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
         {
             var user = await _unitOfWorkService.UserRepo.GetById(id);
 
             if (user is null) return NotFound($"No se encontro ningun user con el id: {id}.");
-                
+
+            // Busco el Id de la Account del User
+            var account = await _unitOfWorkService.AccountRepo.FindByUserId(id);
+            if (account is null) return NotFound($"No se encontro ningun account del user con el id: {id}.");
+
+            // Elimino las Transaccion con Id la Account
+            var deletedTransaccions = await _unitOfWorkService.TransactionRepo.DeleteTransactionByAccount(account.Value.Id);
+            if (!deletedTransaccions)
+                return StatusCode(500, $"No se pudo eliminar la Transaccion del user con id: {id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+
+            // Elimino los FixedTermDeposit con la Id de la Account
+            var deletedFixdTermDeposit = await _unitOfWorkService.FixedRepo.DeleteFixedTermsByAccount(account.Value.Id);
+            if (!deletedFixdTermDeposit)
+                return StatusCode(500, $"No se pudo eliminar FixedTerm del user con id: {id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+
+            // Elimino la Account con el Id del User
+            var deletedAccount = await _unitOfWorkService.AccountRepo.Delete(account.Value);
+            if (!deletedAccount)
+                return StatusCode(500, $"No se pudo eliminar la account del user con id: {id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+
+
+            // Elimino el User corrrespondiente
             var result = await _unitOfWorkService.UserRepo.Delete(user);
 
             if (!result)
