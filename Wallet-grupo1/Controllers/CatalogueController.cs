@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
-[Route("Catalogue")]
+[Route("api/catalogue")]
 public class CatalogueController : Controller
 {
     private readonly IUnitOfWork _unitOfWorkService;
@@ -17,15 +18,22 @@ public class CatalogueController : Controller
     }
 
     // Obtiene todos los catálogos
-    [Authorize]
+    //[Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         // Carga todos los catálogos de la base de datos utilizando el repositorio de catálogos
         var catalogues = await _unitOfWorkService.CatalogueRepo.GetAll();
         
-        // Retorna un código 200 (OK) con la lista de catálogos
-        return Ok(catalogues);
+        // Paginar el resultado
+        int pageToShow = 1;
+        if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+        var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
+
+        var paginatedCatalogues = PaginateHelper.Paginate(catalogues, pageToShow, url);    
+
+        // Retorna un código 200 (OK) con la lista de catálogos paginado
+        return Ok(paginatedCatalogues);
     }
 
     // Obtiene un catálogo por su ID
