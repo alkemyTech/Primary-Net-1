@@ -10,9 +10,9 @@ namespace Wallet_grupo1.Controllers;
 [Route("/api/role")]
 public class RoleController : Controller
 {
-    private readonly UnitOfWorkService _unitOfWorkService;
+    private readonly IUnitOfWork _unitOfWorkService;
     
-    public RoleController(UnitOfWorkService unitOfWorkService)
+    public RoleController(IUnitOfWork unitOfWorkService)
     {
         _unitOfWorkService = unitOfWorkService;
     }
