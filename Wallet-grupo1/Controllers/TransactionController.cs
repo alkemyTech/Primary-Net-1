@@ -107,7 +107,7 @@ namespace Wallet_grupo1.Controllers
             return Ok();
         }
 
-
+        [Authorize(Policy = "Admin")]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] Transaction transaction)
         {
