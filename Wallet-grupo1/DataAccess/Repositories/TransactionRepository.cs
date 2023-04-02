@@ -65,5 +65,24 @@ namespace Wallet_grupo1.DataAccess.Repositories{
 
         }
 
+        public async Task<bool> DeleteTransactionByAccount(int accounId)
+        {
+            try
+            {
+                // Elimino las Transaction con el Id de la Account
+                var transactions = await _context.Transactions.Where(x => x.AccountId == accounId).ToListAsync();
+
+                if (transactions != null)
+                {
+                    _context.Transactions.RemoveRange(transactions);
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }
