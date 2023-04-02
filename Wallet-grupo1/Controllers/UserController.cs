@@ -20,6 +20,10 @@ namespace Wallet_grupo1.Controllers
             _unitOfWorkService = unitOfWorkService;
         }
 
+        /// <summary>
+        /// Obtiene una lista paginada de todos los usuarios registrados.
+        /// </summary>
+        /// <returns>Una lista paginada de usuarios.</returns>
         [Authorize(Policy = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
@@ -28,46 +32,61 @@ namespace Wallet_grupo1.Controllers
             return Ok(users);
         }
 
+        /// <summary>
+        /// Obtiene un usuario en particular.
+        /// </summary>
+        /// <param name="id">El ID del usuario a obtener.</param>
+        /// <returns>El usuario correspondiente al ID especificado.</returns>
         [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetById([FromRoute] int id)
         {
             var user = await _unitOfWorkService.UserRepo.GetById(id);
             if (user is null) return NotFound();
-        
+
             return Ok(user);
         }
 
-
+        /// <summary>
+        /// Elimina un usuario existente.
+        /// </summary>
+        /// <param name="id">El ID del usuario a eliminar.</param>
+        /// <returns>Un código de estado HTTP 200 (OK) si el usuario se eliminó correctamente.</returns>
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
         {
             var user = await _unitOfWorkService.UserRepo.GetById(id);
 
-            if (user is null) return NotFound($"No se encontro ningun user con el id: {id}.");
-                
+            if (user is null) return NotFound($"No se encontró ningún usuario con el ID: {id}.");
+
             var result = await _unitOfWorkService.UserRepo.Delete(user);
 
             if (!result)
-                return StatusCode(500, $"No se pudo eliminar el user con id: {id}" +
+                return StatusCode(500, $"No se pudo eliminar el usuario con ID: {id}" +
                                        $" porque no existe o porque no se pudo completar la transacción.");
-                                       
+
             await _unitOfWorkService.Complete();
 
             return Ok();
         }
 
+        /// <summary>
+        /// Actualiza un usuario existente.
+        /// </summary>
+        /// <param name="id">El ID del usuario a actualizar.</param>
+        /// <param name="user">El objeto User con los datos actualizados.</param>
+        /// <returns>Un código de estado HTTP 200 (OK) si el usuario se actualizó correctamente.</returns>
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, User user)
         {
             var result = await _unitOfWorkService.UserRepo.Update(user);
-            
+
             if (!result)
-                return StatusCode(500, $"No se pudo actualizar el user con id: {user.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción."); 
-                                       
+                return StatusCode(500, $"No se pudo actualizar el usuario con ID: {user.Id}" +
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+
             await _unitOfWorkService.Complete();
-            
+
             return Ok();
         }
     }
