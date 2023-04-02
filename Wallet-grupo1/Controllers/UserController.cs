@@ -20,19 +20,6 @@ namespace Wallet_grupo1.Controllers
             _unitOfWorkService = unitOfWorkService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<User>> InsertUser(User user)
-        {
-            if (!ModelState.IsValid) return new JsonResult("Something Went Wrong") { StatusCode = 500 };
-            
-            var newPass = PasswordEncryptHelper.EncryptPassword(user.Password);
-            user.Password = newPass;
-
-            await _unitOfWorkService.UserRepo.Insert(user);
-            await _unitOfWorkService.Complete();
-            return CreatedAtAction("GetById", new { user.Id }, user);
-        }
-    
         [Authorize(Policy = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
