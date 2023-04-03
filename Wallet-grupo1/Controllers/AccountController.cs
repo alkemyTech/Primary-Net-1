@@ -35,14 +35,14 @@ public class AccountController : Controller
         var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString();
 
         // Pagina los resultados
-        var paginatedCatalogues = PaginateHelper.Paginate(accounts, pageToShow, url);
+        var paginatedAccounts = PaginateHelper.Paginate(accounts, pageToShow, url);
 
         if (accounts.Count < 1)
         {
             //TODO refactor con manejo de errores y respuestas vacias
             return NotFound();
         }
-        return Ok(accounts);
+        return Ok(paginatedAccounts);
     }
 
     [Authorize(Policy = "Admin")]

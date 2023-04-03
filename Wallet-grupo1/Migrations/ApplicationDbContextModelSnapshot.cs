@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Wallet_grupo1;
+using Wallet_grupo1.DataAccess;
 
 #nullable disable
 
@@ -22,182 +22,466 @@ namespace Wallet_grupo1.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.Account", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.Account", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("account_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("Creation_date")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("account_creationDate");
 
-                    b.Property<bool>("Is_blocked")
-                        .HasColumnType("bit");
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("bit")
+                        .HasColumnName("account_isBlocked");
 
                     b.Property<decimal>("Money")
-                        .HasPrecision(2)
-                        .HasColumnType("decimal");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("account_money");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Accounts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreationDate = new DateTime(2022, 5, 12, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsBlocked = false,
+                            Money = 1034m,
+                            UserId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreationDate = new DateTime(2011, 2, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsBlocked = false,
+                            Money = 1m,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreationDate = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            IsBlocked = false,
+                            Money = 104m,
+                            UserId = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreationDate = new DateTime(2010, 2, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsBlocked = false,
+                            Money = 5551m,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreationDate = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            IsBlocked = false,
+                            Money = 19861m,
+                            UserId = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreationDate = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            IsBlocked = false,
+                            Money = 10134m,
+                            UserId = 6
+                        });
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.Catalogue", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.Catalogue", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("catalogue_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Image")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("VARCHAR(700)")
+                        .HasColumnName("catalogue_image");
 
-                    b.Property<double>("Points")
-                        .HasColumnType("float");
+                    b.Property<string>("Name")
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("catalogue_productDesc");
 
-                    b.Property<string>("ProductDescription")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                    b.Property<int>("Points")
+                        .HasColumnType("int")
+                        .HasColumnName("catalogue_points");
 
                     b.HasKey("Id");
 
                     b.ToTable("Catalogues");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Image = "https://picsum.photos/id/812/200/300?grayscale&blur=2",
+                            Name = "Producto1",
+                            Points = 11
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Image = "https://picsum.photos/id/84/200/300?grayscale&blur=2",
+                            Name = "Producto2",
+                            Points = 265
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Image = "https://picsum.photos/id/12/200/300?grayscale&blur=2",
+                            Name = "Producto3",
+                            Points = 1251
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Image = "https://picsum.photos/id/870/200/300?grayscale&blur=2",
+                            Name = "Producto4",
+                            Points = 5
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Image = "https://picsum.photos/id/870/200/300?grayscale&blur=2",
+                            Name = "Producto5",
+                            Points = 11
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Image = "https://picsum.photos/id/870/200/300?grayscale&blur=2",
+                            Name = "Producto6",
+                            Points = 11
+                        });
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.FixedTermDeposit", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.FixedTermDeposit", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("fixedterm_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccountId")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("account_id");
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(2)
-                        .HasColumnType("decimal");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("fixedterm_amount");
 
-                    b.Property<DateTime>("Closing_date")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("ClosingDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fixedTerm_closingDate");
 
-                    b.Property<DateTime>("Creation_date")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("fixedTerm_creationDate");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 
                     b.ToTable("FixedTermDeposits");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AccountId = 1,
+                            Amount = 213m,
+                            ClosingDate = new DateTime(2024, 2, 2, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreationDate = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AccountId = 4,
+                            Amount = 89921m,
+                            ClosingDate = new DateTime(2024, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreationDate = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AccountId = 3,
+                            Amount = 22313m,
+                            ClosingDate = new DateTime(2024, 5, 22, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreationDate = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local)
+                        });
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.Role", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("role_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("role_description");
 
-                    b.Property<int>("Name")
-                        .HasColumnType("int");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("role_name");
 
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "This role has total functional control over the system",
+                            Name = "Admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "This role has all nominal business functionalities",
+                            Name = "Regular"
+                        });
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.Transaction", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.Transaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("transaction_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccountId")
-                        .HasColumnType("int");
+                    b.Property<int?>("AccountId")
+                        .HasColumnType("int")
+                        .HasColumnName("account_id");
 
                     b.Property<decimal>("Amount")
-                        .HasPrecision(2)
-                        .HasColumnType("decimal");
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("transaction_amount");
+
+                    b.Property<string>("Concept")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("transaction_concept");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("transaction_date");
 
-                    b.Property<int>("TransactionType")
-                        .HasColumnType("int");
+                    b.Property<int?>("ToAccountId")
+                        .HasColumnType("int")
+                        .HasColumnName("to_account_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(15)")
+                        .HasColumnName("transaction_type");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
 
+                    b.HasIndex("ToAccountId");
+
                     b.ToTable("Transactions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AccountId = 1,
+                            Amount = 1314m,
+                            Concept = "Deposito1",
+                            Date = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            Type = "Deposit"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AccountId = 1,
+                            Amount = 513514m,
+                            Concept = "Deposito2",
+                            Date = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            Type = "Deposit"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AccountId = 1,
+                            Amount = 67113m,
+                            Concept = "Deposito3",
+                            Date = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            Type = "Deposit"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AccountId = 1,
+                            Amount = 78m,
+                            Concept = "Pago1",
+                            Date = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            ToAccountId = 2,
+                            Type = "Payment"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AccountId = 3,
+                            Amount = 125m,
+                            Concept = "Pago2",
+                            Date = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            ToAccountId = 1,
+                            Type = "Payment"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AccountId = 6,
+                            Amount = 6213m,
+                            Concept = "Pago3",
+                            Date = new DateTime(2023, 4, 3, 0, 0, 0, 0, DateTimeKind.Local),
+                            ToAccountId = 5,
+                            Type = "Payment"
+                        });
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.User", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("user_id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("user_email");
 
-                    b.Property<string>("First_name")
+                    b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("user_firstName");
 
-                    b.Property<string>("Last_name")
+                    b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("VARCHAR(100)")
+                        .HasColumnName("user_lastName");
 
                     b.Property<string>("Password")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("VARCHAR(64)")
+                        .HasColumnName("user_password");
 
-                    b.Property<double>("Points")
-                        .HasColumnType("float");
+                    b.Property<int>("Points")
+                        .HasColumnType("int")
+                        .HasColumnName("user_points");
 
-                    b.Property<int>("RolId")
-                        .HasColumnType("int");
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int")
+                        .HasColumnName("role_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RolId");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "cm@gmail.com",
+                            FirstName = "Cotton",
+                            LastName = "Mather",
+                            Password = "9c7747b126450e4e86f68fd2ef5751bc0c03ff856e44c8c55d1405c85e84d8ff",
+                            Points = 1241,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "dl@gmail.com",
+                            FirstName = "Deodat",
+                            LastName = "Lawson",
+                            Password = "28c76bd6570b2bfbd09e1af9f2d1f7421dbdea206196aaf4f5881b911ace0660",
+                            Points = 1242323,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "gc@gmail.com",
+                            FirstName = "Giles",
+                            LastName = "Corey",
+                            Password = "071abde2de1e0beee40a25032591b79b34a1983c2c6741085b892771a13e218c",
+                            Points = 50,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Email = "jb@gmail.com",
+                            FirstName = "James",
+                            LastName = "Bayley",
+                            Password = "f518199f571856944e049538a58c62e61b377c3d6ac92aad06c3f03238e4b970",
+                            Points = 50,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Email = "jp@gmail.com",
+                            FirstName = "John",
+                            LastName = "Proctor",
+                            Password = "0c01ed7f15adb34245c51ecf877f0ed08a7118daa1486ba67b26140536d31835",
+                            Points = 0,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Email = "me@gmail.com",
+                            FirstName = "Mary",
+                            LastName = "Eastey",
+                            Password = "aec894b241591b9ad86823d57180b04ff0c8d3e88d9a17c165b0f23205e96f1f",
+                            Points = 50231,
+                            RoleId = 2
+                        });
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.Account", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.Account", b =>
                 {
-                    b.HasOne("Wallet_grupo1.Entidades.User", "User")
-                        .WithMany("Accounts")
+                    b.HasOne("Wallet_grupo1.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -205,42 +489,48 @@ namespace Wallet_grupo1.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.FixedTermDeposit", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.FixedTermDeposit", b =>
                 {
-                    b.HasOne("Wallet_grupo1.Entidades.Account", "Account")
-                        .WithMany()
+                    b.HasOne("Wallet_grupo1.Entities.Account", "Account")
+                        .WithMany("FixedTermDeposits")
                         .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.Transaction", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.Transaction", b =>
                 {
-                    b.HasOne("Wallet_grupo1.Entidades.Account", "Account")
+                    b.HasOne("Wallet_grupo1.Entities.Account", "Account")
+                        .WithMany("Transactions")
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("Wallet_grupo1.Entities.Account", "ToAccount")
                         .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ToAccountId");
 
                     b.Navigation("Account");
+
+                    b.Navigation("ToAccount");
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.User", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.User", b =>
                 {
-                    b.HasOne("Wallet_grupo1.Entidades.Role", "Rol")
+                    b.HasOne("Wallet_grupo1.Entities.Role", "Role")
                         .WithMany()
-                        .HasForeignKey("RolId")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Rol");
+                    b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Wallet_grupo1.Entidades.User", b =>
+            modelBuilder.Entity("Wallet_grupo1.Entities.Account", b =>
                 {
-                    b.Navigation("Accounts");
+                    b.Navigation("FixedTermDeposits");
+
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }
