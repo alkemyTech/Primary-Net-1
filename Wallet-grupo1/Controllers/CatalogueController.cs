@@ -51,6 +51,7 @@ public class CatalogueController : Controller
     }
 
     // Crea un nuevo catálogo
+    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Catalogue catalogue)
     {
@@ -62,6 +63,7 @@ public class CatalogueController : Controller
         return CreatedAtAction(nameof(GetById), new { id = catalogue.Id }, catalogue);
     }
 
+    [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
