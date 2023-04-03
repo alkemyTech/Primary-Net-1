@@ -5,6 +5,7 @@ using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.DTOs;
 using Wallet_grupo1.Entities;
 using Wallet_grupo1.Helpers;
+using Wallet_grupo1.Infrastructure;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
@@ -58,24 +59,37 @@ public class AccountController : Controller
         await _unitOfWorkService.Complete();
 
         return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
-    } 
+    }
     
+    [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         var account = await _unitOfWorkService.AccountRepo.GetById(id);
-
         if (account is null) return NotFound($"No se encontro ninguna cuenta con el id: {id}.");
-
-        var result = await _unitOfWorkService.AccountRepo.Delete(account);
-
-        if (!result)
-            return StatusCode(500, $"No se pudo eliminar la cuenta con id: {id}" +
+        
+        // Elimino las Transaccion con Id la Account
+        var deletedTransaccions = await _unitOfWorkService.TransactionRepo.RemoveReferencesToAccountId(account.Id);
+        if (!deletedTransaccions)
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo eliminar la Transaccion del user con id: {id}" +
                                    $" porque no existe o porque no se pudo completar la transacción.");
+
+        // Elimino los FixedTermDeposit con la Id de la Account
+        var deletedFixdTermDeposit = await _unitOfWorkService.FixedRepo.DeleteFixedTermsByAccount(account.Id);
+        if (!deletedFixdTermDeposit)
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo eliminar FixedTerm del user con id: {id}" +
+                                                            $" porque no existe o porque no se pudo completar la transacción.");
+
+        // Elimino la Account con el Id del User
+        var deletedAccount = await _unitOfWorkService.AccountRepo.Delete(account);
+        if (!deletedAccount)
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo eliminar la account del user con id: {id}" +
+                                                            $" porque no existe o porque no se pudo completar la transacción.");
 
         await _unitOfWorkService.Complete();
 
-        return Ok();
+        return ResponseFactory.CreateSuccessfullyResponse(200, 
+            $"Se eliminó la cuenta con ID: {account.Id}, sus plazos fijos y todas sus referencias en transacciones.");
     }
     
     [HttpPut]

@@ -25,8 +25,8 @@ namespace Wallet_grupo1.Entities
         public DateTime Date { get; set; }
         
         [Column("account_id")]
-        public int AccountId { get; set; }
-        public Account Account { get; set; }
+        public int? AccountId { get; set; }
+        public Account? Account { get; set; }
         
         [Column("to_account_id")]
         public int? ToAccountId { get; set; }

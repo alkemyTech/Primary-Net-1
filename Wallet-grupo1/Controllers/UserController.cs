@@ -51,7 +51,7 @@ namespace Wallet_grupo1.Controllers
             if (account is null) return NotFound($"No se encontro ningun account del user con el id: {id}.");
 
             // Elimino las Transaccion con Id la Account
-            var deletedTransaccions = await _unitOfWorkService.TransactionRepo.DeleteTransactionByAccount(account.Value.Id);
+            var deletedTransaccions = await _unitOfWorkService.TransactionRepo.RemoveReferencesToAccountId(account.Value.Id);
             if (!deletedTransaccions)
                 return StatusCode(500, $"No se pudo eliminar la Transaccion del user con id: {id}" +
                                        $" porque no existe o porque no se pudo completar la transacción.");

@@ -40,7 +40,7 @@ public class User
         LastName = dto.LastName;
         Password = PasswordEncryptHelper.EncryptPassword(dto.Password);
         Email = dto.Email;
-        RoleId = 1;
+        RoleId = 2;
         Points = 0;
     }
 

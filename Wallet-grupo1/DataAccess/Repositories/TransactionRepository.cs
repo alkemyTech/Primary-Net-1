@@ -66,17 +66,29 @@ namespace Wallet_grupo1.DataAccess.Repositories{
 
         }
 
-        public async Task<bool> DeleteTransactionByAccount(int accounId)
+        public async Task<bool> RemoveReferencesToAccountId(int accounId)
         {
             try
             {
-                // Elimino las Transaction con el Id de la Account
-                var transactions = await _context.Transactions.Where(x => x.AccountId == accounId).ToListAsync();
+                var transactionsFromAccoundId = 
+                    await _context.Transactions.Where(x => x.AccountId == accounId).ToListAsync();
+                var transactionsToAccountId =
+                    await _context.Transactions.Where(x => x.ToAccountId == accounId).ToListAsync();
 
-                if (transactions != null)
+                foreach (var t in transactionsFromAccoundId)
                 {
-                    _context.Transactions.RemoveRange(transactions);
+                    t.AccountId = null;
                 }
+
+                foreach (var t in transactionsToAccountId)
+                {
+                    t.ToAccountId = null;
+                }
+
+                var allTransactionsToUpdate = transactionsFromAccoundId.Concat(transactionsToAccountId);
+                
+                _context.Transactions.UpdateRange(allTransactionsToUpdate);
+                
                 return true;
             }
             catch
