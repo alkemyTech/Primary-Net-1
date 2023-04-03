@@ -12,7 +12,7 @@ namespace Wallet_grupo1.Controllers;
 public class FixedController : Controller
 {
     private readonly IUnitOfWork _unitOfWorkService;
-    
+
     public FixedController(IUnitOfWork unitOfWork)
     {
         _unitOfWorkService = unitOfWork;
@@ -24,45 +24,47 @@ public class FixedController : Controller
         var Fixed = await _unitOfWorkService.FixedRepo.GetAll();
         return Ok(Fixed);
     }
-    
+
     // Obtiene un Fixed mediante el ID
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
         var Fixed = await _unitOfWorkService.FixedRepo.GetById(id);
-        
+
         if (Fixed is null) return NotFound();
-        
+
         return Ok(Fixed);
     }
-    
+
     [HttpPost]
     public IActionResult Insert([FromBody] FixedTermDeposit Fixed)
     {
         _unitOfWorkService.FixedRepo.Insert(Fixed);
         _unitOfWorkService.Complete();
 
-        return CreatedAtAction(nameof(GetById), new { id = Fixed.Id}, Fixed);
-    } 
-     // Elimina un Fixed existente
+        return CreatedAtAction(nameof(GetById), new { id = Fixed.Id }, Fixed);
+    }
+    // Elimina un Fixed existente
+    [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete([FromRoute] int id)
+    public async Task<IActionResult> DeleteFixedTermDeposit([FromRoute] int id)
     {
         var fixedTermDeposit = await _unitOfWorkService.FixedRepo.GetById(id);
 
-        if (fixedTermDeposit is null) return NotFound($"No se encontro ningun plazo fijo con el id: {id}.");
-        
+        if (fixedTermDeposit is null) return ResponseFactory.CreateErrorResponse(404, $"No se encontró ningún plazo fijo con el id: {id}.");
+
         var result = await _unitOfWorkService.FixedRepo.Delete(fixedTermDeposit);
 
         if (!result)
-            return StatusCode(500, $"No se pudo eliminar el plazo fijo con id: {id}" +
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo eliminar el plazo fijo con id: {id}" +
                                    $" porque no existe o porque no se pudo completar la transacción.");
-                                       
+
         await _unitOfWorkService.Complete();
-        
-        return Ok();
+
+        return ResponseFactory.CreateSuccessfullyResponse(200, "El plazo fijo se eliminó con éxito.");
     }
-    
+
+
     ///Actualiza un Fixed existente
     [Authorize(Policy = "Admin")]
     [HttpPut("{id}")]
@@ -71,14 +73,14 @@ public class FixedController : Controller
         var result = await _unitOfWorkService.FixedRepo.Update(new FixedTermDeposit(id, dto));
         if (!result)
             return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar el plazo fijo con ID: {id}.");
-            
+
         await _unitOfWorkService.Complete();
-        
+
         return ResponseFactory.CreateSuccessfullyResponse(200, $"El plazo fijo con ID: {id} se actualizó con éxito.");
     }
-    
+
     [HttpGet("{userId}")]
-    public async Task<List<FixedTermDeposit>> FixedTermsOfUser([FromBody]int userId)
+    public async Task<List<FixedTermDeposit>> FixedTermsOfUser([FromBody] int userId)
     {
         var resultado = await _unitOfWorkService.FixedRepo.FixedTermsOfUser(userId);
         await _unitOfWorkService.Complete();
