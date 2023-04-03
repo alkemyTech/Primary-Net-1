@@ -12,6 +12,28 @@ namespace Wallet_grupo1.DataAccess.Repositories
 
         }
 
+        public override async Task<bool> Update(FixedTermDeposit updatedDeposit)
+        {
+            try
+            {
+                var existingFixedTermDeposit = await _context.FixedTermDeposits.FindAsync(updatedDeposit.Id);
+
+                // Si no se encontró ninguna entidad con ese ID no intento actualizar.
+                if (existingFixedTermDeposit is null) return false;
+
+                existingFixedTermDeposit.Amount = updatedDeposit.Amount;
+                existingFixedTermDeposit.ClosingDate = updatedDeposit.ClosingDate;
+
+                _context.FixedTermDeposits.Update(existingFixedTermDeposit);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
         public async Task<List<FixedTermDeposit>> FixedTermsOfUser(int userId)
         {
             return await _context.FixedTermDeposits
