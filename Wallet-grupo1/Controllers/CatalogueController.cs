@@ -89,6 +89,6 @@ public class CatalogueController : Controller
         // Guarda los cambios en la base de datos
         await _unitOfWorkService.Complete();
         // Retorna un código 204 (No Content) si la actualización fue exitosa
-        return NoContent();
+        return Ok();
     }
 }
