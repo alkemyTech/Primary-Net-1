@@ -30,7 +30,7 @@ public class CatalogueController : Controller
         if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
         var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
 
-        var paginatedCatalogues = PaginateHelper.Paginate(catalogues, pageToShow, url);    
+        var paginatedCatalogues = PaginateHelper.Paginate(catalogues, pageToShow);    
 
         // Retorna un código 200 (OK) con la lista de catálogos paginado
         return Ok(paginatedCatalogues);
@@ -51,6 +51,7 @@ public class CatalogueController : Controller
     }
 
     // Crea un nuevo catálogo
+    [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Catalogue catalogue)
     {
@@ -62,6 +63,7 @@ public class CatalogueController : Controller
         return CreatedAtAction(nameof(GetById), new { id = catalogue.Id }, catalogue);
     }
 
+    [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {

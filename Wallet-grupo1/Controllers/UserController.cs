@@ -7,6 +7,7 @@ using Wallet_grupo1.Services;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Entities;
 using Wallet_grupo1.Helpers;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Wallet_grupo1.Controllers
 {
@@ -93,6 +94,59 @@ namespace Wallet_grupo1.Controllers
             await _unitOfWorkService.Complete();
             
             return Ok();
+        }
+
+        /// <summary>
+        ///     Paginacion de usuarios, se obtienen 10 usuarios por pagina
+        /// </summary>
+        /// <param name="page"></param>
+        /// <returns></returns>
+        [HttpGet("paginated")]
+
+        public async Task<ActionResult> PaginatedUsers(int page)
+        {
+            var users = await _unitOfWorkService.UserRepo.PaginatedUsers(page);
+
+            if(users == null)
+            {
+                return StatusCode(204, "No se encontraron usuarios");
+            }
+
+            return Ok(users);
+        }
+
+
+        /// <summary>
+        ///     Obtiene los datos del usuario logeado 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="SecurityTokenException"></exception>
+        [Authorize]
+        [HttpGet("authenticated")]
+
+        public async Task<ActionResult<User>> AuthenticatedUserData([FromRoute] int id)
+        {
+
+            string? authorizationHeader = Request.Headers["Authorization"];
+            if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+
+            if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+                return Unauthorized("No se proporcionó un token de seguridad válido.");
+
+            string jwtToken = authorizationHeader.Substring(7);
+
+            var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
+            if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+
+            var user = await _unitOfWorkService.UserRepo.GetById(id);
+            if (user is null) return NotFound($"No se encontró ningun usuario con el número: {id}.");
+
+            if (user.Id != int.Parse(userIdToken))
+                return Forbid("La cuenta no pertenece al usuario loggeado.");
+
+            return Ok(user);
+
         }
     }
 }

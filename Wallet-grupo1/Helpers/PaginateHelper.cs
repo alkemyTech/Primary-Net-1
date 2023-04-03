@@ -15,7 +15,7 @@ public static class PaginateHelper
     /// <typeparam name="T">El tipo de los elementos que se van a paginar</typeparam>
     /// <returns>Lista paginada de a 10 elementos por pagina y su respectiva información
     /// (pagina siguiente y anterior, pagina actual, elementos en la pagina, total de paginas)</returns>
-    public static PaginateDataDto<T> Paginate<T>(List<T> itemsToPaginate, int currentPage, string url)
+    public static PaginateDataDto<T> Paginate<T>(List<T> itemsToPaginate, int currentPage)//,string url)
     {
         int pageSize = 10;
 
@@ -24,8 +24,8 @@ public static class PaginateHelper
         
         var paginatedItems = itemsToPaginate.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
 
-        var prevUrl = currentPage > 1 ? $"{url}?page={currentPage - 1}" : null;
-        var nextUrl = currentPage < totalPages ? $"{url}?page={currentPage + 1}" : null;
+        //var prevUrl = currentPage > 1 ? $"{url}?page={currentPage - 1}" : null;
+        //var nextUrl = currentPage < totalPages ? $"{url}?page={currentPage + 1}" : null;
 
         return new PaginateDataDto<T>()
         {
@@ -33,8 +33,8 @@ public static class PaginateHelper
             PageSize = pageSize,
             TotalPages = totalPages,
             TotalItems = totalItems,
-            PrevUrl = prevUrl,
-            NextUrl = nextUrl,
+            //PrevUrl = prevUrl,
+            //NextUrl = nextUrl,
             Items = paginatedItems
         };
     }

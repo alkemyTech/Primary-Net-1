@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 
 namespace Wallet_grupo1.DataAccess.Repositories
 {
@@ -12,6 +13,7 @@ namespace Wallet_grupo1.DataAccess.Repositories
             
         }
 
+        
         public override async Task<bool> Update(User entity)
         {
             try
@@ -82,6 +84,16 @@ namespace Wallet_grupo1.DataAccess.Repositories
             return await _context.Users
                 .Where(x => x.Email == user.Email)
                 .AnyAsync();
+        }
+
+        public async Task<List<User>> PaginatedUsers(int page)
+        {
+            List<User> users = await base.GetAll();
+
+            var paginatedItems = PaginateHelper.Paginate<User>(users, page);
+
+            return paginatedItems.Items;
+       
         }
         
     }
