@@ -79,7 +79,7 @@ public class CatalogueController : Controller
 
         return Ok();
     }
-
+    //
     // Actualiza un catálogo existente
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Catalogue catalogue)
