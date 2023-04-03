@@ -84,6 +84,7 @@ namespace Wallet_grupo1.Controllers
         [HttpPost]
         public async Task<ActionResult<Transaction>> Insert(Transaction transaction)
         {
+            //Realizo el Insert de la transaction
             await _unitOfWorkService.TransactionRepo.Insert(transaction);
             await _unitOfWorkService.Complete();
             
