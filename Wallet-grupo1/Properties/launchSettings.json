@@ -1,23 +1,16 @@
 {
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:7780",
-      "sslPort": 44364
-    }
-  },
   "profiles": {
     "Wallet_grupo1": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7131;http://localhost:5274",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost:7131;http://localhost:5274",
+      "sqlDebugging": true,
+      "nativeDebugging": false
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -25,7 +18,18 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "sqlDebugging": true,
+      "nativeDebugging": true
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:7780",
+      "sslPort": 44364
     }
   }
 }
