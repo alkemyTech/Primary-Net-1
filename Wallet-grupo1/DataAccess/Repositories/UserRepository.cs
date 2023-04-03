@@ -7,61 +7,59 @@ namespace Wallet_grupo1.DataAccess.Repositories
 {
     public class UserRepository : Repository<User>, IUserRepository
     {
-        
+
         public UserRepository(ApplicationDbContext context) : base(context)
         {
-            
+
         }
 
-        
-        public override async Task<bool> Update(User entity)
+
+        public override async Task<bool> Update(User updatedUser)
         {
             try
             {
-                var user = await _context.Users.Where(x => x.Id == entity.Id).FirstOrDefaultAsync();
+                var existingUser = await _context.Users.Where(x => x.Id == updatedUser.Id).FirstOrDefaultAsync();
 
-                if (user == null)
+                if (existingUser == null)
                 {
                     return false;
                 }
 
-                user.FirstName = entity.FirstName;
-                user.LastName = entity.FirstName;
-                user.Password = entity.Password;
-                user.Email = entity.Email;
-                user.Points = entity.Points;
-                user.Role = entity.Role;
-                
-                _context.Users.Update(user);
+                existingUser.FirstName = updatedUser.FirstName;
+                existingUser.LastName = updatedUser.LastName;
+                existingUser.Password = updatedUser.Password;
+                existingUser.Email = updatedUser.Email;
+
+                _context.Users.Update(existingUser);
 
                 return true;
 
-            }catch(Exception) { 
-
+            }
+            catch (Exception)
+            {
                 return false;
             }
-            
         }
 
         public override async Task<bool> Delete(User entity)
         {
             try
             {
-                var user =  await _context.Users.Where(x => x.Id == entity.Id).FirstOrDefaultAsync();
+                var user = await _context.Users.Where(x => x.Id == entity.Id).FirstOrDefaultAsync();
 
                 if (user != null)
                 {
                     _context.Users.Remove(user);
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return false;
             }
 
             return true;
         }
-        
+
         /// <summary>
         ///  Método para validar credenciales. Si son válidas devuelve el User correspondiente, si no, devuelve NULL.
         /// </summary>
@@ -72,8 +70,7 @@ namespace Wallet_grupo1.DataAccess.Repositories
         {
             return await _context.Users.SingleOrDefaultAsync(x => x.Email == email && x.Password == pwd);
         }
-        
-        
+
         /// <summary>
         /// Método encargado de validar que no exista ningun usario en la BD que contenta el mismo email.
         /// </summary>
@@ -85,16 +82,5 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 .Where(x => x.Email == user.Email)
                 .AnyAsync();
         }
-
-        public async Task<List<User>> PaginatedUsers(int page)
-        {
-            List<User> users = await base.GetAll();
-
-            var paginatedItems = PaginateHelper.Paginate<User>(users, page);
-
-            return paginatedItems.Items;
-       
-        }
-        
     }
 }

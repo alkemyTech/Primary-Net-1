@@ -30,7 +30,7 @@ public class CatalogueController : Controller
         if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
         var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
 
-        var paginatedCatalogues = PaginateHelper.Paginate(catalogues, pageToShow);    
+        var paginatedCatalogues = PaginateHelper.Paginate(catalogues, pageToShow, url);    
 
         // Retorna un código 200 (OK) con la lista de catálogos paginado
         return Ok(paginatedCatalogues);
