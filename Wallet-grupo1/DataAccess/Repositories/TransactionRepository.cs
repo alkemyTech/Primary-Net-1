@@ -42,6 +42,7 @@ namespace Wallet_grupo1.DataAccess.Repositories{
             
             try
             {
+                // Verifico la existencia de la transaccion a actualizar y luego la actualizo
                 var existingTransaction = await _context.Transactions.Where(x => x.Id == transaction.Id).FirstOrDefaultAsync();
 
                 if (existingTransaction == null)
@@ -63,6 +64,37 @@ namespace Wallet_grupo1.DataAccess.Repositories{
                 return false;
             }
 
+        }
+
+        public async Task<bool> RemoveReferencesToAccountId(int accounId)
+        {
+            try
+            {
+                var transactionsFromAccoundId = 
+                    await _context.Transactions.Where(x => x.AccountId == accounId).ToListAsync();
+                var transactionsToAccountId =
+                    await _context.Transactions.Where(x => x.ToAccountId == accounId).ToListAsync();
+
+                foreach (var t in transactionsFromAccoundId)
+                {
+                    t.AccountId = null;
+                }
+
+                foreach (var t in transactionsToAccountId)
+                {
+                    t.ToAccountId = null;
+                }
+
+                var allTransactionsToUpdate = transactionsFromAccoundId.Concat(transactionsToAccountId);
+                
+                _context.Transactions.UpdateRange(allTransactionsToUpdate);
+                
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
     }

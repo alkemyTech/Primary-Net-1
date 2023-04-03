@@ -70,11 +70,13 @@ namespace Wallet_grupo1.Controllers
             
             var transaction = await _unitOfWorkService.TransactionRepo.GetById(id);
             if (transaction is null) return NotFound();
-            var account = await _unitOfWorkService.AccountRepo.GetById(transaction.AccountId);
+            
+            if(transaction.AccountId is null) return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta.");
+            var account = await _unitOfWorkService.AccountRepo.GetById(transaction.AccountId.Value);
             if (account is null) return NotFound();
             
             if (account.UserId != int.Parse(userIdToken))
-                return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta.");
+                return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta .");
 
             return Ok(transaction);
         }
@@ -107,7 +109,7 @@ namespace Wallet_grupo1.Controllers
             return Ok();
         }
 
-
+        [Authorize(Policy = "Admin")]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] Transaction transaction)
         {

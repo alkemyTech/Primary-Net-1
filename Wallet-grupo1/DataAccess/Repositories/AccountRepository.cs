@@ -1,4 +1,6 @@
-﻿using Wallet_grupo1.DataAccess.Repositories.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories
@@ -57,6 +59,19 @@ namespace Wallet_grupo1.DataAccess.Repositories
             }
 
             return true;
+        }
+
+        public async Task<ActionResult<Account>> FindByUserId(int userId)
+        {
+
+            // Busca la Account del user por Id
+            Account? account = await _context.Accounts.Where(x => x.UserId == userId).FirstOrDefaultAsync();
+
+            if (account is null) throw new Exception();
+
+            return account;
+
+        
         }
     }
 }
