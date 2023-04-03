@@ -31,6 +31,19 @@ namespace Wallet_grupo1.Controllers
         public async Task<ActionResult<IEnumerable<User>>> GetAll()
         {
             var users = await _unitOfWorkService.UserRepo.GetAll();
+            
+            // Paginar el resultado
+            int pageToShow = 1;
+            if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+            var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString();
+
+            var paginatedUsers = PaginateHelper.Paginate(users, pageToShow, url);  
+            
+            if(users == null)
+            {
+                return StatusCode(204, "No se encontraron usuarios");
+            }
+
             return Ok(users);
         }
 
@@ -55,9 +68,7 @@ namespace Wallet_grupo1.Controllers
         /// </summary>
         /// <param name="id">El ID del usuario a eliminar.</param>
         /// <returns>Un código de estado HTTP 200 (OK) si el usuario se eliminó correctamente.</returns>
-
         [Authorize(Policy = "Admin")]
-
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete([FromRoute] int id)
         {
@@ -110,20 +121,50 @@ namespace Wallet_grupo1.Controllers
         /// <param name="id">El ID del usuario a actualizar.</param>
         /// <param name="user">El objeto User con los datos actualizados.</param>
         /// <returns>Un código de estado HTTP 200 (OK) si el usuario se actualizó correctamente.</returns>
-
         [Authorize]
         [HttpPut("{id}")]
         public async Task<ActionResult> Update([FromRoute] int id, [FromBody] UserDto user)
         {
-            var result = await _unitOfWorkService.UserRepo.Update(user);
+            var result = await _unitOfWorkService.UserRepo.Update(new User(user,id));
             if (!result)
             
-                return StatusCode(500, $"No se pudo actualizar el usuario con ID: {user.Id}" +
+                return StatusCode(500, $"No se pudo actualizar el usuario con ID: {id}" +
                 $" porque no existe o porque no se pudo completar la transacción.");
-                
+            
             await _unitOfWorkService.Complete();
 
             return Ok();
+        }
+        
+        /// <summary>
+        ///     Obtiene los datos del usuario logeado 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="SecurityTokenException"></exception>
+        [Authorize]
+        [HttpGet("authenticated")]
+        public async Task<ActionResult<User>> AuthenticatedUserData([FromRoute] int id)
+        {
+
+            string? authorizationHeader = Request.Headers["Authorization"];
+            if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+
+            if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+                return Unauthorized("No se proporcionó un token de seguridad válido.");
+
+            string jwtToken = authorizationHeader.Substring(7);
+
+            var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
+            if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+
+            var user = await _unitOfWorkService.UserRepo.GetById(id);
+            if (user is null) return NotFound($"No se encontró ningun usuario con el número: {id}.");
+
+            if (user.Id != int.Parse(userIdToken))
+                return Forbid("La cuenta no pertenece al usuario loggeado.");
+
+            return Ok(user);
         }
     }
 }
