@@ -27,7 +27,8 @@ public class User
 
     [Column("user_points")] public int Points { get; set; }
 
-    [Required] [Column("role_id")] 
+    [Required]
+    [Column("role_id")]
     public int RoleId { get; set; }
     public Role? Role { get; set; }
 
@@ -40,9 +41,19 @@ public class User
         LastName = dto.LastName;
         Password = PasswordEncryptHelper.EncryptPassword(dto.Password);
         Email = dto.Email;
-        RoleId = 1;
+        RoleId = 2;
         Points = 0;
     }
 
-    public User(){}
+
+    public User() { }
+
+    public User(UserDto userDto, int id)
+    {
+        Id = id;
+        FirstName = userDto.FirstName;
+        LastName = userDto.LastName;
+        Password = PasswordEncryptHelper.EncryptPassword(userDto.Password);
+        Email = userDto.Email;
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 
 namespace Wallet_grupo1.DataAccess.DatabaseSeeding;
 
@@ -13,7 +14,7 @@ public class UserSeeder : IEntitySeeder
                 FirstName = "Cotton" ,
                 LastName = "Mather", 
                 Email = "cm@gmail.com",
-                Password = "cm2k23",
+                Password = PasswordEncryptHelper.EncryptPassword("cm2k23"),
                 Points = 1241,
                 RoleId = 1
             },
@@ -22,7 +23,7 @@ public class UserSeeder : IEntitySeeder
                 FirstName = "Deodat" ,
                 LastName = "Lawson", 
                 Email = "dl@gmail.com",
-                Password = "dl2k23",
+                Password = PasswordEncryptHelper.EncryptPassword("dl2k23"),
                 Points = 1242323,
                 RoleId = 1
             },
@@ -31,7 +32,7 @@ public class UserSeeder : IEntitySeeder
                 FirstName = "Giles" ,
                 LastName = "Corey", 
                 Email = "gc@gmail.com",
-                Password = "ed2k23",
+                Password = PasswordEncryptHelper.EncryptPassword("ed2k23"),
                 Points = 50,
                 RoleId = 1
             },
@@ -40,7 +41,7 @@ public class UserSeeder : IEntitySeeder
                 FirstName = "James" ,
                 LastName = "Bayley", 
                 Email = "jb@gmail.com",
-                Password = "jb2k23",
+                Password = PasswordEncryptHelper.EncryptPassword("jb2k23"),
                 Points = 50,
                 RoleId = 2
             },
@@ -49,7 +50,7 @@ public class UserSeeder : IEntitySeeder
                 FirstName = "John" ,
                 LastName = "Proctor", 
                 Email = "jp@gmail.com",
-                Password = "jp2k23",
+                Password = PasswordEncryptHelper.EncryptPassword("jp2k23"),
                 Points = 0,
                 RoleId = 2
             },
@@ -58,7 +59,7 @@ public class UserSeeder : IEntitySeeder
                 FirstName = "Mary" ,
                 LastName = "Eastey", 
                 Email = "me@gmail.com",
-                Password = "me2k23",
+                Password = PasswordEncryptHelper.EncryptPassword("me2k23"),
                 Points = 50231,
                 RoleId = 2
             }
