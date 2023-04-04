@@ -33,7 +33,7 @@ namespace Wallet_grupo1.Controllers
         {
             //Get token del header y validacion
             string? authorizationHeader = Request.Headers["Authorization"];
-
+  
             if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
 
             if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
@@ -47,7 +47,15 @@ namespace Wallet_grupo1.Controllers
             
             var transactions = await _unitOfWorkService.TransactionRepo.TransactionsOfUser(int.Parse(userIdToken));
             
-            return Ok(transactions);
+            // Paginar el resultado de Transaction
+            int pageToShow = 1;
+            if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+            var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
+
+            var paginatedTransaction = PaginateHelper.Paginate(transactions, pageToShow, url);
+
+
+            return Ok(paginatedTransaction);
         }
         
         [Authorize]
