@@ -8,8 +8,8 @@ public class RoleSeeder : IEntitySeeder
     public void SeedTheDatabase(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Role>().HasData(
-            new Role{ Id = 1, Name = "Admin" , Description = "This role has total functional control over the system"},
-            new Role{ Id = 2, Name = "Regular" , Description = "This role has all nominal business functionalities"}
+            new Role{ Id = 1, Name = "Admin" , Description = "This role has total functional control over the system", EsEliminado = false},
+            new Role{ Id = 2, Name = "Regular" , Description = "This role has all nominal business functionalities", EsEliminado = false}
         );
     }
 }
