@@ -12,6 +12,9 @@ namespace Wallet_grupo1.Entities
         
         [Column("role_description", TypeName = "VARCHAR(100)")]
         public string? Description { get; set; }
+
+        [Column("es_eliminado")]
+        public bool EsEliminado { get; set; }
     }
     
 }
