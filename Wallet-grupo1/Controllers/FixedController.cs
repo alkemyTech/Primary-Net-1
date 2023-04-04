@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.DTOs;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 using Wallet_grupo1.Infrastructure;
 using Wallet_grupo1.Services;
 
@@ -22,7 +23,20 @@ public class FixedController : Controller
     public async Task<IActionResult> GetAll()
     {
         var Fixed = await _unitOfWorkService.FixedRepo.GetAll();
-        return Ok(Fixed);
+
+        // Paginar el resultado
+        int pageToShow = 1;
+        if (Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+        var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString();
+
+        var paginatedFixed = PaginateHelper.Paginate(Fixed, pageToShow, url);
+
+        if (Fixed == null)
+        {
+            return StatusCode(204, "No se encontraron FixedTermDeposit");
+        }
+     
+        return Ok(paginatedFixed);
     }
 
     // Obtiene un Fixed mediante el ID
