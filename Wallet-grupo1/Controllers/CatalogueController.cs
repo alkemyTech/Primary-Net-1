@@ -49,8 +49,12 @@ public class CatalogueController : Controller
         return Ok(paginatedCatalogues);
     }
 
-    // Obtiene un catálogo por su ID
-    [Authorize]
+    /// <summary>
+    /// Endpoint que provee la funcionalidad de consultar una unidad de catálogo existente.
+    /// Requiere permisos de autenticación y el codigo del catálogo a buscar.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
@@ -116,6 +120,7 @@ public class CatalogueController : Controller
     /// </summary>
     /// <param name="catalogue"></param>
     /// <returns>Codigo de respuesta HTTP asociado al éxito o fracaso del Request</returns>
+    [Authorize(Policy = "Admin")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Catalogue catalogue)
     {
