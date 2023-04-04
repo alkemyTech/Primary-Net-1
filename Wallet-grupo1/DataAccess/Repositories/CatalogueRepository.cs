@@ -3,24 +3,31 @@ using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories{
-
-public class CatalogueRepository : Repository<Catalogue>, ICatalogueRepository
+    
+    /// <summary>
+    /// Clase repositorio para gestionar las instancias de entidades de unidades Catálogo en el marco de la aplicación
+    /// en conjunción con el motor de la base de datos, mediante operaciones asíncronas. Se utiliza el contexto provisto
+    /// por la librería de Entity Framework para la persistencia y el manejo de operaciones SQL.
+    /// </summary>
+    public class CatalogueRepository : Repository<Catalogue>, ICatalogueRepository
 {
+    /// <summary>
+    /// Constructor base del repositorio de catálogos
+    /// </summary>
     public CatalogueRepository(ApplicationDbContext context) : base(context)
     {
     }
-
-
+    
         /// <summary>
-        ///     Eliminacion de catalogue
+        /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        public override async Task<bool> Delete(Catalogue entity)
+        /// <param name="catalogueToDelete"></param>
+        /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
+        public override async Task<bool> Delete(Catalogue catalogueToDelete)
         {
             try
             {
-                var catalogue = await _context.Catalogues.Where(x => x.Id == entity.Id).FirstOrDefaultAsync();
+                var catalogue = await _context.Catalogues.Where(x => x.Id == catalogueToDelete.Id).FirstOrDefaultAsync();
 
                 if (catalogue != null)
                 {
