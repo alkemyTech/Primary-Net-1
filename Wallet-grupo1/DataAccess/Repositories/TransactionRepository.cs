@@ -3,20 +3,35 @@ using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories{
-
+    /// <summary>
+    ///     Repositorio transaction
+    /// </summary>
     public class TransactionRepository : Repository<Transaction>, ITransactionRepository
     {
-        
+        /// <summary>
+        ///     Constructor transaction
+        /// </summary>
+        /// <param name="context"></param>
         public TransactionRepository(ApplicationDbContext context) : base(context)
         {
         }
 
+        /// <summary>
+        ///     Se obtienen transacciones del usuario
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public async Task<List<Transaction>> TransactionsOfUser(int userId)
         {
             return await _context.Transactions.Where(x => x.Account.User.Id == userId).
                 OrderByDescending(x => x.Date).ToListAsync();
         }
 
+        /// <summary>
+        ///     Funcion para eliminar una transaction
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
         public override async Task<bool> Delete(Transaction transaction)
         {
             try
@@ -36,12 +51,19 @@ namespace Wallet_grupo1.DataAccess.Repositories{
                 return false;
             }
         }
+
+        /// <summary>
+        ///     Funcion para actualizar Transaction
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
         
         public override async Task<bool> Update(Transaction transaction)
         {
             
             try
             {
+                // Verifico la existencia de la transaccion a actualizar y luego la actualizo
                 var existingTransaction = await _context.Transactions.Where(x => x.Id == transaction.Id).FirstOrDefaultAsync();
 
                 if (existingTransaction == null)
@@ -65,17 +87,34 @@ namespace Wallet_grupo1.DataAccess.Repositories{
 
         }
 
-        public async Task<bool> DeleteTransactionByAccount(int accounId)
+        /// <summary>
+        ///     Se eliminan las  transacciones con referencia a una account
+        /// </summary>
+        /// <param name="accounId"></param>
+        /// <returns></returns>
+        public async Task<bool> RemoveReferencesToAccountId(int accounId)
         {
             try
             {
-                // Elimino las Transaction con el Id de la Account
-                var transactions = await _context.Transactions.Where(x => x.AccountId == accounId).ToListAsync();
+                var transactionsFromAccoundId = 
+                    await _context.Transactions.Where(x => x.AccountId == accounId).ToListAsync();
+                var transactionsToAccountId =
+                    await _context.Transactions.Where(x => x.ToAccountId == accounId).ToListAsync();
 
-                if (transactions != null)
+                foreach (var t in transactionsFromAccoundId)
                 {
-                    _context.Transactions.RemoveRange(transactions);
+                    t.AccountId = null;
                 }
+
+                foreach (var t in transactionsToAccountId)
+                {
+                    t.ToAccountId = null;
+                }
+
+                var allTransactionsToUpdate = transactionsFromAccoundId.Concat(transactionsToAccountId);
+                
+                _context.Transactions.UpdateRange(allTransactionsToUpdate);
+                
                 return true;
             }
             catch

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Wallet_grupo1.DTOs;
 
 namespace Wallet_grupo1.Entities
 {
@@ -23,5 +24,14 @@ namespace Wallet_grupo1.Entities
         [Column("account_id")]
         public int AccountId { get; set; }
         public Account Account { get; set; } = null!;
+
+        public FixedTermDeposit(int id, FixedTermDepositDto dto)
+        {
+            Id = id;
+            ClosingDate = dto.ClosingDate;
+            Amount = dto.Amount;
+        }
+        
+        public FixedTermDeposit(){}
     }
 }
