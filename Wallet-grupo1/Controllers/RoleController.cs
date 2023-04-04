@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Wallet_grupo1.DataAccess;
+using Wallet_grupo1.DTOs;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Infrastructure;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
@@ -47,20 +49,24 @@ public class RoleController : Controller
     }
     
     /// <summary>
-    /// Insertar un rol en la base de datos con los datos pasados en el Body.
+    /// Insertar un rol en la base de datos con los datos pasados en el Body. Solo administradores tienen acceso.
     /// </summary>
     /// <param name="newRole">Estado en el que se quiere insertar el rol. El ID se autogenerará en la BD.</param>
     /// <returns>El resultado de la creación e inserción de la entidad y su estado.</returns>
+    [Authorize(Policy = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> Insert([FromBody] Role newRole)
+    public async Task<IActionResult> Insert([FromBody] RoleDto newRole)
     {
         if (!ModelState.IsValid)
-            return new JsonResult("Hubo un problema insertando el nuevo rol en la DB") { StatusCode = 500 };
+            return ResponseFactory.CreateErrorResponse(500, "Hubo un problema insertando el nuevo rol en la DB");
+
+        var result = await _unitOfWorkService.RoleRepo.Insert(new Role(newRole));
+
+        if (!result) return ResponseFactory.CreateErrorResponse(500, "No se pudo insertar el nuevo Rol.");
         
-        await _unitOfWorkService.RoleRepo.Insert(newRole);
         await _unitOfWorkService.Complete();
 
-        return CreatedAtAction("GetById", new { newRole.Id }, newRole);
+        return ResponseFactory.CreateSuccessfullyResponse(201, newRole);
     }
 
     /// <summary>
