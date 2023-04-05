@@ -21,6 +21,10 @@ public class AccountController : Controller
         _unitOfWorkService = unitOfWork;
     }
 
+    /// <summary>
+    /// Obtener el listado de todas las Account del sistema. Solo usuarios administradores pueden acceder.
+    /// </summary>
+    /// <returns>Listado de todas las Account del sistema.</returns>
     [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
@@ -45,6 +49,11 @@ public class AccountController : Controller
         return Ok(paginatedAccounts);
     }
 
+    /// <summary>
+    /// Obtener una Account a partir del ID especificado. Solo los administradores tienen acceso.
+    /// </summary>
+    /// <param name="id">ID del rol que se quiere recuperar.</param>
+    /// <returns>El estado de la Account con el ID especificado.</returns>
     [Authorize(Policy = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(int id)
@@ -60,7 +69,11 @@ public class AccountController : Controller
         return Ok(account);
     }
 
-
+    /// <summary>
+    /// Insertar una Account en la base de datos con los datos pasados en el Body.
+    /// </summary>
+    /// <param name="account">Estado en el que se quiere insertar la Account. El ID se autogenerará en la BD.</param>
+    /// <returns>El resultado de la creación e inserción de la entidad y su estado.</returns>
     [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Insert([FromBody] Account account)
@@ -71,6 +84,11 @@ public class AccountController : Controller
         return CreatedAtAction(nameof(GetById), new { id = account.Id }, account);
     }
 
+    /// <summary>
+    /// Eliminar la Account de la base de datos cuyo ID corresponda con el especificado.
+    /// </summary>
+    /// <param name="id">ID de la Account que se desea eliminar.</param>
+    /// <returns>Resultado de la transacción de eliminación</returns>
     [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
@@ -102,6 +120,11 @@ public class AccountController : Controller
             $"Se eliminó la cuenta con ID: {account.Id}, sus plazos fijos y todas sus referencias en transacciones.");
     }
 
+    /// <summary>
+    /// Actualizar el estado de una Account con los datos pasados en el body.
+    /// </summary>
+    /// <param name="account">Información de la Account a actualizar.</param>
+    /// <returns>Resultado de la transacción de actualización.</returns>
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Account account)
     {
@@ -117,6 +140,11 @@ public class AccountController : Controller
         return Ok();
     }
 
+    /// <summary>
+    /// Operacion de Deposito en una Account
+    /// </summary>
+    /// <param name="id">ID de la cuenta a depositar.</param>
+    /// <param name="dto">Cuenta receptora.</param>
     [Authorize]
     [HttpPost("deposit/{id}")]
     public async Task<IActionResult> Deposit([FromRoute] int id, [FromBody] DepositDto dto)
@@ -151,6 +179,11 @@ public class AccountController : Controller
         return Ok($"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
     }
 
+    /// <summary>
+    /// Operacion de Transferencia en una Account
+    /// </summary>
+    /// <param name="id">ID de la cuenta que Transfiere.</param>
+    /// <param name="dto">Cuenta receptora.</param>
     [Authorize]
     [HttpPost("transferencia/{id}")]
     public async Task<IActionResult> Transferencia([FromRoute] int id, [FromBody] TransferenciaDto dto)
