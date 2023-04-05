@@ -113,6 +113,7 @@ public class CatalogueController : Controller
             $"Se eliminó el catálogo con ID: {catalogue.Id} satisfactoriamente del sistema.");
     }
 
+
     /// <summary>
     /// Endpoint que provee la funcionalidad de actualizar los datos de un catálogo de la base de datos.
     /// Requiere permisos de administrador y los datos actualizables pertinentes que se deseen ajustar:
@@ -129,6 +130,6 @@ public class CatalogueController : Controller
         // Guarda los cambios en la base de datos
         await _unitOfWorkService.Complete();
         // Retorna un código 204 (No Content) si la actualización fue exitosa
-        return NoContent();
+        return Ok();
     }
 }

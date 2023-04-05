@@ -22,6 +22,7 @@ public class FixedController : Controller
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
+        // Carga todos los Fixed de la base de datos utilizando el repositorio de Fixed
         var Fixed = await _unitOfWorkService.FixedRepo.GetAll();
 
         // Paginar el resultado
@@ -35,7 +36,7 @@ public class FixedController : Controller
         {
             return StatusCode(204, "No se encontraron FixedTermDeposit");
         }
-     
+        // Retorna un código 200 (OK)
         return Ok(paginatedFixed);
     }
 
@@ -43,12 +44,14 @@ public class FixedController : Controller
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
+        // Obtiene el Id del fidex especificado utilizando el repositorio de Fixed.
         var Fixed = await _unitOfWorkService.FixedRepo.GetById(id);
-
+        ///Si no se encuentra un Fixed con el Id especificado, devulve un código 404 
         if (Fixed is null) return NotFound();
-
+        // Si se encuentra el Fixed, retorna un código 200 
         return Ok(Fixed);
     }
+  
 
     [HttpPost]
     public IActionResult Insert([FromBody] FixedTermDeposit Fixed)
@@ -63,6 +66,7 @@ public class FixedController : Controller
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteFixedTermDeposit([FromRoute] int id)
     {
+        // Obtiene el Id del fidex especificado utilizando el repositorio de Fixed.
         var fixedTermDeposit = await _unitOfWorkService.FixedRepo.GetById(id);
 
         if (fixedTermDeposit is null) return ResponseFactory.CreateErrorResponse(404, $"No se encontró ningún plazo fijo con el id: {id}.");
@@ -74,6 +78,7 @@ public class FixedController : Controller
                                    $" porque no existe o porque no se pudo completar la transacción.");
 
         await _unitOfWorkService.Complete();
+
 
         return ResponseFactory.CreateSuccessfullyResponse(200, "El plazo fijo se eliminó con éxito.");
     }
@@ -91,6 +96,7 @@ public class FixedController : Controller
         await _unitOfWorkService.Complete();
 
         return ResponseFactory.CreateSuccessfullyResponse(200, $"El plazo fijo con ID: {id} se actualizó con éxito.");
+
     }
 
     [HttpGet("{userId}")]
