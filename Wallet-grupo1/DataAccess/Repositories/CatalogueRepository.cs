@@ -17,7 +17,7 @@ namespace Wallet_grupo1.DataAccess.Repositories{
     public CatalogueRepository(ApplicationDbContext context) : base(context)
     {
     }
-    
+
         /// <summary>
         /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
         /// </summary>
@@ -38,6 +38,9 @@ namespace Wallet_grupo1.DataAccess.Repositories{
             {
                 return false;
             }
+
+            return true;
+        }
 
 
     public override async Task<bool> Update(Catalogue entity)
