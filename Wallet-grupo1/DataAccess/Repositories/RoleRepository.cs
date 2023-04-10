@@ -19,7 +19,7 @@ public class RoleRepository : Repository<Role>, IRoleRepository
 
             if (role != null)
             {
-                _context.Roles.Remove(role);
+                role.EsEliminado = true;
             }
         }
         catch (Exception)

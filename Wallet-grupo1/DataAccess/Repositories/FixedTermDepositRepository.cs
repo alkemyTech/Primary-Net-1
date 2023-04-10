@@ -4,7 +4,7 @@ using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories
 {
-    
+
     public class FixedTermDepositRepository : Repository<FixedTermDeposit>, IFixedTermDepositRepository
     {
         public FixedTermDepositRepository(ApplicationDbContext context) : base(context)
@@ -59,6 +59,47 @@ namespace Wallet_grupo1.DataAccess.Repositories
             {
                 return false;
             }
+        }
+
+
+
+        //usa este delete de referencia para crear el de este repositorio
+        //         public override async Task<bool> Delete(Account entity)
+        // {
+        //     try
+        //     {
+        //         var account = await _context.Accounts.FindAsync(entity.Id);
+
+        //         // Si no se encontró ninguna entidad con ese ID no tiene sentido seguir.
+        //         if (account is null) return false;
+
+        //         _context.Accounts.Remove(account);
+        //     }
+        //     catch (Exception)
+        //     {
+        //         return false;
+        //     }
+
+        //     return true;
+        // }
+
+        public override async Task<bool> Delete(FixedTermDeposit fixedTermDeposit)
+        {
+            try
+            {
+
+
+                // Si no se encontró ninguna entidad con ese ID no tiene sentido seguir.
+                if (fixedTermDeposit is null) return false;
+
+                _context.FixedTermDeposits.Remove(fixedTermDeposit);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -20,21 +20,40 @@ public class AccountController : Controller
     {
         _unitOfWorkService = unitOfWork;
     }
-    
+
+    /// <summary>
+    /// Obtener el listado de todas las Account del sistema. Solo usuarios administradores pueden acceder.
+    /// </summary>
+    /// <returns>Listado de todas las Account del sistema.</returns>
     [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
         var accounts = await _unitOfWorkService.AccountRepo.GetAll();
-        
+
+        // Pagina default
+        int pageToShow = 1;
+        // Recupera de la request el parametro page, si no esta esa key se va a mostrar la default(1)
+        if (Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+        // recupera la url sin los query params para poder usarla en la paginacion 
+        var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString();
+
+        // Pagina los resultados
+        var paginatedAccounts = PaginateHelper.Paginate(accounts, pageToShow, url);
+
         if (accounts.Count < 1)
         {
             //TODO refactor con manejo de errores y respuestas vacias
             return NotFound();
         }
-        return Ok(accounts);
+        return Ok(paginatedAccounts);
     }
-    
+
+    /// <summary>
+    /// Obtener una Account a partir del ID especificado. Solo los administradores tienen acceso.
+    /// </summary>
+    /// <param name="id">ID del rol que se quiere recuperar.</param>
+    /// <returns>El estado de la Account con el ID especificado.</returns>
     [Authorize(Policy = "Admin")]
     [HttpGet("{id}")]
     public async Task<ActionResult> GetById(int id)
@@ -46,11 +65,15 @@ public class AccountController : Controller
             //TODO refactor con manejo de errores y respuestas vacias
             return NotFound();
         }
-        
+
         return Ok(account);
     }
 
-    
+    /// <summary>
+    /// Insertar una Account en la base de datos con los datos pasados en el Body.
+    /// </summary>
+    /// <param name="account">Estado en el que se quiere insertar la Account. El ID se autogenerará en la BD.</param>
+    /// <returns>El resultado de la creación e inserción de la entidad y su estado.</returns>
     [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Insert([FromBody] Account account)
@@ -58,16 +81,21 @@ public class AccountController : Controller
         await _unitOfWorkService.AccountRepo.Insert(account);
         await _unitOfWorkService.Complete();
 
-        return CreatedAtAction(nameof(GetById), new { id = account.Id}, account);
+        return CreatedAtAction(nameof(GetById), new { id = account.Id }, account);
     }
-    
+
+    /// <summary>
+    /// Eliminar la Account de la base de datos cuyo ID corresponda con el especificado.
+    /// </summary>
+    /// <param name="id">ID de la Account que se desea eliminar.</param>
+    /// <returns>Resultado de la transacción de eliminación</returns>
     [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         var account = await _unitOfWorkService.AccountRepo.GetById(id);
         if (account is null) return NotFound($"No se encontro ninguna cuenta con el id: {id}.");
-        
+
         // Elimino las Transaccion con Id la Account
         var deletedTransaccions = await _unitOfWorkService.TransactionRepo.RemoveReferencesToAccountId(account.Id);
         if (!deletedTransaccions)
@@ -88,25 +116,35 @@ public class AccountController : Controller
 
         await _unitOfWorkService.Complete();
 
-        return ResponseFactory.CreateSuccessfullyResponse(200, 
+        return ResponseFactory.CreateSuccessfullyResponse(200,
             $"Se eliminó la cuenta con ID: {account.Id}, sus plazos fijos y todas sus referencias en transacciones.");
     }
-    
+
+    /// <summary>
+    /// Actualizar el estado de una Account con los datos pasados en el body.
+    /// </summary>
+    /// <param name="account">Información de la Account a actualizar.</param>
+    /// <returns>Resultado de la transacción de actualización.</returns>
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Account account)
     {
 
         var result = await _unitOfWorkService.AccountRepo.Update(account);
-            
+
         if (!result)
             return StatusCode(500, $"No se pudo actualizar la account con id: {account.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción."); 
-                                       
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+
         await _unitOfWorkService.Complete();
-        
+
         return Ok();
     }
 
+    /// <summary>
+    /// Operacion de Deposito en una Account
+    /// </summary>
+    /// <param name="id">ID de la cuenta a depositar.</param>
+    /// <param name="dto">Cuenta receptora.</param>
     [Authorize]
     [HttpPost("deposit/{id}")]
     public async Task<IActionResult> Deposit([FromRoute] int id, [FromBody] DepositDto dto)
@@ -118,19 +156,19 @@ public class AccountController : Controller
 
         if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
             return Unauthorized("No se proporcionó un token de seguridad válido.");
-        
+
         string jwtToken = authorizationHeader.Substring(7);
-        
+
         // Extraigo el userid del token (es un claim)
         var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
         if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
 
         Account? account;
-        
+
         account = _unitOfWorkService.AccountRepo.GetById(id).Result;
 
         if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {id}.");
-        
+
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
         if (account.UserId != int.Parse(userIdToken))
             return Forbid("La cuenta no pertenece al usuario loggeado.");
@@ -141,6 +179,11 @@ public class AccountController : Controller
         return Ok($"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
     }
 
+    /// <summary>
+    /// Operacion de Transferencia en una Account
+    /// </summary>
+    /// <param name="id">ID de la cuenta que Transfiere.</param>
+    /// <param name="dto">Cuenta receptora.</param>
     [Authorize]
     [HttpPost("transferencia/{id}")]
     public async Task<IActionResult> Transferencia([FromRoute] int id, [FromBody] TransferenciaDto dto)
@@ -162,7 +205,7 @@ public class AccountController : Controller
         // account = Quien envia el dinero, toAccount = Quien recibe el dinero
         var account = _unitOfWorkService.AccountRepo.GetById(id).Result;
         var toAccount = _unitOfWorkService.AccountRepo.GetById(dto.IdReceptor).Result;
-        
+
         //TODO manejo de errores y respuestas vacias
         if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {id}.");
         if (toAccount is null) return NotFound($"No se encontró ninguna cuenta con el número: {dto.IdReceptor}.");

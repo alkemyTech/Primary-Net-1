@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
+using Wallet_grupo1.Helpers;
 
 namespace Wallet_grupo1.DataAccess.Repositories
 {
@@ -11,6 +12,7 @@ namespace Wallet_grupo1.DataAccess.Repositories
         {
 
         }
+
 
         public override async Task<bool> Update(User updatedUser)
         {
@@ -35,10 +37,8 @@ namespace Wallet_grupo1.DataAccess.Repositories
             }
             catch (Exception)
             {
-
                 return false;
             }
-
         }
 
         public override async Task<bool> Delete(User entity)
@@ -82,6 +82,5 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 .Where(x => x.Email == user.Email)
                 .AnyAsync();
         }
-
     }
 }

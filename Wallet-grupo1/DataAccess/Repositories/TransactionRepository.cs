@@ -3,20 +3,35 @@ using Wallet_grupo1.DataAccess.Repositories.Interfaces;
 using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories{
-
+    /// <summary>
+    ///     Repositorio transaction
+    /// </summary>
     public class TransactionRepository : Repository<Transaction>, ITransactionRepository
     {
-        
+        /// <summary>
+        ///     Constructor transaction
+        /// </summary>
+        /// <param name="context"></param>
         public TransactionRepository(ApplicationDbContext context) : base(context)
         {
         }
 
+        /// <summary>
+        ///     Se obtienen transacciones del usuario
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         public async Task<List<Transaction>> TransactionsOfUser(int userId)
         {
             return await _context.Transactions.Where(x => x.Account.User.Id == userId).
                 OrderByDescending(x => x.Date).ToListAsync();
         }
 
+        /// <summary>
+        ///     Funcion para eliminar una transaction
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
         public override async Task<bool> Delete(Transaction transaction)
         {
             try
@@ -36,6 +51,12 @@ namespace Wallet_grupo1.DataAccess.Repositories{
                 return false;
             }
         }
+
+        /// <summary>
+        ///     Funcion para actualizar Transaction
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
         
         public override async Task<bool> Update(Transaction transaction)
         {
@@ -66,6 +87,11 @@ namespace Wallet_grupo1.DataAccess.Repositories{
 
         }
 
+        /// <summary>
+        ///     Se eliminan las  transacciones con referencia a una account
+        /// </summary>
+        /// <param name="accounId"></param>
+        /// <returns></returns>
         public async Task<bool> RemoveReferencesToAccountId(int accounId)
         {
             try

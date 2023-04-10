@@ -27,13 +27,18 @@ namespace Wallet_grupo1.Controllers
             _unitOfWorkService = unitOfWork;
         }
         
+        /// <summary>
+        ///     Se obtienen transacciones
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="SecurityTokenException"></exception>
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<List<Transaction>>> GetAll()
         {
             //Get token del header y validacion
             string? authorizationHeader = Request.Headers["Authorization"];
-
+  
             if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
 
             if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
@@ -47,9 +52,23 @@ namespace Wallet_grupo1.Controllers
             
             var transactions = await _unitOfWorkService.TransactionRepo.TransactionsOfUser(int.Parse(userIdToken));
             
-            return Ok(transactions);
+            // Paginar el resultado de Transaction
+            int pageToShow = 1;
+            if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+            var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
+
+            var paginatedTransaction = PaginateHelper.Paginate(transactions, pageToShow, url);
+
+
+            return Ok(paginatedTransaction);
         }
         
+        /// <summary>
+        ///     Se obtiene transaccion por ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        /// <exception cref="SecurityTokenException"></exception>
         [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Transaction>> GetById([FromRoute] int id)
@@ -81,9 +100,15 @@ namespace Wallet_grupo1.Controllers
             return Ok(transaction);
         }
 
+        /// <summary>
+        ///     Funcion para insertar transation
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<Transaction>> Insert(Transaction transaction)
         {
+            //Realizo el Insert de la transaction
             await _unitOfWorkService.TransactionRepo.Insert(transaction);
             await _unitOfWorkService.Complete();
             
@@ -91,6 +116,12 @@ namespace Wallet_grupo1.Controllers
         }
 
 
+        /// <summary>
+        ///     funcion para eliminar transaction. Solo pueden hacerlo los admins
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [Authorize(Policy = "Admin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
@@ -109,6 +140,12 @@ namespace Wallet_grupo1.Controllers
             return Ok();
         }
 
+        /// <summary>
+        ///     Funcion para actualizar transaction, solo admins
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
+
         [Authorize(Policy = "Admin")]
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] Transaction transaction)
@@ -124,7 +161,14 @@ namespace Wallet_grupo1.Controllers
 
             return Ok();
         }
-        
+
+
+        /// <summary>
+        ///     Se obtienen todas las transacciones realizadas por un usuario
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        [Authorize]
         [HttpGet("{userId}")]
         public async Task<List<Transaction>> TransactionsOfUser([FromBody]int userId)
         {
