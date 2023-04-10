@@ -44,9 +44,10 @@ namespace Wallet_grupo1.Entities
         /// </summary>
         public FixedTermDeposit(FixedTermDepositDto dto)
         {
+            CreationDate = DateTime.Now;
             ClosingDate = dto.ClosingDate;
             Amount = dto.Amount;
-            AccountId = dto.OwnerAccountId;
+            AccountId = dto.AccountId;
         }
         
         /// <summary>
