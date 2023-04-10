@@ -11,12 +11,12 @@ namespace Wallet_grupo1.Controllers;
 public class RoleController : Controller
 {
     private readonly IUnitOfWork _unitOfWorkService;
-    
+
     public RoleController(IUnitOfWork unitOfWorkService)
     {
         _unitOfWorkService = unitOfWorkService;
     }
-    
+
     /// <summary>
     /// Obtener el listado de todos los roles del sistema. Solo usuarios administradores pueden acceder.
     /// </summary>
@@ -29,7 +29,7 @@ public class RoleController : Controller
 
         return Ok(rolesPresent);
     }
-    
+
     /// <summary>
     /// Obtener un rol a partir del ID especificado. Solo los administradores tienen acceso.
     /// </summary>
@@ -40,12 +40,12 @@ public class RoleController : Controller
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
         var roleToFind = await _unitOfWorkService.RoleRepo.GetById(id);
-        
+
         if (roleToFind is null) return NotFound();
-        
+
         return Ok(roleToFind);
     }
-    
+
     /// <summary>
     /// Insertar un rol en la base de datos con los datos pasados en el Body.
     /// </summary>
@@ -56,7 +56,7 @@ public class RoleController : Controller
     {
         if (!ModelState.IsValid)
             return new JsonResult("Hubo un problema insertando el nuevo rol en la DB") { StatusCode = 500 };
-        
+
         await _unitOfWorkService.RoleRepo.Insert(newRole);
         await _unitOfWorkService.Complete();
 
@@ -74,32 +74,35 @@ public class RoleController : Controller
         var role = await _unitOfWorkService.RoleRepo.GetById(id);
 
         if (role is null) return NotFound($"No se encontro ninguna transacción con el id: {id}.");
-        
+
         var result = await _unitOfWorkService.RoleRepo.Delete(role);
 
         if (!result)
             return StatusCode(500, $"No se pudo eliminar el rol con id: {id}" +
                                        $" porque no existe o porque no se pudo completar la transacción.");
-                                       
+
         await _unitOfWorkService.Complete();
-        
+
         return Ok();
     }
-    
+
     /// <summary>
     /// Actualizar el estado de un rol con los datos pasados en el body.
     /// </summary>
     /// <param name="roleToUpdate">Información del rol a actualizar.</param>
     /// <returns>Resultado de la transacción de actualización.</returns>
+    [Authorize(Policy = "Admin")]
     [HttpPut]
     public async Task<IActionResult> Update([FromBody] Role roleToUpdate)
     {
+        //solo poder cambiar la descripcion
+
         var result = await _unitOfWorkService.RoleRepo.Update(roleToUpdate);
-            
+
         if (!result)
             return StatusCode(500, $"No se pudo actualizar el rol con id: {roleToUpdate.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción."); 
-                                       
+                                       $" porque no existe o porque no se pudo completar la transacción.");
+
         await _unitOfWorkService.Complete();
 
         return Ok();
