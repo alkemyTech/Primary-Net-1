@@ -4,6 +4,10 @@ using Wallet_grupo1.DTOs;
 
 namespace Wallet_grupo1.Entities
 {
+    /// <summary>
+    /// Entidad Plazo fijo, compuesta por un campo identificador, una cantidad de dinero invertida, una fecha
+    /// de inicio y otra de finalización para cobrar los intereses y el id de la cuenta asociada al mismo.
+    /// </summary>
     public class FixedTermDeposit
     {
         [Column("fixedterm_id")]
@@ -25,6 +29,9 @@ namespace Wallet_grupo1.Entities
         public int AccountId { get; set; }
         public Account Account { get; set; } = null!;
 
+        /// <summary>
+        /// Data transfer objects asociados al plazo fijo.
+        /// </summary>
         public FixedTermDeposit(int id, FixedTermDepositDto dto)
         {
             Id = id;
@@ -32,6 +39,20 @@ namespace Wallet_grupo1.Entities
             Amount = dto.Amount;
         }
         
+        /// <summary>
+        /// Data transfer objects asociados al plazo fijo.
+        /// </summary>
+        public FixedTermDeposit(FixedTermDepositDto dto)
+        {
+            CreationDate = DateTime.Now;
+            ClosingDate = dto.ClosingDate;
+            Amount = dto.Amount;
+            AccountId = dto.AccountId;
+        }
+        
+        /// <summary>
+        /// Data transfer objects asociados al plazo fijo.
+        /// </summary>
         public FixedTermDeposit(){}
     }
 }

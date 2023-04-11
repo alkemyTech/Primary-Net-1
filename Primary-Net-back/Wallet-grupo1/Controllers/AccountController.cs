@@ -121,23 +121,25 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Actualizar el estado de una Account con los datos pasados en el body.
+    /// Actualizar el estado de una Account con los datos pasados en el body. Requiere permisos de administrador.
     /// </summary>
-    /// <param name="account">Información de la Account a actualizar.</param>
+    /// <param name="id">ID de la Account a actualizar.</param>
+    /// <param name="accountDto">Información de la Account a actualizar.</param>
     /// <returns>Resultado de la transacción de actualización.</returns>
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] Account account)
+    [Authorize(Policy = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] AccountDto accountDto)
     {
-
-        var result = await _unitOfWorkService.AccountRepo.Update(account);
+        //Instancio la clase en base al DTO con los campos actualizados
+        var theNewAccountData = new Account(id, accountDto);
+        var result = await _unitOfWorkService.AccountRepo.Update(theNewAccountData);
 
         if (!result)
-            return StatusCode(500, $"No se pudo actualizar la account con id: {account.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción.");
-
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar la cuenta con ID: {id}. Revisar" +
+                                                            $"campos insertados.");
         await _unitOfWorkService.Complete();
 
-        return Ok();
+        return ResponseFactory.CreateSuccessfullyResponse(200, $"La cuenta con ID: {id} se actualizó con éxito.");
     }
 
     /// <summary>

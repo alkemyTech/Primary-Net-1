@@ -18,31 +18,37 @@ namespace Wallet_grupo1.DataAccess.Repositories{
     {
     }
 
-        /// <summary>
-        /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
-        /// </summary>
-        /// <param name="catalogueToDelete"></param>
-        /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
-        public override async Task<bool> Delete(Catalogue catalogueToDelete)
+
+    /// <summary>
+    /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
+    /// </summary>
+    /// <param name="catalogueToDelete"></param>
+    /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
+    public override async Task<bool> Delete(Catalogue catalogueToDelete)
+    {
+        try
         {
-            try
-            {
-                var catalogue = await _context.Catalogues.Where(x => x.Id == catalogueToDelete.Id).FirstOrDefaultAsync();
+            var catalogue = await _context.Catalogues.Where(x => x.Id == catalogueToDelete.Id).FirstOrDefaultAsync();
 
-                if (catalogue != null)
-                {
-                    _context.Catalogues.Remove(catalogue);
-                }
-            }
-            catch (Exception)
+            if (catalogue != null)
             {
-                return false;
+                _context.Catalogues.Remove(catalogue);
             }
-
-            return true;
+        }
+        catch (Exception)
+        {
+            return false;
         }
 
+        return true;
+    }
 
+
+    /// <summary>
+    /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
+    /// </summary>
+    /// <param name="catalogueToUpdate"></param>
+    /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
     public override async Task<bool> Update(Catalogue entity)
         {
             try
@@ -66,6 +72,5 @@ namespace Wallet_grupo1.DataAccess.Repositories{
         }
 
 }
-
 
 }
