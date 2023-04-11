@@ -51,7 +51,8 @@ export const authOptions = {
   callbacks: {
     jwt: async ({ token, user, account }) => {
       if (account && user) {
-        return { accessToken: user.token, isAdmin: user.isAdmin };
+        token.accessToken = user.token;
+        token.isAdmin = user.isAdmin;
       }
       return token;
     },

@@ -5,16 +5,14 @@ import UserInformation from './UserInformation.jsx';
 
 const LoginButton = () => {
   const { data: session } = useSession();
-  console.log(session);
   if (session) {
     return (
       <>
-        <UserInformation data={session.accessToken} />
+        <UserInformation data={session} />
         <button onClick={() => signOut()}>Sign Out</button>
       </>
     );
   }
-
   return (
     <>
       Not Signed in <br />
