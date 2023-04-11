@@ -56,4 +56,14 @@ public class GestorOperaciones
 
         await _unitOfWorkService.TransactionRepo.Insert(transaction);
     }
+
+    public async Task CreateFixedTerm(Account userAccount, FixedTermDeposit theNewFixedTerm, int interestWage)
+    {
+        userAccount.Money -= theNewFixedTerm.Amount; 
+        theNewFixedTerm.Amount += ((theNewFixedTerm.Amount) * interestWage) / 100;
+        
+        await _unitOfWorkService.AccountRepo.Update(userAccount);
+        await _unitOfWorkService.FixedRepo.Insert(theNewFixedTerm);
+        await _unitOfWorkService.Complete();
+    }
 }

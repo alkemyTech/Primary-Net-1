@@ -18,31 +18,40 @@ namespace Wallet_grupo1.DataAccess.Repositories{
     {
     }
 
-        /// <summary>
-        /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
-        /// </summary>
-        /// <param name="catalogueToDelete"></param>
-        /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
-        public override async Task<bool> Delete(Catalogue catalogueToDelete)
-        {
-            try
-            {
-                var catalogue = await _context.Catalogues.Where(x => x.Id == catalogueToDelete.Id).FirstOrDefaultAsync();
 
-                if (catalogue != null)
-                {
-                    _context.Catalogues.Remove(catalogue);
-                }
-            }
-            catch (Exception)
+    /// <summary>
+    /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
+    /// </summary>
+    /// <param name="catalogueToDelete"></param>
+    /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
+    public override async Task<bool> Delete(Catalogue catalogueToDelete)
+    {
+        try
+        {
+            var catalogue = await _context.Catalogues.Where(x => x.Id == catalogueToDelete.Id).FirstOrDefaultAsync();
+
+            if (catalogue != null)
             {
-                return false;
+                _context.Catalogues.Remove(catalogue);
             }
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+
+        return true;
+    }
 
             return true;
         }
 
 
+    /// <summary>
+    /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
+    /// </summary>
+    /// <param name="catalogueToUpdate"></param>
+    /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
     public override async Task<bool> Update(Catalogue entity)
         {
             try

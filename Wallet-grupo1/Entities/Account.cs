@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Wallet_grupo1.DTOs;
 
 namespace Wallet_grupo1.Entities
 {
@@ -22,7 +23,8 @@ namespace Wallet_grupo1.Entities
         
         [Column("user_id")]
         public int UserId { get; set; }
-        public User User { get; set; }
+
+        public User User { get; set; } = null!;
 
         [NotMapped] 
         public List<Transaction> Transactions { get; set; } = null!;
@@ -30,5 +32,21 @@ namespace Wallet_grupo1.Entities
         [NotMapped] 
         public List<FixedTermDeposit> FixedTermDeposits { get; set; } = null!;
         
+        /// <summary>
+        /// Data transfer object asociados a una cuenta.
+        /// </summary>
+        public Account(int id, AccountDto dto)
+        {
+            Id = id;
+            Money = dto.Money;
+            IsBlocked = dto.IsBlocked;
+        }
+        
+        /// <summary>
+        /// Data transfer object asociados a una cuenta.
+        /// </summary>
+        public Account()
+        {
+        }
     }
 }

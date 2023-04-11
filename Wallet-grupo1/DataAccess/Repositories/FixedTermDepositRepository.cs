@@ -4,14 +4,20 @@ using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories
 {
-
+    /// <summary>
+    /// Repositorio concreto asociado a los plazos fijos
+    /// </summary>
     public class FixedTermDepositRepository : Repository<FixedTermDeposit>, IFixedTermDepositRepository
     {
+        
         public FixedTermDepositRepository(ApplicationDbContext context) : base(context)
         {
-
         }
-
+        
+        
+        /// <summary>
+        /// Actualizacion de campos del plazo fijo en funcion de request HTTP
+        /// </summary>
         public override async Task<bool> Update(FixedTermDeposit updatedDeposit)
         {
             try
@@ -34,6 +40,9 @@ namespace Wallet_grupo1.DataAccess.Repositories
             return true;
         }
 
+        /// <summary>
+        /// Busqueda y listado de plazo fijos para usuario en funcion de request HTTP
+        /// </summary>
         public async Task<List<FixedTermDeposit>> FixedTermsOfUser(int userId)
         {
             return await _context.FixedTermDeposits
@@ -42,6 +51,9 @@ namespace Wallet_grupo1.DataAccess.Repositories
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Busqueda y listado de plazo fijos para usuario en funcion de request HTTP
+        /// </summary>
         public async Task<bool> DeleteFixedTermsByAccount(int accounId)
         {
             try
@@ -61,34 +73,13 @@ namespace Wallet_grupo1.DataAccess.Repositories
             }
         }
 
-
-
-        //usa este delete de referencia para crear el de este repositorio
-        //         public override async Task<bool> Delete(Account entity)
-        // {
-        //     try
-        //     {
-        //         var account = await _context.Accounts.FindAsync(entity.Id);
-
-        //         // Si no se encontró ninguna entidad con ese ID no tiene sentido seguir.
-        //         if (account is null) return false;
-
-        //         _context.Accounts.Remove(account);
-        //     }
-        //     catch (Exception)
-        //     {
-        //         return false;
-        //     }
-
-        //     return true;
-        // }
-
+        /// <summary>
+        /// Eliminación de plazo fijo por admin en funcion de request HTTP
+        /// </summary>
         public override async Task<bool> Delete(FixedTermDeposit fixedTermDeposit)
         {
             try
             {
-
-
                 // Si no se encontró ninguna entidad con ese ID no tiene sentido seguir.
                 if (fixedTermDeposit is null) return false;
 
