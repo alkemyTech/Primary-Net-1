@@ -105,22 +105,23 @@ public class RoleController : Controller
     /// <summary>
     /// Actualizar el estado de un rol con los datos pasados en el body.
     /// </summary>
+    /// <param name="id">Información del rol a actualizar.</param>
     /// <param name="roleToUpdate">Información del rol a actualizar.</param>
     /// <returns>Resultado de la transacción de actualización.</returns>
     [Authorize(Policy = "Admin")]
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] Role roleToUpdate)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Role roleToUpdate)
     {
         //solo poder cambiar la descripcion
 
         var result = await _unitOfWorkService.RoleRepo.Update(roleToUpdate);
 
         if (!result)
-            return StatusCode(500, $"No se pudo actualizar el rol con id: {roleToUpdate.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción.");
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar el rol con id: {id}" +
+                                                                   $" porque no existe o porque no se pudo completar la transacción.");
 
         await _unitOfWorkService.Complete();
 
-        return ResponseFactory.CreateSuccessfullyResponse(200, $"El rol con id: {roleToUpdate.Id} fue actualizado");
+        return ResponseFactory.CreateSuccessfullyResponse(200, $"El rol con id: {id} fue actualizado");
     }
 }

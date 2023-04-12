@@ -151,18 +151,18 @@ public class CatalogueController : Controller
     /// <param name="catalogue"></param>
     /// <returns>Codigo de respuesta HTTP asociado al éxito o fracaso del Request</returns>
     [Authorize(Policy = "Admin")]
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] Catalogue catalogue)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Catalogue catalogue)
     {
         // Actualiza el catálogo especificado en la base de datos utilizando el repositorio de catálogos
         var result = await _unitOfWorkService.CatalogueRepo.Update(catalogue);
         if (!result)
-            return ResponseFactory.CreateErrorResponse(404, $"No se pudo actualizar el catálogo con id: {catalogue.Id}" +
+            return ResponseFactory.CreateErrorResponse(404, $"No se pudo actualizar el catálogo con id: {id}" +
                                                             " porque no existe en el sistema.");
         // Guarda los cambios en la base de datos
         await _unitOfWorkService.Complete();
         // Retorna un código 200 (No Content) si la actualización fue exitosa
         return ResponseFactory.CreateSuccessfullyResponse(200,
-            $"Se actualizo el catálogo con ID: {catalogue.Id} satisfactoriamente en el sistema.");
+            $"Se actualizo el catálogo con ID: {id} satisfactoriamente en el sistema.");
     }
 }
