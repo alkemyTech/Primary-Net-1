@@ -27,13 +27,24 @@ public class CatalogueController : Controller
 
     /// <summary>
     /// Endpoint que provee la funcionalidad de insertar un catálogo a la base de datos.
-    /// Requiere permisos de administrador y el codigo del catalogo a remover.
+    /// Requiere permisos de autenticacion.
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
+        
         // Carga todos los catálogos de la base de datos utilizando el repositorio de catálogos
         var catalogues = await _unitOfWorkService.CatalogueRepo.GetAll();
         
@@ -54,9 +65,20 @@ public class CatalogueController : Controller
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
+        
         // Obtiene el catálogo con el ID especificado utilizando el repositorio de catálogos
         var catalogue = await _unitOfWorkService.CatalogueRepo.GetById(id);
         
