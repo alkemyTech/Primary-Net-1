@@ -49,25 +49,18 @@ namespace Wallet_grupo1.DataAccess.Repositories{
     /// </summary>
     /// <param name="catalogueToUpdate"></param>
     /// <returns>Booleano representativo del éxito o fracaso de la operación</returns>
-    public override async Task<bool> Update(Catalogue entity)
+    public override async Task<bool> Update(Catalogue catalogueToUpdate)
         {
-            try
-            {
-                var catalogue = await _context.Catalogues.FindAsync(entity.Id);
+            var catalogue = await _context.Catalogues.FindAsync(catalogueToUpdate.Id);
 
                 // Si no se encontró ninguna entidad con ese ID no intento actualizar.
                 if (catalogue is null) return false;
 
-                catalogue.Image = entity.Image;
-                catalogue.Points = entity.Points;
+                catalogue.Image = catalogueToUpdate.Image;
+                catalogue.Points = catalogueToUpdate.Points;
 
                 _context.Catalogues.Update(catalogue);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
+                
             return true;
         }
 
