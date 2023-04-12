@@ -9,7 +9,9 @@ namespace Wallet_grupo1.DataAccess.Repositories
     /// </summary>
     public class FixedTermDepositRepository : Repository<FixedTermDeposit>, IFixedTermDepositRepository
     {
-        
+        /// <summary>
+        /// Constructor base
+        /// </summary>
         public FixedTermDepositRepository(ApplicationDbContext context) : base(context)
         {
         }
@@ -43,10 +45,10 @@ namespace Wallet_grupo1.DataAccess.Repositories
         /// <summary>
         /// Busqueda y listado de plazo fijos para usuario en funcion de request HTTP
         /// </summary>
-        public async Task<List<FixedTermDeposit>> FixedTermsOfUser(int userId)
+        public async Task<List<FixedTermDeposit>> FixedTermsOfUser(int accountId)
         {
             return await _context.FixedTermDeposits
-                .Where(x => x.Account.User.Id == userId)
+                .Where(x => x.AccountId == accountId)
                 .OrderByDescending(x => x.CreationDate)
                 .ToListAsync();
         }
@@ -54,12 +56,12 @@ namespace Wallet_grupo1.DataAccess.Repositories
         /// <summary>
         /// Busqueda y listado de plazo fijos para usuario en funcion de request HTTP
         /// </summary>
-        public async Task<bool> DeleteFixedTermsByAccount(int accounId)
+        public async Task<bool> DeleteFixedTermsByAccount(int accountId)
         {
             try
             {
                 // Elimino las Transaction con el Id de la Account
-                var fixedTermDeposits = await _context.FixedTermDeposits.Where(x => x.AccountId == accounId).ToListAsync();
+                var fixedTermDeposits = await _context.FixedTermDeposits.Where(x => x.AccountId == accountId).ToListAsync();
 
                 if (fixedTermDeposits != null)
                 {
