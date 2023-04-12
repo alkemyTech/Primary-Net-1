@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.DTOs;
 using Wallet_grupo1.Entities;
 using Wallet_grupo1.Helpers;
@@ -11,11 +10,17 @@ using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
+/// <summary>
+/// Controlador de entidad cuentas
+/// </summary>
 [Route("/api/account")]
 public class AccountController : Controller
 {
     private readonly IUnitOfWork _unitOfWorkService;
 
+    /// <summary>
+    /// Constructor base para el controlador de cuentas con la unidad CRUD de trabajo
+    /// </summary>
     public AccountController(IUnitOfWork unitOfWork)
     {
         _unitOfWorkService = unitOfWork;
@@ -43,10 +48,10 @@ public class AccountController : Controller
 
         if (accounts.Count < 1)
         {
-            //TODO refactor con manejo de errores y respuestas vacias
-            return NotFound();
+            return ResponseFactory.CreateErrorResponse(500, "Hubo un error intentando " +
+                                                            $"obtener los usuarios del sistema");
         }
-        return Ok(paginatedAccounts);
+        return ResponseFactory.CreateSuccessfullyResponse(200, paginatedAccounts);
     }
 
     /// <summary>
@@ -56,32 +61,61 @@ public class AccountController : Controller
     /// <returns>El estado de la Account con el ID especificado.</returns>
     [Authorize(Policy = "Admin")]
     [HttpGet("{id}")]
-    public async Task<ActionResult> GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
         var account = await _unitOfWorkService.AccountRepo.GetById(id);
 
         if (account == null)
         {
-            //TODO refactor con manejo de errores y respuestas vacias
-            return NotFound();
+            return ResponseFactory.CreateErrorResponse(404, "No se pudo localizar" +
+                                                            $" a la cuenta de ID: {id} en el sistema");
         }
-
-        return Ok(account);
+        return ResponseFactory.CreateSuccessfullyResponse(200, account);
     }
 
     /// <summary>
-    /// Insertar una Account en la base de datos con los datos pasados en el Body.
+    /// Crear una Account en el sistema para un usuario registrado.
     /// </summary>
-    /// <param name="account">Estado en el que se quiere insertar la Account. El ID se autogenerará en la BD.</param>
+    /// <param name="userId">Usuario que quiere crear la Account. El ID se autogenerará en la BD.</param>
     /// <returns>El resultado de la creación e inserción de la entidad y su estado.</returns>
-    [Authorize(Policy = "Admin")]
+    [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Insert([FromBody] Account account)
+    public async Task<IActionResult> CreateNewAccount()
     {
-        await _unitOfWorkService.AccountRepo.Insert(account);
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+            "No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
+
+        string jwtToken = authorizationHeader.Substring(7);
+
+        // Extraigo el userid del token (es un claim)
+        var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
+        if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+        
+        // Busco el Id de la Account del User
+        var userAccount = await _unitOfWorkService.AccountRepo.FindByUserId(Int32.Parse(userIdToken));
+        if (userAccount is not null) 
+            return ResponseFactory.CreateErrorResponse(405,
+                $"Usted ya posee una cuenta asociada, la cual responde al ID: {userAccount.Value.UserId}.");
+
+        var theNewAccount = new Account
+        {
+            IsBlocked = false,
+            Money = 0,
+            CreationDate = DateTime.Now,
+            UserId = Int32.Parse(userIdToken)
+        };
+        
+        await _unitOfWorkService.AccountRepo.Insert(theNewAccount);
         await _unitOfWorkService.Complete();
 
-        return CreatedAtAction(nameof(GetById), new { id = account.Id }, account);
+        return ResponseFactory.CreateSuccessfullyResponse(201, theNewAccount);
     }
 
     /// <summary>
@@ -94,17 +128,19 @@ public class AccountController : Controller
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         var account = await _unitOfWorkService.AccountRepo.GetById(id);
-        if (account is null) return NotFound($"No se encontro ninguna cuenta con el id: {id}.");
+        if (account is null) 
+            return ResponseFactory.CreateErrorResponse(404, "No se pudo localizar" +
+            $" la cuenta con ID: {id} en el sistema");
 
         // Elimino las Transaccion con Id la Account
-        var deletedTransaccions = await _unitOfWorkService.TransactionRepo.RemoveReferencesToAccountId(account.Id);
-        if (!deletedTransaccions)
+        var deletedTransactions = await _unitOfWorkService.TransactionRepo.RemoveReferencesToAccountId(account.Id);
+        if (!deletedTransactions)
             return ResponseFactory.CreateErrorResponse(500, $"No se pudo eliminar la Transaccion del user con id: {id}" +
                                    $" porque no existe o porque no se pudo completar la transacción.");
 
         // Elimino los FixedTermDeposit con la Id de la Account
-        var deletedFixdTermDeposit = await _unitOfWorkService.FixedRepo.DeleteFixedTermsByAccount(account.Id);
-        if (!deletedFixdTermDeposit)
+        var deletedFixedTermDeposit = await _unitOfWorkService.FixedRepo.DeleteFixedTermsByAccount(account.Id);
+        if (!deletedFixedTermDeposit)
             return ResponseFactory.CreateErrorResponse(500, $"No se pudo eliminar FixedTerm del user con id: {id}" +
                                                             $" porque no existe o porque no se pudo completar la transacción.");
 
@@ -121,23 +157,29 @@ public class AccountController : Controller
     }
 
     /// <summary>
-    /// Actualizar el estado de una Account con los datos pasados en el body.
+    /// Actualizar el estado de una Account con los datos pasados en el body. Requiere permisos de administrador.
     /// </summary>
-    /// <param name="account">Información de la Account a actualizar.</param>
+    /// <param name="id">ID de la Account a actualizar.</param>
+    /// <param name="accountDto">Información de la Account a actualizar.</param>
     /// <returns>Resultado de la transacción de actualización.</returns>
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] Account account)
+    [Authorize(Policy = "Admin")]
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] AccountDto accountDto)
     {
-
-        var result = await _unitOfWorkService.AccountRepo.Update(account);
+        if (accountDto.Money < 0)
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar la cuenta con ID: {id}. Revisar" +
+                                                            $"campos insertados.");
+        
+        //Instancio la clase en base al DTO con los campos actualizados
+        var theNewAccountData = new Account(id, accountDto);
+        var result = await _unitOfWorkService.AccountRepo.Update(theNewAccountData);
 
         if (!result)
-            return StatusCode(500, $"No se pudo actualizar la account con id: {account.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción.");
-
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar la cuenta con ID: {id}. Revisar" +
+                                                            $"campos insertados.");
         await _unitOfWorkService.Complete();
 
-        return Ok();
+        return ResponseFactory.CreateSuccessfullyResponse(200, $"La cuenta con ID: {id} se actualizó con éxito.");
     }
 
     /// <summary>
@@ -152,10 +194,13 @@ public class AccountController : Controller
         //Get token del header y validacion
         string? authorizationHeader = Request.Headers["Authorization"];
 
-        if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                $"No se proporcionó un token de seguridad.");
 
         if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
-            return Unauthorized("No se proporcionó un token de seguridad válido.");
+            return ResponseFactory.CreateErrorResponse(401,
+                $"No se proporcionó un token de seguridad válido.");
 
         string jwtToken = authorizationHeader.Substring(7);
 
@@ -167,16 +212,17 @@ public class AccountController : Controller
 
         account = _unitOfWorkService.AccountRepo.GetById(id).Result;
 
-        if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {id}.");
+        if (account is null) 
+            return ResponseFactory.CreateErrorResponse(403,$"No se encontró ninguna cuenta con el número: {id}.");
 
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
         if (account.UserId != int.Parse(userIdToken))
-            return Forbid("La cuenta no pertenece al usuario loggeado.");
+            return ResponseFactory.CreateErrorResponse(403,"La cuenta no pertenece al usuario logueado.");
 
         // Delego al gestor la logica del deposito.
         await new GestorOperaciones(_unitOfWorkService).Deposit(account, dto.AumentoSaldo, dto.Concept);
 
-        return Ok($"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
+        return ResponseFactory.CreateSuccessfullyResponse(200,$"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
     }
 
     /// <summary>
@@ -185,16 +231,19 @@ public class AccountController : Controller
     /// <param name="id">ID de la cuenta que Transfiere.</param>
     /// <param name="dto">Cuenta receptora.</param>
     [Authorize]
-    [HttpPost("transferencia/{id}")]
-    public async Task<IActionResult> Transferencia([FromRoute] int id, [FromBody] TransferenciaDto dto)
+    [HttpPost("transfer/{id}")]
+    public async Task<IActionResult> Transfer([FromRoute] int id, [FromBody] TransferenciaDto dto)
     {
         //Get token del header y validacion
         string? authorizationHeader = Request.Headers["Authorization"];
 
-        if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad.");
 
         if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
-            return Unauthorized("No se proporcionó un token de seguridad válido.");
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
 
         string jwtToken = authorizationHeader.Substring(7);
 
@@ -204,21 +253,26 @@ public class AccountController : Controller
 
         // account = Quien envia el dinero, toAccount = Quien recibe el dinero
         var account = _unitOfWorkService.AccountRepo.GetById(id).Result;
-        var toAccount = _unitOfWorkService.AccountRepo.GetById(dto.IdReceptor).Result;
-
-        //TODO manejo de errores y respuestas vacias
-        if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {id}.");
-        if (toAccount is null) return NotFound($"No se encontró ninguna cuenta con el número: {dto.IdReceptor}.");
-
-        if (account.Money < dto.MontoTransferido) return StatusCode(500, $"El monto a enviar es mayor al que contiene en la cuenta.");
-
+        
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
         if (account.UserId != int.Parse(userIdToken))
-            return Forbid("La cuenta no pertenece al usuario loggeado.");
+            return ResponseFactory.CreateErrorResponse(403,"La cuenta no pertenece al usuario loggeado.");
+        
+        var toAccount = _unitOfWorkService.AccountRepo.GetById(dto.IdReceptor).Result;
+        
+        if (account is null) 
+            return ResponseFactory.CreateErrorResponse(404,
+                "No se encontro una cuenta asociada a su usuario.");
+        if (toAccount is null) 
+            return ResponseFactory.CreateErrorResponse(404,
+                $"No se encontró ninguna cuenta con el número: {dto.IdReceptor}.");
+
+        if (account.Money < dto.MontoTransferido) 
+            return ResponseFactory.CreateErrorResponse(500, "El monto a enviar es mayor al que contiene en la cuenta.");
 
         // Delego al gestor la logica del transferir el dinero.
         await new GestorOperaciones(_unitOfWorkService).Transfer(account, toAccount, dto.MontoTransferido, dto.Concept);
 
-        return Ok($"Transferencia realizada con éxito.");
+        return ResponseFactory.CreateSuccessfullyResponse(200,"Transferencia realizada con éxito.");
     }
 }
