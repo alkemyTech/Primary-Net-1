@@ -1,51 +1,47 @@
 'use client';
-import UserList from '@/pages/api/user/user_list';
-import { useSession, signIn, signOut} from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import UserInformation from '../../components/UserInformation';
-import axios from "axios";
-
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 
 const UsersList = () => {
   const { data: session } = useSession();
+  const [users, setUsers] = useState([]); // Estado para almacenar los usuarios
 
-  // una peticion a la api para obtener los datos de los usuarios
-  console.log(session)
-  const token = session.accessToken;
-  console.log(token)
-  const users = axios.get(
-                'https://localhost:7131/api/user',
-                {},
-                {
-                  headers: {
-                    'Authorization': `Bearer ${token}`
-        
-                  }
-                }
-              )
-              .then((res) => {
-                return res.data;
-              })
-              .catch((err) => {
-                throw new Error(err.message);
-              });
-  console.log(users)
-  console.log(session);
+  useEffect(() => {
+    if (session) {
+      const token = session.accessToken;
+      axios
+        .get('https://localhost:7131/api/user', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: 'Bearer ' + token
+          }
+        })
+        .then((res) => setUsers(res.data)) // Actualizar el estado con los datos de los usuarios
+        .catch((err) => {
+          throw new Error(err.message);
+        });
+    }
+  }, [session]);
+
+  console.log(users);
   if (session) {
     return (
       <>
-        <UserInformation data={session.isAdmin} />
-
+        <UserInformation data={session?.isAdmin} />
         <div>
-        <h1>Lista de elementos:</h1>
-          {/* <ul>
-            {users.map(users => (
-              <li key={users.id}>{users.firstName}</li>
+          <h1>Lista de elementos:</h1>
+          <ul>
+            {users.map((user) => (
+              <li key={user.id}>{user.firstName}</li>
             ))}
-          </ul> */}
+          </ul>
         </div>
-
       </>
     );
+  } else {
+    return null; // Puedes retornar lo que quieras en caso de que no haya sesión
   }
 };
 
