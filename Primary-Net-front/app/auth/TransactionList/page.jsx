@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 
 const TransactionList = () => {
   const { data: session } = useSession();
-  const [transactions, setTransactions] = useState([]); // Estado para almacenar los usuarios
+  const [transactions, setTransactions] = useState([]); // Estado para almacenar las transaction
 
   useEffect(() => {
     if (session) {
@@ -18,7 +18,7 @@ const TransactionList = () => {
             Authorization: 'Bearer ' + token
           }
         })
-        .then((res) => setTransactions(res.data)) // Actualizar el estado con los datos de los usuarios
+        .then((res) => setTransactions(res.data)) // Actualizar el estado con los datos de las transaction
         .catch((err) => {
           throw new Error(err.message);
         });
