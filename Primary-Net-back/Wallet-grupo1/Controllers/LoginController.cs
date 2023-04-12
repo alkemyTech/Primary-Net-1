@@ -47,14 +47,16 @@ public class LoginController : Controller
 
         UserLoginDTO user = new UserLoginDTO()
         {
-            Name = userCredentials.FirstName,
+            Id = userCredentials.Id,
+            FirstName = userCredentials.FirstName,
+            LastName = userCredentials.LastName,
             Email = userCredentials.Email,
             Password = userCredentials.Password,
             Token = token
         };
 
-        if (userCredentials.RoleId != null)
-        {
+        
+        
             if(userCredentials.RoleId == 1)
             {
                 user.isAdmin = true;
@@ -62,7 +64,7 @@ public class LoginController : Controller
             {
                 user.isAdmin = false;
             }
-        }
+        
 
         return Ok(user);
     }
