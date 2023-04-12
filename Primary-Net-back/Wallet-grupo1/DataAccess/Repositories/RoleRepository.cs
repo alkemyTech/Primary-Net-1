@@ -4,13 +4,22 @@ using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories;
 
+/// <summary>
+/// Controlador de entidad roles
+/// </summary>
 public class RoleRepository : Repository<Role>, IRoleRepository
 {
 
+    /// <summary>
+    /// Constructor base
+    /// </summary>
     public RoleRepository(ApplicationDbContext context) : base(context)
     {
     }
 
+    /// <summary>
+    /// Metodo de eliminacion del contexto de la API
+    /// </summary>
     public override async Task<bool> Delete(Role roleToDelete)
     {
         try
@@ -29,9 +38,9 @@ public class RoleRepository : Repository<Role>, IRoleRepository
         return true;
     }
 
-
-
-
+    /// <summary>
+    /// Metodo de actualizacion del contexto de la API
+    /// </summary>
     public override async Task<bool> Update(Role roleToUpdate)
     {
         try
@@ -42,7 +51,7 @@ public class RoleRepository : Repository<Role>, IRoleRepository
                 return false;
             }
           
-            if (role.Id == 1 || role.Id == 2)
+            if (role.Id is 1 or 2)
             {
                 role.Description = roleToUpdate.Description;
             }
