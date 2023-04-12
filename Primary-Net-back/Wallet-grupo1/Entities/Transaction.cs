@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Wallet_grupo1.DTOs;
 
 namespace Wallet_grupo1.Entities
 {
@@ -31,11 +32,24 @@ namespace Wallet_grupo1.Entities
         [Column("to_account_id")]
         public int? ToAccountId { get; set; }
         public Account? ToAccount { get; set; }
+     
+        /// <summary>
+        /// Data transfer objects asociados a una transaccion.
+        /// </summary>
+        public Transaction(int id, TransactionDto dto)
+        {
+            Id = id;
+            Concept = dto.Concept;
+        }
         
+        /// <summary>
+        /// Data transfer objects asociados a una transaccion.
+        /// </summary>
+        public Transaction()
+        {
+        }
     }
-    
-    
-
+ 
     public enum TransactionType
     {
         Deposit,
