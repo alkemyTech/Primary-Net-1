@@ -35,15 +35,36 @@ public class LoginController : Controller
         if (!authHeader.StartsWith("basic", StringComparison.OrdinalIgnoreCase))
             return Unauthorized("No se proporcionó el header de autorización, por favor ingrese sus credenciales.");
         
-        var token = authHeader.Substring("Basic ".Length).Trim();
-        var credentials = Encoding.UTF8.GetString(Convert.FromBase64String(token)).Split(':');
+        var userData = authHeader.Substring("Basic ".Length).Trim();
+        var credentials = Encoding.UTF8.GetString(Convert.FromBase64String(userData)).Split(':');
         credentials[1] = PasswordEncryptHelper.EncryptPassword(credentials[1]);
         
         var userCredentials = await _unitOfWork.UserRepo.AuthenticateCredentials(credentials[0], credentials[1]);
 
         if (userCredentials is null) return Unauthorized("Las credenciales son incorrectas.");
         
-        return Ok(_token.GenerateToken(userCredentials));
+        var token = _token.GenerateToken(userCredentials);
+
+        UserLoginDTO user = new UserLoginDTO()
+        {
+            Name = userCredentials.FirstName,
+            Email = userCredentials.Email,
+            Password = userCredentials.Password,
+            Token = token
+        };
+
+        if (userCredentials.Role != null)
+        {
+            if(userCredentials.Role.Id == 1)
+            {
+                user.isAdmin = true;
+            }else
+            {
+                user.isAdmin = false;
+            }
+        }
+
+        return Ok(user);
     }
     
     /// <summary>

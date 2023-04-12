@@ -43,9 +43,6 @@ namespace Wallet_grupo1.DataAccess.Repositories{
         return true;
     }
 
-            return true;
-        }
-
 
     /// <summary>
     /// Operación CRUD para remover un catálogo del arreglo interno de la aplicación y el contexto de la DB
@@ -75,6 +72,5 @@ namespace Wallet_grupo1.DataAccess.Repositories{
         }
 
 }
-
 
 }

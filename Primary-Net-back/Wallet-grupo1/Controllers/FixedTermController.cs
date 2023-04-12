@@ -15,14 +15,14 @@ namespace Wallet_grupo1.Controllers;
 /// Controlador que provee la funcionalidades asociadas a los plazos fijos/inversiones con la wallet.
 /// </summary>
 [Route("api/fixedTerm")]
-public class FixedController : Controller
+public class FixedTermController : Controller
 {
     private readonly IUnitOfWork _unitOfWorkService;
 
     /// <summary>
     /// Constructor base con su unidad de trabajo asociada las operaciones CRUD.
     /// </summary>
-    public FixedController(IUnitOfWork unitOfWork)
+    public FixedTermController(IUnitOfWork unitOfWork)
     {
         _unitOfWorkService = unitOfWork;
     }
