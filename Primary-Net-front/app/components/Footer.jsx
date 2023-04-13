@@ -11,8 +11,8 @@ const Footer = () => {
         <h3 className="text-xl font-semibold mb-2 text-white">Descarga nuestra App</h3>
         <p className="text-sm mb-6 text-white">¡Paga en línea de forma rápida y segura, desde cualquier lugar!</p>
         <div className="flex items-center">
-          <Image src={google} alt="Google Play" width="40" height="40" className="mr-2" />
-          <Image src={appmac} alt="App Store" width="40" height="40" />
+          <Image src={google} alt="Google Play" width="25" height="25" className="mr-2" />
+          <Image src={appmac} alt="App Store" width="25" height="25" />
         </div>
       </div>
       <div className="flex-grow"></div> {/* Espacio vacío en el centro */}
