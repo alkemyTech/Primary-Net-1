@@ -5,21 +5,21 @@ using Wallet_grupo1.Entities;
 
 namespace Wallet_grupo1.DataAccess.Repositories
 {
-
+    /// <summary>
+    /// Repositorio para manipular entidades de cuentas
+    /// </summary>
     public class AccountRepository : Repository<Account>, IAccountRepository
     {
+        /// <summary>
+        /// Constructor base
+        /// </summary>
         public AccountRepository(ApplicationDbContext context) : base(context)
         {
         }
 
-        public override async Task<bool> Insert(Account entity)
-        {
-            // Si ya se encuentra un elemento con el mismo ID no intento agregarlo.
-            if (_context.Accounts.Any(x => x.Id == entity.Id)) return false;
-
-            return await base.Insert(entity);
-        }
-
+        /// <summary>
+        /// Redefinicion de update cuentas segun el DTO correspondiente
+        /// </summary>
         public override async Task<bool> Update(Account entity)
         {
             try
@@ -42,6 +42,9 @@ namespace Wallet_grupo1.DataAccess.Repositories
             return true;
         }
 
+        /// <summary>
+        /// Redefinicion de eliminacion de cuentas
+        /// </summary>
         public override async Task<bool> Delete(Account entity)
         {
             try
@@ -61,9 +64,11 @@ namespace Wallet_grupo1.DataAccess.Repositories
             return true;
         }
 
+        /// <summary>
+        /// Localizacion de cuenta de usuario por ID
+        /// </summary>
         public async Task<ActionResult<Account>> FindByUserId(int userId)
         {
-
             // Busca la Account del user por Id
             Account? account = await _context.Accounts.Where(x => x.UserId == userId).FirstOrDefaultAsync();
 

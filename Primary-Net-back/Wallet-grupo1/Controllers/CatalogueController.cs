@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.Entities;
 using Wallet_grupo1.Helpers;
 using Wallet_grupo1.Infrastructure;
@@ -28,13 +27,24 @@ public class CatalogueController : Controller
 
     /// <summary>
     /// Endpoint que provee la funcionalidad de insertar un catálogo a la base de datos.
-    /// Requiere permisos de administrador y el codigo del catalogo a remover.
+    /// Requiere permisos de autenticacion.
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
+    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
+        
         // Carga todos los catálogos de la base de datos utilizando el repositorio de catálogos
         var catalogues = await _unitOfWorkService.CatalogueRepo.GetAll();
         
@@ -45,8 +55,8 @@ public class CatalogueController : Controller
 
         var paginatedCatalogues = PaginateHelper.Paginate(catalogues, pageToShow, url);    
 
-        // Retorna un código 200 (OK) con la lista de catálogos paginado
-        return Ok(paginatedCatalogues);
+        // Retorna un código 200 (OK) con la lista de catálogos paginada
+        return ResponseFactory.CreateSuccessfullyResponse(200, paginatedCatalogues);
     }
 
     /// <summary>
@@ -55,34 +65,53 @@ public class CatalogueController : Controller
     /// </summary>
     /// <param name="id"></param>
     /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
+        
         // Obtiene el catálogo con el ID especificado utilizando el repositorio de catálogos
         var catalogue = await _unitOfWorkService.CatalogueRepo.GetById(id);
         
         // Si no se encuentra un catálogo con el ID especificado, retorna un código 404 (Not Found)
-        if (catalogue is null) return NotFound();
+        if (catalogue is null) 
+            return ResponseFactory.CreateErrorResponse(404, "No se pudo localizar" +
+                                                            $" al catalogo de ID: {id} en el sistema.");
         // Si se encuentra el catálogo, retorna un código 200 (OK) con el catálogo encontrado
-        return Ok(catalogue);
+        return ResponseFactory.CreateSuccessfullyResponse(200, catalogue);
     }
 
     /// <summary>
     /// Endpoint que provee la funcionalidad de insertar un catálogo a la base de datos.
     /// Requiere permisos de administrador y el codigo del catalogo a remover.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="catalogue"></param>
     /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
     [Authorize(Policy = "Admin")]
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] Catalogue catalogue)
     {
+        if(catalogue.Points <= 0 || catalogue.Points == null)
+            return ResponseFactory.CreateErrorResponse(500, "El catalogo ingresado no posee un precio en puntos valido.");
+        
+        if(catalogue.Image == null)
+            return ResponseFactory.CreateErrorResponse(500, "El catalogo ingresado no posee una URL de imagen.");
+
         // Agrega el nuevo catálogo a la base de datos utilizando el repositorio de catálogos
         await _unitOfWorkService.CatalogueRepo.Insert(catalogue);
         await _unitOfWorkService.Complete();
         
         // Retorna un código 201 (Created) con el nuevo catálogo creado y su URL de ubicación
-        return CreatedAtAction(nameof(GetById), new { id = catalogue.Id }, catalogue);
+        return ResponseFactory.CreateSuccessfullyResponse(201, catalogue);
     }
 
     /// <summary>
@@ -122,14 +151,18 @@ public class CatalogueController : Controller
     /// <param name="catalogue"></param>
     /// <returns>Codigo de respuesta HTTP asociado al éxito o fracaso del Request</returns>
     [Authorize(Policy = "Admin")]
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] Catalogue catalogue)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Catalogue catalogue)
     {
         // Actualiza el catálogo especificado en la base de datos utilizando el repositorio de catálogos
-        await _unitOfWorkService.CatalogueRepo.Update(catalogue);
+        var result = await _unitOfWorkService.CatalogueRepo.Update(catalogue);
+        if (!result)
+            return ResponseFactory.CreateErrorResponse(404, $"No se pudo actualizar el catálogo con id: {id}" +
+                                                            " porque no existe en el sistema.");
         // Guarda los cambios en la base de datos
         await _unitOfWorkService.Complete();
-        // Retorna un código 204 (No Content) si la actualización fue exitosa
-        return Ok();
+        // Retorna un código 200 (No Content) si la actualización fue exitosa
+        return ResponseFactory.CreateSuccessfullyResponse(200,
+            $"Se actualizo el catálogo con ID: {id} satisfactoriamente en el sistema.");
     }
 }
