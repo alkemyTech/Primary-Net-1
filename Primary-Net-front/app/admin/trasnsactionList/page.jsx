@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 
 import React from 'react';
 
-export default async function FixedTermList() {
+export default async function TransactionList() {
   const session = await getServerSession(authOptions);
   if (session) {
     const data = await fetch('https://localhost:7131/api/transaction', {
