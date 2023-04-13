@@ -17,14 +17,16 @@ namespace Wallet_grupo1.DataAccess.Repositories{
         }
 
         /// <summary>
-        ///     Se obtienen transacciones del usuario
+        ///     Se obtienen transacciones del usuario por id de su cuenta
         /// </summary>
-        /// <param name="userId"></param>
+        /// <param name="accountId"></param>
         /// <returns></returns>
-        public async Task<List<Transaction>> TransactionsOfUser(int userId)
+        public async Task<List<Transaction>> TransactionsOfUser(int accountId)
         {
-            return await _context.Transactions.Where(x => x.Account.User.Id == userId).
-                OrderByDescending(x => x.Date).ToListAsync();
+            return await _context.Transactions
+                .Where(x => x.AccountId == accountId)
+                .OrderByDescending(x => x.Date)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -37,14 +39,12 @@ namespace Wallet_grupo1.DataAccess.Repositories{
             try
             {
                 var existingTransaction = await _context.Transactions.Where(x => x.Id == transaction.Id).FirstOrDefaultAsync();
-
                 if (existingTransaction != null)
                 {
                    _context.Set<Transaction>().Remove(transaction);
                 }
 
                 return true;
-                
             }
             catch (Exception)
             {
@@ -60,7 +60,6 @@ namespace Wallet_grupo1.DataAccess.Repositories{
         
         public override async Task<bool> Update(Transaction transaction)
         {
-            
             try
             {
                 // Verifico la existencia de la transaccion a actualizar y luego la actualizo
@@ -72,9 +71,7 @@ namespace Wallet_grupo1.DataAccess.Repositories{
                 }
                 else
                 {
-                    existingTransaction.Amount = transaction.Amount;
-                    existingTransaction.Date = transaction.Date;
-                    existingTransaction.Type= transaction.Type;
+                    existingTransaction.Concept= transaction.Concept;
                 }
 
                 return true;
@@ -90,18 +87,18 @@ namespace Wallet_grupo1.DataAccess.Repositories{
         /// <summary>
         ///     Se eliminan las  transacciones con referencia a una account
         /// </summary>
-        /// <param name="accounId"></param>
+        /// <param name="accountId"></param>
         /// <returns></returns>
-        public async Task<bool> RemoveReferencesToAccountId(int accounId)
+        public async Task<bool> RemoveReferencesToAccountId(int accountId)
         {
             try
             {
-                var transactionsFromAccoundId = 
-                    await _context.Transactions.Where(x => x.AccountId == accounId).ToListAsync();
+                var transactionsFromAccountId = 
+                    await _context.Transactions.Where(x => x.AccountId == accountId).ToListAsync();
                 var transactionsToAccountId =
-                    await _context.Transactions.Where(x => x.ToAccountId == accounId).ToListAsync();
+                    await _context.Transactions.Where(x => x.ToAccountId == accountId).ToListAsync();
 
-                foreach (var t in transactionsFromAccoundId)
+                foreach (var t in transactionsFromAccountId)
                 {
                     t.AccountId = null;
                 }
@@ -111,7 +108,7 @@ namespace Wallet_grupo1.DataAccess.Repositories{
                     t.ToAccountId = null;
                 }
 
-                var allTransactionsToUpdate = transactionsFromAccoundId.Concat(transactionsToAccountId);
+                var allTransactionsToUpdate = transactionsFromAccountId.Concat(transactionsToAccountId);
                 
                 _context.Transactions.UpdateRange(allTransactionsToUpdate);
                 

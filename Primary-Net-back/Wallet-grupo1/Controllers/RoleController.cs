@@ -9,11 +9,17 @@ using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers;
 
+/// <summary>
+/// Controlador para entidad roles del sistema.
+/// </summary>
 [Route("/api/role")]
 public class RoleController : Controller
 {
     private readonly IUnitOfWork _unitOfWorkService;
 
+    /// <summary>
+    /// Constructor base.
+    /// </summary>
     public RoleController(IUnitOfWork unitOfWorkService)
     {
         _unitOfWorkService = unitOfWorkService;
@@ -29,7 +35,7 @@ public class RoleController : Controller
     {
         var rolesPresent = await _unitOfWorkService.RoleRepo.GetAll();
 
-        return Ok(rolesPresent);
+        return ResponseFactory.CreateSuccessfullyResponse(200, rolesPresent);
     }
 
     /// <summary>
@@ -43,9 +49,10 @@ public class RoleController : Controller
     {
         var roleToFind = await _unitOfWorkService.RoleRepo.GetById(id);
 
-        if (roleToFind is null) return NotFound();
+        if (roleToFind is null) 
+            return ResponseFactory.CreateErrorResponse(404, $"No existe un rol en el sistema con ID: {id}");
 
-        return Ok(roleToFind);
+        return ResponseFactory.CreateSuccessfullyResponse(200, roleToFind);
     }
 
     /// <summary>
@@ -58,7 +65,6 @@ public class RoleController : Controller
     public async Task<IActionResult> Insert([FromBody] RoleDto newRole)
     {
         if (!ModelState.IsValid)
-
             return ResponseFactory.CreateErrorResponse(500, "Hubo un problema insertando el nuevo rol en la DB");
 
         var result = await _unitOfWorkService.RoleRepo.Insert(new Role(newRole));
@@ -72,46 +78,50 @@ public class RoleController : Controller
 
     /// <summary>
     /// Eliminar el rol de la base de datos cuyo ID corresponda con el especificado.
+    /// Requiere permisos de admin.
     /// </summary>
     /// <param name="id">ID del rol que se desea eliminar.</param>
     /// <returns>Resultado de la transacción de eliminación</returns>
+    [Authorize(Policy = "Admin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         var role = await _unitOfWorkService.RoleRepo.GetById(id);
 
-        if (role is null) return NotFound($"No se encontro ninguna transacción con el id: {id}.");
+        if (role is null || role.Id is 1 or 2) 
+            return ResponseFactory.CreateErrorResponse(500, $"No es posible eliminar el rol con: {id} porque no existe" +
+                "o es un rol fundamental del sistema");
 
         var result = await _unitOfWorkService.RoleRepo.Delete(role);
-
         if (!result)
             return StatusCode(500, $"No se pudo eliminar el rol con id: {id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción.");
+                                   "porque no se pudo completar la transacción.");
 
         await _unitOfWorkService.Complete();
 
-        return Ok();
+        return ResponseFactory.CreateSuccessfullyResponse(200, $"El rol con id: {id} fue eliminado del sistema");
     }
 
     /// <summary>
     /// Actualizar el estado de un rol con los datos pasados en el body.
     /// </summary>
+    /// <param name="id">Información del rol a actualizar.</param>
     /// <param name="roleToUpdate">Información del rol a actualizar.</param>
     /// <returns>Resultado de la transacción de actualización.</returns>
     [Authorize(Policy = "Admin")]
-    [HttpPut]
-    public async Task<IActionResult> Update([FromBody] Role roleToUpdate)
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] Role roleToUpdate)
     {
         //solo poder cambiar la descripcion
 
         var result = await _unitOfWorkService.RoleRepo.Update(roleToUpdate);
 
         if (!result)
-            return StatusCode(500, $"No se pudo actualizar el rol con id: {roleToUpdate.Id}" +
-                                       $" porque no existe o porque no se pudo completar la transacción.");
+            return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar el rol con id: {id}" +
+                                                                   $" porque no existe o porque no se pudo completar la transacción.");
 
         await _unitOfWorkService.Complete();
 
-        return Ok();
+        return ResponseFactory.CreateSuccessfullyResponse(200, $"El rol con id: {id} fue actualizado");
     }
 }
