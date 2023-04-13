@@ -1,5 +1,6 @@
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
 
 import React from 'react';
 
@@ -33,6 +34,5 @@ export default async function UsersList() {
       </div>
     );
   }
-
-  return <div>Debe iniciar sesion</div>;
+  return redirect('/');
 }
