@@ -72,16 +72,50 @@ public class AccountController : Controller
     /// <summary>
     /// Insertar una Account en la base de datos con los datos pasados en el Body.
     /// </summary>
-    /// <param name="account">Estado en el que se quiere insertar la Account. El ID se autogenerará en la BD.</param>
+    /// <param name="accountDTO"></param>
     /// <returns>El resultado de la creación e inserción de la entidad y su estado.</returns>
     [Authorize(Policy = "Admin")]
     [HttpPost]
-    public async Task<IActionResult> Insert([FromBody] Account account)
+    public async Task<IActionResult> Insert()
     {
-        await _unitOfWorkService.AccountRepo.Insert(account);
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null)
+            return ResponseFactory.CreateErrorResponse(401,
+            "No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
+
+        string jwtToken = authorizationHeader.Substring(7);
+
+        // Extraigo el userid del token (es un claim)
+        var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
+        if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+
+        // Busco el Id de la Account del User
+        var userAccount = await _unitOfWorkService.AccountRepo.FindByUserId(Int32.Parse(userIdToken));
+        if (userAccount is not null)
+            return ResponseFactory.CreateErrorResponse(405,
+                $"Usted ya posee una cuenta asociada, la cual responde al ID: {userAccount.Value.UserId}.");
+
+        var user = await _unitOfWorkService.UserRepo.GetById(Int32.Parse(userIdToken));
+
+        var theNewAccount = new Account
+        {
+            IsBlocked = false,
+            Money = 0,
+            CreationDate = DateTime.Now,
+            UserId = Int32.Parse(userIdToken),
+            User = user
+        };
+
+        await _unitOfWorkService.AccountRepo.Insert(theNewAccount);
+        await _unitOfWorkService.Complete();
         await _unitOfWorkService.Complete();
 
-        return CreatedAtAction(nameof(GetById), new { id = account.Id }, account);
+        return ResponseFactory.CreateSuccessfullyResponse(201, theNewAccount);
     }
 
     /// <summary>
