@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Wallet_grupo1.DataAccess;
 using Wallet_grupo1.DTOs;
 using Wallet_grupo1.Entities;
 using Wallet_grupo1.Helpers;
@@ -35,22 +34,23 @@ public class FixedTermController : Controller
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        // Carga todos los Fixed de la base de datos utilizando el repositorio de Fixed
-        var Fixed = await _unitOfWorkService.FixedRepo.GetAll();
+        // Carga todos los plazos fijos de la base de datos utilizando el repositorio de plazos fijos
+        var fixedTerm = await _unitOfWorkService.FixedRepo.GetAll();
 
         // Paginar el resultado
         int pageToShow = 1;
         if (Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
         var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString();
 
-        var paginatedFixed = PaginateHelper.Paginate(Fixed, pageToShow, url);
+        var paginatedFixed = PaginateHelper.Paginate(fixedTerm, pageToShow, url);
 
-        if (Fixed == null)
+        if (paginatedFixed == null)
         {
-            return StatusCode(204, "No se encontraron FixedTermDeposits");
+            return ResponseFactory.CreateErrorResponse(404, "No se pudieron localizar " +
+                                                            "plazos fijos en el sistema.");
         }
         // Retorna un código 200 (OK)
-        return Ok(paginatedFixed);
+        return ResponseFactory.CreateSuccessfullyResponse(200, paginatedFixed);
     }
 
     /// <summary>
@@ -62,12 +62,14 @@ public class FixedTermController : Controller
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        // Obtiene el Id del fidex especificado utilizando el repositorio de Fixed.
-        var Fixed = await _unitOfWorkService.FixedRepo.GetById(id);
-        ///Si no se encuentra un Fixed con el Id especificado, devulve un código 404 
-        if (Fixed is null) return NotFound();
-        // Si se encuentra el Fixed, retorna un código 200 
-        return Ok(Fixed);
+        // Obtiene el Id del plazo fijo especificado utilizando el repositorio de plazos fijos.
+        var fixedTerm = await _unitOfWorkService.FixedRepo.GetById(id);
+        //Si no se encuentra un plazo fijo con el Id especificado, devulve un código 404 
+        if (fixedTerm is null) 
+            return ResponseFactory.CreateErrorResponse(404, "No se pudo localizar" +
+                                                            $" al plazo fijo de ID: {id} en el sistema.");
+        // Si se encuentra el plazo fijo, retorna un código 200 (OK) con el registro encontrado
+        return ResponseFactory.CreateSuccessfullyResponse(200, fixedTerm);
     }
     
     /// <summary>
@@ -82,13 +84,14 @@ public class FixedTermController : Controller
         //Usamos el DTO para construir la entidad con los datos necesarios
         var theNewFixedTerm = new FixedTermDeposit(newFixedTermDto.NewFixedTermDeposit);
         
-        //Get token del header y validacion
         string? authorizationHeader = Request.Headers["Authorization"];
-
-        if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad.");
 
         if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
-            return Unauthorized("No se proporcionó un token de seguridad válido.");
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
 
         string jwtToken = authorizationHeader.Substring(7);
 
@@ -96,18 +99,16 @@ public class FixedTermController : Controller
         var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
         if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
 
-        Account? account;
-
-        account = _unitOfWorkService.AccountRepo.GetById(theNewFixedTerm.AccountId).Result;
-
-        if (account is null) return NotFound($"No se encontró ninguna cuenta con el número: {theNewFixedTerm.AccountId}.");
+        var userAccount = _unitOfWorkService.AccountRepo.GetById(theNewFixedTerm.AccountId).Result;
+        if (userAccount is null) 
+            return ResponseFactory.CreateErrorResponse(403,$"No se encontró ninguna cuenta con el número: {theNewFixedTerm.AccountId}.");
 
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
-        if (account.UserId != int.Parse(userIdToken))
-            return Forbid("La cuenta no pertenece al usuario loggeado.");
+        if (userAccount.UserId != int.Parse(userIdToken))
+            return ResponseFactory.CreateErrorResponse(403,"La cuenta no pertenece al usuario logueado.");
         
         // Delego al gestor la logica de creacion del plazo fijo.
-        await new GestorOperaciones(_unitOfWorkService).CreateFixedTerm(account, theNewFixedTerm, newFixedTermDto.InterestRate);
+        await new GestorOperaciones(_unitOfWorkService).CreateFixedTerm(userAccount, theNewFixedTerm, newFixedTermDto.InterestRate);
 
         return ResponseFactory.CreateSuccessfullyResponse(201, newFixedTermDto);
     }
@@ -140,7 +141,8 @@ public class FixedTermController : Controller
     /// <summary>
     /// Endpoint que actualiza un plazo fijo segun su código identificador. Requiere permisos de administrador
     /// </summary>
-    /// <param name="Fixed">El constructor del plazo fijo</param>
+    /// <param name="id">El id del plazo fijo</param>
+    /// <param name="dto">El constructor del plazo fijo</param>
     /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
     [Authorize(Policy = "Admin")]
     [HttpPut("{id}")]
@@ -159,15 +161,43 @@ public class FixedTermController : Controller
     /// <summary>
     /// Endpoint que lista los plazos segun el código identificador del usuario consumidor.
     /// </summary>
-    /// <param name="userId"></param>
+    /// <param name="accountId">ID de la cuenta registrada</param>
     /// <returns>Código de respuesta HTTP asociado al éxito o fracaso de la operación</returns>
-    [HttpGet("{userId}")]
-    public async Task<List<FixedTermDeposit>> FixedTermsOfUser([FromBody] int userId)
+    [Authorize]
+    [HttpGet("userAccount/{accountId}")]
+    public async Task<IActionResult> FixedTermsOfUser([FromRoute] int accountId)
     {
-        var resultado = await _unitOfWorkService.FixedRepo.FixedTermsOfUser(userId);
+        string? authorizationHeader = Request.Headers["Authorization"];
+
+        if (authorizationHeader is null) 
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad.");
+
+        if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+            return ResponseFactory.CreateErrorResponse(401,
+                "No se proporcionó un token de seguridad válido.");
+
+        string jwtToken = authorizationHeader.Substring(7);
+
+        // Extraigo el userid del token (es un claim)
+        var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
+        if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+
+        var userAccount = _unitOfWorkService.AccountRepo.GetById(accountId).Result;
+        if (userAccount is null) 
+            return ResponseFactory.CreateErrorResponse(403,$"No se encontró ninguna cuenta con el número: {accountId}.");
+
+        // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
+        if (userAccount.UserId != int.Parse(userIdToken))
+            return ResponseFactory.CreateErrorResponse(403,"La cuenta no pertenece al usuario logueado.");
+        
+        var fixedTerms = await _unitOfWorkService.FixedRepo.FixedTermsOfUser(accountId);
+        if (fixedTerms.Count < 1)
+            return ResponseFactory.CreateErrorResponse(404, $"La cuenta con ID: {accountId} no posee plazos fijos activos.");
+        
         await _unitOfWorkService.Complete();
 
-        return resultado;
+        return ResponseFactory.CreateSuccessfullyResponse(200, fixedTerms);
     }
 
 }

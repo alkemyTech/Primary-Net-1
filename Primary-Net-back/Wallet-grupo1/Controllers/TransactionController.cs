@@ -7,101 +7,94 @@ using Microsoft.AspNetCore.Mvc.Formatters;
 using System.Security.AccessControl;
 using Microsoft.IdentityModel.Tokens;
 using Wallet_grupo1.DataAccess;
+using Wallet_grupo1.DTOs;
 using Wallet_grupo1.Entities;
 using Wallet_grupo1.Helpers;
+using Wallet_grupo1.Infrastructure;
 using Wallet_grupo1.Logic;
 using Wallet_grupo1.Services;
 
 namespace Wallet_grupo1.Controllers
 {
-
-    [Authorize] // solo usuarios autenticados pueden acceder a este controlador
+    /// <summary>
+    /// Controlador para manejar requests asociadas a transacciones
+    /// </summary>
     [Route("api/transaction")]
-
     public class TransactionController : Controller
     {
         private readonly IUnitOfWork _unitOfWorkService;
 
+        /// <summary>
+        /// Constructor base
+        /// </summary>
         public TransactionController(IUnitOfWork unitOfWork)
         {
             _unitOfWorkService = unitOfWork;
         }
         
-        /// <summary>
-        ///     Se obtienen transacciones
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="SecurityTokenException"></exception>
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<List<Transaction>>> GetAll()
-        {
-            //Get token del header y validacion
-            string? authorizationHeader = Request.Headers["Authorization"];
-  
-            if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
-
-            if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
-                return Unauthorized("No se proporcionó un token de seguridad válido.");
-        
-            string jwtToken = authorizationHeader.Substring(7);
-        
-            // Extraigo el userid del token (es un claim)
-            var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
-            if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
-            
-            var transactions = await _unitOfWorkService.TransactionRepo.TransactionsOfUser(int.Parse(userIdToken));
-            
-            // Paginar el resultado de Transaction
-            int pageToShow = 1;
-            if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
-            var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
-
-            var paginatedTransaction = PaginateHelper.Paginate(transactions, pageToShow, url);
-
-
-            return Ok(paginatedTransaction);
-        }
+        // /// <summary>
+        // /// Se obtienen las transacciones del sistema. Requiere permisos de administrador.
+        // /// </summary>
+        // /// <returns></returns>
+        // /// <exception cref="SecurityTokenException"></exception>
+        // [Authorize(Policy = "Admin")]
+        // [HttpGet]
+        // public async Task<IActionResult> GetAll()
+        // {
+        //     var transactions = await _unitOfWorkService.TransactionRepo.GetAll();
+        //     
+        //     if(transactions is null)
+        //         return ResponseFactory.CreateErrorResponse(404, "No se pudieron localizar transacciones en el sistema.");
+        //     
+        //     // Paginar el resultado de Transaction
+        //     int pageToShow = 1;
+        //     if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+        //     var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
+        //
+        //     var paginatedTransactions = PaginateHelper.Paginate(transactions, pageToShow, url);
+        //
+        //     return ResponseFactory.CreateSuccessfullyResponse(200, paginatedTransactions);
+        // }
         
         /// <summary>
-        ///     Se obtiene transaccion por ID
+        ///  Se obtiene una transaccion por ID de usuario
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         /// <exception cref="SecurityTokenException"></exception>
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Transaction>> GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            //Get token del header y validacion
             string? authorizationHeader = Request.Headers["Authorization"];
-
-            if (authorizationHeader is null) return Unauthorized("No se proporcionó un token de seguridad.");
+            if (authorizationHeader is null) 
+                return ResponseFactory.CreateErrorResponse(401,
+                    "No se proporcionó un token de seguridad.");
 
             if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
-                return Unauthorized("No se proporcionó un token de seguridad válido.");
-        
+                return ResponseFactory.CreateErrorResponse(401,
+                    "No se proporcionó un token de seguridad válido.");
+            
             string jwtToken = authorizationHeader.Substring(7);
-        
+
             // Extraigo el userid del token (es un claim)
             var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
             if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
             
-            var transaction = await _unitOfWorkService.TransactionRepo.GetById(id);
-            if (transaction is null) return NotFound();
+            var userAccount = _unitOfWorkService.AccountRepo.FindByUserId(Int32.Parse(userIdToken));
+            if (userAccount is null) 
+                return ResponseFactory.CreateErrorResponse(403,$"No se encontró ninguna cuenta para el usuario de ID: {Int32.Parse(userIdToken)}.");
             
-            if(transaction.AccountId is null) return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta.");
-            var account = await _unitOfWorkService.AccountRepo.GetById(transaction.AccountId.Value);
-            if (account is null) return NotFound();
+            var theTransaction = await _unitOfWorkService.TransactionRepo.GetById(id);
+            if(theTransaction is null || theTransaction.AccountId != userAccount.Id)
+                return ResponseFactory.CreateErrorResponse(500,$"No se encontró ninguna transaccion o bien la transaccion" +
+                                                               $"especificada no fue efectuada por el usuario logueado");
             
-            if (account.UserId != int.Parse(userIdToken))
-                return Forbid("El usuario loggeado no corresponde al del dueño de la cuenta .");
-
-            return Ok(transaction);
+            return ResponseFactory.CreateSuccessfullyResponse(200, theTransaction);
         }
 
         /// <summary>
-        ///     Funcion para insertar transation
+        ///  Funcion para insertar una transaccion
         /// </summary>
         /// <param name="transaction"></param>
         /// <returns></returns>
@@ -114,10 +107,9 @@ namespace Wallet_grupo1.Controllers
             
             return CreatedAtAction(nameof(GetById), new { id = transaction.Id}, transaction);
         }
-
-
+        
         /// <summary>
-        ///     funcion para eliminar transaction. Solo pueden hacerlo los admins
+        /// Metodo para eliminar una transaccion. Requiere permisos de administrador.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -126,57 +118,84 @@ namespace Wallet_grupo1.Controllers
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
             var transaction = await _unitOfWorkService.TransactionRepo.GetById(id);
-
-            if (transaction is null) return NotFound($"No se encontro ninguna transacción con el id: {id}.");
-                
+            if (transaction is null)
+                return ResponseFactory.CreateErrorResponse(404, $"No se encontró ninguna transaccion con el ID: {id}.");
+            
             var result = await _unitOfWorkService.TransactionRepo.Delete(transaction);
-
             if (!result)
                 return StatusCode(500, $"No se pudo eliminar la transacción con id: {id}" +
-                                           $" porque no existe o porque no se pudo completar la transacción.");
+                                           " porque no existe o porque no se pudo completar la transacción.");
             
             await _unitOfWorkService.Complete();
 
-            return Ok();
+            return ResponseFactory.CreateSuccessfullyResponse(200, $"Transaccion de ID: {id} eliminada satisfactoriamente del sistema.");
         }
 
         /// <summary>
         ///     Funcion para actualizar transaction, solo admins
         /// </summary>
-        /// <param name="transaction"></param>
+        /// <param name="id"></param>
+        /// <param name="transactionToUpdate"></param>
         /// <returns></returns>
-
         [Authorize(Policy = "Admin")]
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] Transaction transaction)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] TransactionDto transactionToUpdate)
         {
-
-            var result = await _unitOfWorkService.TransactionRepo.Update(transaction);
+            if(transactionToUpdate.Concept is null)
+                return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar la transaccion con id: {id}" +
+                                                                      " porque se necesita especificar el concepto que ha cambiado."); 
+            
+            var result = await _unitOfWorkService.TransactionRepo.Update(new Transaction(id, transactionToUpdate));
             
             if (!result)
-                return StatusCode(500, $"No se pudo actualizar la transaccion con id: {transaction.Id}" +
-                                           $" porque no existe o porque no se pudo completar la transacción."); 
+                return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar la transaccion con id: {id}" +
+                                                                     $" porque no existe o porque no se pudo completar la transacción."); 
                                        
             await _unitOfWorkService.Complete();
 
-            return Ok();
+            return ResponseFactory.CreateSuccessfullyResponse(200, $"Transaccion de ID: {id} actualizada satisfactoriamente.");
         }
 
 
         /// <summary>
-        ///     Se obtienen todas las transacciones realizadas por un usuario
+        ///  Se obtienen todas las transacciones realizadas por un usuario
         /// </summary>
-        /// <param name="userId"></param>
         /// <returns></returns>
         [Authorize]
-        [HttpGet("{userId}")]
-        public async Task<List<Transaction>> TransactionsOfUser([FromBody]int userId)
+        [HttpGet]
+        public async Task<IActionResult> TransactionsOfUser()
         {
-            var resultado = await _unitOfWorkService.TransactionRepo.TransactionsOfUser(userId);
+            string? authorizationHeader = Request.Headers["Authorization"];
+            if (authorizationHeader is null) 
+                return ResponseFactory.CreateErrorResponse(401,
+                    "No se proporcionó un token de seguridad.");
 
+            if (string.IsNullOrEmpty(authorizationHeader) || !authorizationHeader.StartsWith("Bearer "))
+                return ResponseFactory.CreateErrorResponse(401,
+                    "No se proporcionó un token de seguridad válido.");
+            
+            string jwtToken = authorizationHeader.Substring(7);
+
+            // Extraigo el userid del token (es un claim)
+            var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
+            if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
+
+            var userAccount = _unitOfWorkService.AccountRepo.FindByUserId(Int32.Parse(userIdToken)).Result;
+            if (userAccount is null) 
+                return ResponseFactory.CreateErrorResponse(403,$"No se encontró ninguna cuenta para el usuario de ID: {userIdToken}.");
+
+            var allTransactionsOfUser = await _unitOfWorkService.TransactionRepo.TransactionsOfUser(userAccount.Value.Id);
+
+            // Paginar el resultado de Transaction
+            int pageToShow = 1;
+            if(Request.Query.ContainsKey("page")) int.TryParse(Request.Query["page"], out pageToShow);
+            var url = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}").ToString(); 
+
+            var paginatedTransactions = PaginateHelper.Paginate(allTransactionsOfUser, pageToShow, url);
+            
             await _unitOfWorkService.Complete();
 
-            return resultado;
+            return ResponseFactory.CreateSuccessfullyResponse(200, paginatedTransactions);
         }
 
     }
