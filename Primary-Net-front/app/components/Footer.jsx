@@ -1,7 +1,7 @@
 import Image from 'next/image';
-import logo from "./assets/logo.png";
-import google from "./assets/google.svg";
-import appmac from "./assets/appmac.svg";
+import logo from "../assets/logo.png";
+import google from "../assets/google.svg";
+import appmac from "../assets/appmac.svg";
 
 const Footer = () => {
   return (

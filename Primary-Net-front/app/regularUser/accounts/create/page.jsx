@@ -2,8 +2,8 @@
 import { useSession } from 'next-auth/react';
 import React from 'react';
 import axios from 'axios';
-import Navbar from '../components/Nav'
-import Footer from '../components/Footer'
+import Navbar from '../../../components/Nav'
+import Footer from '../../../components/Footer'
 
 const AccountInsert = () => {
   const { data: session } = useSession();
