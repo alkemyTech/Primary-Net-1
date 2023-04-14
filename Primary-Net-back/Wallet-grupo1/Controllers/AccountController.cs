@@ -84,7 +84,7 @@ public class AccountController : Controller
     {
         string? authorizationHeader = Request.Headers["Authorization"];
 
-        if (authorizationHeader is null) 
+        if (authorizationHeader is null)
             return ResponseFactory.CreateErrorResponse(401,
             "No se proporcionó un token de seguridad.");
 
@@ -97,21 +97,24 @@ public class AccountController : Controller
         // Extraigo el userid del token (es un claim)
         var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
         if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
-        
+
         // Busco el Id de la Account del User
         var userAccount = await _unitOfWorkService.AccountRepo.FindByUserId(Int32.Parse(userIdToken));
-        if (userAccount is not null) 
+        if (userAccount is not null)
             return ResponseFactory.CreateErrorResponse(405,
                 $"Usted ya posee una cuenta asociada, la cual responde al ID: {userAccount.Value.UserId}.");
+
+        var user = await _unitOfWorkService.UserRepo.GetById(Int32.Parse(userIdToken));
 
         var theNewAccount = new Account
         {
             IsBlocked = false,
             Money = 0,
             CreationDate = DateTime.Now,
-            UserId = Int32.Parse(userIdToken)
+            UserId = Int32.Parse(userIdToken),
+            User = user
         };
-        
+
         await _unitOfWorkService.AccountRepo.Insert(theNewAccount);
         await _unitOfWorkService.Complete();
 
@@ -128,7 +131,7 @@ public class AccountController : Controller
     public async Task<IActionResult> Delete([FromRoute] int id)
     {
         var account = await _unitOfWorkService.AccountRepo.GetById(id);
-        if (account is null) 
+        if (account is null)
             return ResponseFactory.CreateErrorResponse(404, "No se pudo localizar" +
             $" la cuenta con ID: {id} en el sistema");
 
@@ -169,7 +172,7 @@ public class AccountController : Controller
         if (accountDto.Money < 0)
             return ResponseFactory.CreateErrorResponse(500, $"No se pudo actualizar la cuenta con ID: {id}. Revisar" +
                                                             $"campos insertados.");
-        
+
         //Instancio la clase en base al DTO con los campos actualizados
         var theNewAccountData = new Account(id, accountDto);
         var result = await _unitOfWorkService.AccountRepo.Update(theNewAccountData);
@@ -194,7 +197,7 @@ public class AccountController : Controller
         //Get token del header y validacion
         string? authorizationHeader = Request.Headers["Authorization"];
 
-        if (authorizationHeader is null) 
+        if (authorizationHeader is null)
             return ResponseFactory.CreateErrorResponse(401,
                 $"No se proporcionó un token de seguridad.");
 
@@ -212,17 +215,17 @@ public class AccountController : Controller
 
         account = _unitOfWorkService.AccountRepo.GetById(id).Result;
 
-        if (account is null) 
-            return ResponseFactory.CreateErrorResponse(403,$"No se encontró ninguna cuenta con el número: {id}.");
+        if (account is null)
+            return ResponseFactory.CreateErrorResponse(403, $"No se encontró ninguna cuenta con el número: {id}.");
 
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
         if (account.UserId != int.Parse(userIdToken))
-            return ResponseFactory.CreateErrorResponse(403,"La cuenta no pertenece al usuario logueado.");
+            return ResponseFactory.CreateErrorResponse(403, "La cuenta no pertenece al usuario logueado.");
 
         // Delego al gestor la logica del deposito.
         await new GestorOperaciones(_unitOfWorkService).Deposit(account, dto.AumentoSaldo, dto.Concept);
 
-        return ResponseFactory.CreateSuccessfullyResponse(200,$"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
+        return ResponseFactory.CreateSuccessfullyResponse(200, $"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
     }
 
     /// <summary>
@@ -237,7 +240,7 @@ public class AccountController : Controller
         //Get token del header y validacion
         string? authorizationHeader = Request.Headers["Authorization"];
 
-        if (authorizationHeader is null) 
+        if (authorizationHeader is null)
             return ResponseFactory.CreateErrorResponse(401,
                 "No se proporcionó un token de seguridad.");
 
@@ -253,26 +256,26 @@ public class AccountController : Controller
 
         // account = Quien envia el dinero, toAccount = Quien recibe el dinero
         var account = _unitOfWorkService.AccountRepo.GetById(id).Result;
-        
+
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
         if (account.UserId != int.Parse(userIdToken))
-            return ResponseFactory.CreateErrorResponse(403,"La cuenta no pertenece al usuario loggeado.");
-        
+            return ResponseFactory.CreateErrorResponse(403, "La cuenta no pertenece al usuario loggeado.");
+
         var toAccount = _unitOfWorkService.AccountRepo.GetById(dto.IdReceptor).Result;
-        
-        if (account is null) 
+
+        if (account is null)
             return ResponseFactory.CreateErrorResponse(404,
                 "No se encontro una cuenta asociada a su usuario.");
-        if (toAccount is null) 
+        if (toAccount is null)
             return ResponseFactory.CreateErrorResponse(404,
                 $"No se encontró ninguna cuenta con el número: {dto.IdReceptor}.");
 
-        if (account.Money < dto.MontoTransferido) 
+        if (account.Money < dto.MontoTransferido)
             return ResponseFactory.CreateErrorResponse(500, "El monto a enviar es mayor al que contiene en la cuenta.");
 
         // Delego al gestor la logica del transferir el dinero.
         await new GestorOperaciones(_unitOfWorkService).Transfer(account, toAccount, dto.MontoTransferido, dto.Concept);
 
-        return ResponseFactory.CreateSuccessfullyResponse(200,"Transferencia realizada con éxito.");
+        return ResponseFactory.CreateSuccessfullyResponse(200, "Transferencia realizada con éxito.");
     }
 }

@@ -53,9 +53,9 @@ public class LoginController : Controller
             Token = token
         };
 
-        if (userCredentials.Role != null)
+        if (userCredentials.RoleId != null)
         {
-            if(userCredentials.Role.Id == 1)
+            if(userCredentials.RoleId == 1)
             {
                 user.isAdmin = true;
             }else
