@@ -3,11 +3,12 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 
 import React from 'react';
+import UpdateTransaction from './UpdateTransaction';
 
-export default async function RolesList() {
+export default async function AccountsList() {
   const session = await getServerSession(authOptions);
   if (session) {
-    const data = await fetch('https://localhost:7131/api/role', {
+    const data = await fetch('https://localhost:7131/api/transaction', {
       headers: {
         'Content-Type': 'application/json',
         Authorization: 'Bearer ' + session.user.accessToken
@@ -17,18 +18,13 @@ export default async function RolesList() {
       throw new Error(err.message);
     });
 
-    console.log(data);
-    const roles = await data.json();
+    const transactions = await data.json();
     return (
       <div>
-        <h1>Lista de elementos:</h1>
-        <ul>
-          {roles.data.map((role) => (
-            <li key={role.id}>
-              {role.name} {role.description} {role.esEliminado}
-            </li>
-          ))}
-        </ul>
+        <UpdateTransaction
+          session={session}
+          transactions={transactions.data.items}
+        />
       </div>
     );
   }
