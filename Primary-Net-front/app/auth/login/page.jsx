@@ -18,22 +18,31 @@ const Login = () => {
   };
 
   return (
-    <div>
-      <form>
-        <input
-          type="text"
-          name=""
-          id=""
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="text"
-          name=""
-          id=""
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={(e) => handleSubmit(e)}>LOGIN</button>
-      </form>
+    <div class="h-screen flex justify-center items-center bg-gray-200">
+      <div class="flex flex-col items-center mb-8">
+        <h1 class="text-4xl font-bold mb-2">¡Bienvenido!</h1>
+        <form class="flex flex-col items-center bg-white p-6 rounded-lg">
+          <input
+            type="text"
+            name=""
+            id=""
+            class="px-4 py-2 border rounded-lg mb-4"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <input
+           type="text"
+            name=""
+            id=""
+            class="px-4 py-2 border rounded-lg mb-4"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button 
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={(e) => handleSubmit(e)}>
+              LOGIN
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

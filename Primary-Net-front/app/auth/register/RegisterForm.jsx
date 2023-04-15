@@ -35,40 +35,51 @@ const RegisterForm = () => {
       });
   };
   return (
-    <div>
-      Registrarse:
-      <form action="">
-        <input
-          type="text"
-          name="firstName"
-          placeholder="nombre"
-          id="firstName"
-          onChange={(e) => setfirstName(e.target.value)}
-        />
-        <input
-          type="text"
-          name="lastName"
-          placeholder="apellido"
-          id="lastName"
-          onChange={(e) => setLastname(e.target.value)}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="email"
-          id="email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="contraseña"
-          id="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button onClick={(e) => handleRegister(e)}>Registrarme</button>
-      </form>
-    </div>
+    <div class="h-screen flex justify-center items-center bg-gray-200">
+  <div class="bg-white p-8 rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Registrarse:</h1>
+    <form class="flex flex-col gap-4">
+      <input
+        type="text"
+        name="firstName"
+        placeholder="Nombre"
+        id="firstName"
+        class="px-4 py-2 border rounded-lg"
+        onChange={(e) => setfirstName(e.target.value)}
+      />
+      <input
+        type="text"
+        name="lastName"
+        placeholder="Apellido"
+        id="lastName"
+        class="px-4 py-2 border rounded-lg"
+        onChange={(e) => setLastname(e.target.value)}
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        id="email"
+        class="px-4 py-2 border rounded-lg"
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Contraseña"
+        id="password"
+        class="px-4 py-2 border rounded-lg"
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={(e) => handleRegister(e)}
+      >
+        Registrarme
+      </button>
+    </form>
+  </div>
+</div>
   );
 };
 
