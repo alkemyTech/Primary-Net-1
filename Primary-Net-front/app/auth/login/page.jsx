@@ -10,7 +10,8 @@ const Login = () => {
     const res = await signIn('credentials', {
       username: email,
       password,
-      redirect: false
+      redirect: true,
+      callbackUrl: '/'
     });
 
     console.log(res);
