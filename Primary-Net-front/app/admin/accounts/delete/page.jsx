@@ -1,8 +1,8 @@
 import React from 'react';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import DeleteAccountForm from './DeleteAccountForm';
-export default async function DeleteAccount() {
+import DeleteAccount from './DeleteAccount';
+export default async function AccountDelete() {
   const session = await getServerSession(authOptions);
   if (session) {
     const data = await fetch('https://localhost:7131/api/account', {
@@ -19,7 +19,7 @@ export default async function DeleteAccount() {
     return (
       <div>
         <ul>
-          <DeleteAccountForm accounts={accounts.data.items} session={session} />
+          <DeleteAccount accounts={accounts.data.items} session={session} />
         </ul>
       </div>
     );
