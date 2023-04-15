@@ -18,9 +18,16 @@ const AccountInsert = () => {
     }
   };
   return (
-    <div>
-      AccountInsert
-      <button onClick={() => handleSubmit()}>SUBMIT</button>
+    <div class="flex justify-center items-center h-screen bg-gray-200">
+      <div class="bg-white p-8 rounded-lg shadow-md flex items-center">
+        <h1 class="text-2xl font-bold mr-4">AccountInsert</h1>
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => handleSubmit()}
+        >
+          SUBMIT
+        </button>
+      </div>
     </div>
   );
 };
