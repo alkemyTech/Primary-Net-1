@@ -12,13 +12,11 @@ const AccountInsert = () => {
         .post(
           'https://localhost:7131/api/account',
           {},
-          { headers: { Authorization: 'Bearer ' + session.accessToken } }
+          { headers: { Authorization: 'Bearer ' + session.user.accessToken } }
         )
         .then((res) => console.log(res.data));
     }
   };
-  
-
   return (
     <div>
       AccountInsert
