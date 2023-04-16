@@ -14,7 +14,7 @@ const RegisterForm = () => {
       username: email,
       password,
       redirect: true,
-      callbackUrl: '/'
+      callbackUrl: '/regularUser/accounts/create'
     });
   };
 
