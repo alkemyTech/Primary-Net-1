@@ -72,7 +72,7 @@ namespace Wallet_grupo1.DataAccess.Repositories
             // Busca la Account del user por Id
             Account? account = await _context.Accounts.Where(x => x.UserId == userId).FirstOrDefaultAsync();
 
-            if (account is null) throw new Exception();
+            //if (account is null) throw new Exception();
 
             return account;
 

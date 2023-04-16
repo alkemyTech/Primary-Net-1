@@ -99,9 +99,9 @@ public class AccountController : Controller
 
         // Busco el Id de la Account del User
         var userAccount = await _unitOfWorkService.AccountRepo.FindByUserId(Int32.Parse(userIdToken));
-        if (userAccount is not null)
+        if (userAccount.Value is not null)
             return ResponseFactory.CreateErrorResponse(405,
-                $"Usted ya posee una cuenta asociada, la cual responde al ID: {userAccount.Value.UserId}.");
+                $"Usted ya posee una cuenta asociada");
 
         var user = await _unitOfWorkService.UserRepo.GetById(Int32.Parse(userIdToken));
 
