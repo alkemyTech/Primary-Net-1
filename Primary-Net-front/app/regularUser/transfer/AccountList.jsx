@@ -29,34 +29,53 @@ const AccountList = ({ session, accounts }) => {
   };
 
   return (
-    <div>
-      <select
-        name="account"
-        id="account_select"
-        onChange={(e) => handleSelect(e)}
-        defaultValue={0}>
-        <option value={0}>0</option>
-        {accounts.map((acc) => (
-          <option value={acc.id} key={acc.id}>
-            {acc.id}
-          </option>
-        ))}
-      </select>
-      <input
-        type="number"
-        name=""
-        id=""
-        onChange={(e) => setAmount(e.target.value)}
-      />
-      <input
-        type="text"
-        name=""
-        id=""
-        placeholder="concepto"
-        onChange={(e) => setConcept(e.target.value)}
-      />
-
-      <button onClick={() => handleTransfer()}>Transfer</button>
+    <div class="flex items-center justify-center h-screen bg-gray-100">
+      <div class="bg-white rounded-lg shadow-md p-8">
+        <label class="block mb-4">
+          <span class="text-gray-700 font-bold">Cuenta:</span>
+          <select
+            name="account"
+            id="account_select"
+            class="form-select block w-full mt-1"
+            onChange={(e) => handleSelect(e)}
+            defaultValue={0}
+          >
+          <option value={0}>0</option>
+            {accounts.map((acc) => (
+            <option value={acc.id} key={acc.id}>
+             {acc.id}
+            </option>
+            ))}
+       </select>
+        </label>
+        <label class="block mb-4">
+        <span class="text-gray-700 font-bold">Cantidad:</span>
+        <input
+          type="number"
+          name=""
+          id=""
+          class="form-input mt-1 block w-full"
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        </label>
+        <label class="block mb-4">
+        <span class="text-gray-700 font-bold">Concepto:</span>
+        <input
+          type="text"
+          name=""
+          id=""
+          placeholder="concepto"
+          class="form-input mt-1 block w-full"
+          onChange={(e) => setConcept(e.target.value)}
+        />
+        </label>
+        <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={() => handleTransfer()}
+        >
+        Transferir
+        </button>
+      </div>
     </div>
   );
 };
