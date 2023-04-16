@@ -1,8 +1,8 @@
+
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import Navbar from '../../../components/Nav'
-import Footer from '../../../components/Footer'
 
 import React from 'react';
 
@@ -28,7 +28,6 @@ export default async function CataloguesList() {
   
         {/* Contenedor de la lista de elementos */}
         <div className="flex-grow">
-          <h1 className="text-2xl font-bold mb-4">Lista de elementos:</h1>
           <div className="grid grid-cols-4 gap-4">
             {catalogues.data.items.map((catalogue) => (
               <div key={catalogue.id} className="bg-gray-100 p-4 border border-gray-200 shadow-md items-center justify-center">
