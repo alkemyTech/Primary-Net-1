@@ -17,13 +17,15 @@ export default async function CatalogueDetail({ params }) {
   const catalogue = await fetchCatalogueData(id, session.user.accessToken);
   console.log(catalogue);
   return (
-    <div>
-      El detalle del catalogue es:
-      <ul>
-        <li>{catalogue.data.name}</li>
-        <li>{catalogue.data.image}</li>
-        <li>{catalogue.data.points}</li>
-      </ul>
-    </div>
+    <div class="bg-gray-200 p-4 h-screen flex items-center justify-center">
+      <div class="bg-white p-4 rounded-lg shadow-md w-full items-center justify-center">
+        <p class="text-lg font-bold mb-2">El detalle del catálogo es:</p>
+        <ul>
+          <li class="mb-2"><span class="font-bold">Nombre:</span> {catalogue.data.name}</li>
+          <li class="mb-2"><span class="font-bold">Imagen:</span> {catalogue.data.image}</li>
+          <li><span class="font-bold">Puntos:</span> {catalogue.data.points}</li>
+        </ul>
+      </div>
+  </div>
   );
 }
