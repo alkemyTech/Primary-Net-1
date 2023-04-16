@@ -2,8 +2,7 @@
 import { useSession } from 'next-auth/react';
 import React from 'react';
 import axios from 'axios';
-import Navbar from '../../../components/Nav'
-import Footer from '../../../components/Footer'
+import { redirect } from 'next/dist/server/api-utils';
 
 const AccountInsert = () => {
   const { data: session } = useSession();
@@ -16,15 +15,15 @@ const AccountInsert = () => {
           {},
           { headers: { Authorization: 'Bearer ' + session.user.accessToken } }
         )
-        .then((res) => console.log(res.data));
+        .then(() => {
+          redirect('/home')
+        });
     }
   };
   
 
   return (
     <div className="min-h-screen bg-gray-100 font-montserrat">
-      {/* Navbar */}
-      <Navbar />
 
       {/* Contenido principal */}
       <div className="flex justify-center items-center h-screen">
@@ -44,8 +43,6 @@ const AccountInsert = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <Footer />
     </div>
   );
 };

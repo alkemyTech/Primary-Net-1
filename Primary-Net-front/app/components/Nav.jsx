@@ -1,5 +1,8 @@
+'use client';
 import Image from 'next/image';
 import logo from "./assets/logo.png";
+import React from 'react';
+import { signOut } from 'next-auth/react';
 
 const Navbar = () => {
   return (
@@ -19,13 +22,14 @@ const Navbar = () => {
           <a href="#" className="text-white no-underline hover:text-gray-300">Deposito</a>
         </li>
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">Transacion</a>
+          <a href="/regularUser/transfer" className="text-white no-underline hover:text-gray-300">Transacion</a>
         </li>
         <li className="px-4">
           <a href="#" className="text-white no-underline hover:text-gray-300">Plazo Fijo</a>
         </li>
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">Log Out</a>
+          {/* <a href="#" className="text-white no-underline hover:text-gray-300">Log Out</a> */}
+          <button onClick={() => signOut()} className="text-white no-underline hover:text-gray-300" >Sign Out</button>
         </li>
       </ul>
     </nav>

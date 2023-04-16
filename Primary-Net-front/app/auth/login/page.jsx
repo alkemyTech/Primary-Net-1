@@ -11,7 +11,7 @@ const Login = () => {
       username: email,
       password,
       redirect: true,
-      callbackUrl: '/'
+      callbackUrl: '/home'
     });
 
     console.log(res);
@@ -30,7 +30,7 @@ const Login = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
           <input
-           type="text"
+           type="password"
             name=""
             id=""
             class="px-4 py-2 border rounded-lg mb-4"

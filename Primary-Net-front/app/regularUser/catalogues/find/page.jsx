@@ -41,5 +41,5 @@ export default async function CataloguesList() {
       </div>
     );
   }
-  return redirect('/');
+  return redirect('/auth/login');
 }
