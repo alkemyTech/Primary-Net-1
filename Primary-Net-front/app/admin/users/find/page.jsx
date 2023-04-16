@@ -1,6 +1,8 @@
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
+import Navbar from '../../components/Nav'
+import Footer from '../../components/Footer'
 
 import React from 'react';
 
@@ -23,6 +25,7 @@ export default async function UsersList() {
 
     return (
       <div>
+        <Navbar /> {/* Agrega el componente Navbar aquí */}
         <h1>Lista de elementos:</h1>
         <ul>
           {users.map((user) => (
@@ -31,6 +34,7 @@ export default async function UsersList() {
             </li>
           ))}
         </ul>
+        <Footer/>
       </div>
     );
   }
