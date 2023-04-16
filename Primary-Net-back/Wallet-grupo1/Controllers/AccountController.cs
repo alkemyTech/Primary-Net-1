@@ -30,7 +30,6 @@ public class AccountController : Controller
     /// Obtener el listado de todas las Account del sistema. Solo usuarios administradores pueden acceder.
     /// </summary>
     /// <returns>Listado de todas las Account del sistema.</returns>
-    [Authorize(Policy = "Admin")]
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
