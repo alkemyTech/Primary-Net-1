@@ -19,15 +19,17 @@ function DeleteAccount({ accounts, session }) {
   };
 
   return (
-    <div>
-      <select name="" id="" onChange={(e) => setDeletedAccount(e.target.value)}>
-        {accounts.map((acc) => (
-          <option value={acc.id} key={acc.id}>
-            {acc.id}
-          </option>
-        ))}
-      </select>
-      <button onClick={(e) => handleRegister(e)}>delete</button>
+    <div class="flex flex-col justify-center items-center bg-gray-200 h-screen">
+      <div class="flex flex-col justify-center items-center bg-white shadow-md p-4 rounded-lg">
+        <select class="border border-gray-400 p-2 rounded-md" name="" id="" onChange={(e) => setDeletedAccount(e.target.value)}>
+          {accounts.map((acc) => (
+            <option value={acc.id} key={acc.id}>
+              {acc.id}
+            </option>
+          ))}
+        </select>
+        <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4" onClick={(e) => handleRegister(e)}>delete</button>
+      </div>
     </div>
   );
 }
