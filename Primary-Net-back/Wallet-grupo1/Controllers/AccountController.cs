@@ -119,6 +119,24 @@ public class AccountController : Controller
 
         return ResponseFactory.CreateSuccessfullyResponse(201, theNewAccount);
     }
+    
+    /// <summary>
+    /// Obtiene la account de un usuario por el UserId
+    /// </summary>
+    /// <param name="id">ID del User.</param>
+    /// <returns>Account del user</returns>
+    [HttpGet("userAccount/{id}")]
+    public async Task<IActionResult> GetAccountByUserId(int id)
+    {
+        var userAccount = await _unitOfWorkService.AccountRepo.FindByUserId(id);
+
+        if (userAccount == null)
+        {
+            return ResponseFactory.CreateErrorResponse(404, "No se pudo localizar" +
+                                                            $" a la cuenta de ID: {id} en el sistema");
+        }
+        return ResponseFactory.CreateSuccessfullyResponse(200, userAccount);
+    }
 
     /// <summary>
     /// Eliminar la Account de la base de datos cuyo ID corresponda con el especificado.
@@ -254,10 +272,10 @@ public class AccountController : Controller
         if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
 
         // account = Quien envia el dinero, toAccount = Quien recibe el dinero
-        var account = _unitOfWorkService.AccountRepo.GetById(id).Result;
+        var account = _unitOfWorkService.AccountRepo.FindByUserId(id).Result;
 
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
-        if (account.UserId != int.Parse(userIdToken))
+        if (account.Value.UserId != int.Parse(userIdToken))
             return ResponseFactory.CreateErrorResponse(403, "La cuenta no pertenece al usuario loggeado.");
 
         var toAccount = _unitOfWorkService.AccountRepo.GetById(dto.IdReceptor).Result;
@@ -269,11 +287,11 @@ public class AccountController : Controller
             return ResponseFactory.CreateErrorResponse(404,
                 $"No se encontró ninguna cuenta con el número: {dto.IdReceptor}.");
 
-        if (account.Money < dto.MontoTransferido)
+        if (account.Value.Money < dto.MontoTransferido)
             return ResponseFactory.CreateErrorResponse(500, "El monto a enviar es mayor al que contiene en la cuenta.");
 
         // Delego al gestor la logica del transferir el dinero.
-        await new GestorOperaciones(_unitOfWorkService).Transfer(account, toAccount, dto.MontoTransferido, dto.Concept);
+        await new GestorOperaciones(_unitOfWorkService).Transfer(account.Value, toAccount, dto.MontoTransferido, dto.Concept);
 
         return ResponseFactory.CreateSuccessfullyResponse(200, "Transferencia realizada con éxito.");
     }
