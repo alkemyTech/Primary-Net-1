@@ -10,19 +10,22 @@ const Navbar = () => {
       </div>
       <ul className="flex list-none">
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">Home</a>
+          <a href="/home" className="text-white no-underline hover:text-gray-300">Home</a>
         </li>
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">About Us</a>
+          <a href="/regularUser/catalogues/find" className="text-white no-underline hover:text-gray-300">Catalogo</a>
         </li>
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">Services</a>
+          <a href="#" className="text-white no-underline hover:text-gray-300">Deposito</a>
         </li>
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">Blog</a>
+          <a href="#" className="text-white no-underline hover:text-gray-300">Transacion</a>
         </li>
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">Contact Us</a>
+          <a href="#" className="text-white no-underline hover:text-gray-300">Plazo Fijo</a>
+        </li>
+        <li className="px-4">
+          <a href="#" className="text-white no-underline hover:text-gray-300">Log Out</a>
         </li>
       </ul>
     </nav>

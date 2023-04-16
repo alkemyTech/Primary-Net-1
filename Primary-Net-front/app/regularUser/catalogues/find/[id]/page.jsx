@@ -26,6 +26,6 @@ export default async function CatalogueDetail({ params }) {
           <li><span class="font-bold">Puntos:</span> {catalogue.data.points}</li>
         </ul>
       </div>
-  </div>
+    </div>
   );
 }

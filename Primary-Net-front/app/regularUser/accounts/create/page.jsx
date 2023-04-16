@@ -2,6 +2,8 @@
 import { useSession } from 'next-auth/react';
 import React from 'react';
 import axios from 'axios';
+import Navbar from '../../../components/Nav'
+import Footer from '../../../components/Footer'
 
 const AccountInsert = () => {
   const { data: session } = useSession();
@@ -17,17 +19,33 @@ const AccountInsert = () => {
         .then((res) => console.log(res.data));
     }
   };
+  
+
   return (
-    <div class="flex justify-center items-center h-screen bg-gray-200">
-      <div class="bg-white p-8 rounded-lg shadow-md flex items-center">
-        <h1 class="text-2xl font-bold mr-4">AccountInsert</h1>
-        <button
-          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={() => handleSubmit()}
-        >
-          SUBMIT
-        </button>
+    <div className="min-h-screen bg-gray-100 font-montserrat">
+      {/* Navbar */}
+      <Navbar />
+
+      {/* Contenido principal */}
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-white p-6 rounded-lg shadow-md max-w-md w-full flex justify-center items-center">
+          <div className="text-center">
+            <h1 className="text-3xl font-semibold mb-4">¡Crea tu cuenta!</h1>
+            <p className="text-gray-600 mb-6">
+              Bienvenido a nuestra plataforma. Haz clic en el botón para crear tu cuenta y comenzar a disfrutar de nuestros servicios.
+            </p>
+            <button
+              className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md cursor-pointer"
+              onClick={() => handleSubmit()}
+            >
+              CREAR CUENTA
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
