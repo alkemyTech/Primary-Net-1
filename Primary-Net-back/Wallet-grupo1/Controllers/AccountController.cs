@@ -76,7 +76,6 @@ public class AccountController : Controller
     /// <summary>
     /// Crear una Account en el sistema para un usuario registrado.
     /// </summary>
-    /// <param name="userId">Usuario que quiere crear la Account. El ID se autogenerará en la BD.</param>
     /// <returns>El resultado de la creación e inserción de la entidad y su estado.</returns>
     [Authorize]
     [HttpPost]
@@ -116,6 +115,7 @@ public class AccountController : Controller
         };
 
         await _unitOfWorkService.AccountRepo.Insert(theNewAccount);
+
         await _unitOfWorkService.Complete();
 
         return ResponseFactory.CreateSuccessfullyResponse(201, theNewAccount);

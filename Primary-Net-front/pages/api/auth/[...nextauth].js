@@ -52,17 +52,22 @@ export const authOptions = {
   callbacks: {
     jwt: async ({ token, user, account }) => {
       if (account && user) {
+        console.log(user);
         token.accessToken = user.token;
         token.isAdmin = user.isAdmin;
+        token.id = user.id;
+        token.firstName = user.firstName;
+        token.lastName = user.lastName;
       }
       return token;
     },
     session: async ({ session, token }) => {
-      return {
-        ...session,
-        accessToken: token.accessToken,
-        isAdmin: token.isAdmin
-      };
+      session.user.accessToken = token.accessToken;
+      session.user.isAdmin = token.isAdmin;
+      session.user.id = token.id;
+      session.user.firstName = token.firstName;
+      session.user.lastName = token.lastName;
+      return session;
     }
   }
 };
