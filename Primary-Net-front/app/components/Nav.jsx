@@ -49,12 +49,24 @@ const Navbar = () => {
           <a
             href="/regularUser/transfer"
             className="text-white no-underline hover:text-gray-300">
-            Transaccion
+            Transferencia
           </a>
         </li>
         <li className="px-4">
-          <a href="#" className="text-white no-underline hover:text-gray-300">
+          <a
+            href="/regularUser/transactions"
+            className="text-white no-underline hover:text-gray-300">
+            Mis Transacciones
+          </a>
+        </li>
+        <li className="px-4">
+          <a href="/regularUser/fixedTerms" className="text-white no-underline hover:text-gray-300">
             Plazo Fijo
+          </a>
+        </li>
+        <li className="px-4">
+          <a href="/regularUser/fixedTerms/list" className="text-white no-underline hover:text-gray-300">
+            Mis Plazos Fijos
           </a>
         </li>
         <li className="px-4">

@@ -39,6 +39,8 @@ public class GestorOperaciones
         };
         
         await _unitOfWorkService.TransactionRepo.Insert(transaction);
+
+        await _unitOfWorkService.Complete();
     }
 
     /// <summary>
