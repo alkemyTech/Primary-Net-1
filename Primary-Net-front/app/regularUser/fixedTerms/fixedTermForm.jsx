@@ -42,7 +42,7 @@ const FixedTermForm = ({ session }) => {
       <div className="h-screen flex justify-center items-center bg-gray-100">
         <div className="flex flex-col items-center mb-8">
           <form className="flex flex-col items-center bg-white p-6 rounded-lg">
-            <span className="text-gray-700 font-bold">Ingrese fech:</span>
+            <span className="text-gray-700 font-bold">Ingrese la fecha de finalización:</span>
             <input
               type="date"
               name="date"
@@ -64,6 +64,17 @@ const FixedTermForm = ({ session }) => {
             </span>
             <input
               type="number"
+              className="px-4 py-2 border rounded-lg mb-4"
+              onChange={(e) => setAccountId(e.target.value)}
+            />
+
+            <span className="text-gray-700 font-bold">
+              Tasa de Interés Nominal Actual:
+            </span>
+            <input
+              type="number"
+              value="35" readOnly={true}
+              style={{ width: '75px', textAlign:'center', backgroundColor: '#f4f4f4'}}
               className="px-4 py-2 border rounded-lg mb-4"
               onChange={(e) => setAccountId(e.target.value)}
             />

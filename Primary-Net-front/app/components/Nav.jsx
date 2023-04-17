@@ -35,14 +35,14 @@ const Navbar = () => {
           <a
             href="/regularUser/catalogues/find"
             className="text-white no-underline hover:text-gray-300">
-            Catalogo
+            Catálogo
           </a>
         </li>
         <li className="px-4">
           <a
             href="/regularUser/deposit"
             className="text-white no-underline hover:text-gray-300">
-            Deposito
+            Depósito
           </a>
         </li>
         <li className="px-4">

@@ -28,8 +28,8 @@ export default async function Transactions() {
             {transactions.data.items.map((tran) => (
               <li className="mb-2" key={tran.id}>
                 <span className="font-bold">Concepto: </span>
-                {tran.concept} |<span className="font-bold"> Monto: </span>
-                {tran.amount}|<span className="font-bold"> Fecha: </span>{' '}
+                {tran.concept} | <span className="font-bold"> Monto: </span>
+                {tran.amount}  | <span className="font-bold"> Fecha: </span>{' '}
                 {tran.date}
               </li>
             ))}

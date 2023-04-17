@@ -32,7 +32,8 @@ export default async function CataloguesList() {
             {catalogues.data.items.map((catalogue) => (
               <div key={catalogue.id} className="bg-gray-100 p-4 border border-gray-200 shadow-md items-center justify-center">
                 <img src={catalogue.image} alt="Mi imagen" width="300" height="200"/><br></br>
-                {catalogue.name}<br></br>{catalogue.points}                
+                <li class="mb-2"><span class="font-bold">Item:</span> {catalogue.name}</li>
+                <li class="mb-2"><span class="font-bold">Puntos requeridos:</span> {catalogue.points}</li>            
               </div>
             ))}
           </div>
