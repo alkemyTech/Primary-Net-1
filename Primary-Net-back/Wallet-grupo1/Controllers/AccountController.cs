@@ -228,21 +228,19 @@ public class AccountController : Controller
         var userIdToken = TokenJwtHelper.ObtenerUserIdDeToken(jwtToken);
         if (userIdToken is null) throw new SecurityTokenException("El token no tiene el claim del user id.");
 
-        Account? account;
-
-        account = _unitOfWorkService.AccountRepo.GetById(id).Result;
+        var account = await _unitOfWorkService.AccountRepo.FindByUserId(id);
 
         if (account is null)
             return ResponseFactory.CreateErrorResponse(403, $"No se encontró ninguna cuenta con el número: {id}.");
 
         // Valido que sea el mismo user el loggeado y el dueño de la cuenta.
-        if (account.UserId != int.Parse(userIdToken))
+        if (account.Value.UserId != int.Parse(userIdToken))
             return ResponseFactory.CreateErrorResponse(403, "La cuenta no pertenece al usuario logueado.");
 
         // Delego al gestor la logica del deposito.
-        await new GestorOperaciones(_unitOfWorkService).Deposit(account, dto.AumentoSaldo, dto.Concept);
+        await new GestorOperaciones(_unitOfWorkService).Deposit(account.Value, dto.AumentoSaldo, dto.Concept);
 
-        return ResponseFactory.CreateSuccessfullyResponse(200, $"Deposito realizado con éxito. Su nuevo saldo es: ${account.Money}.");
+        return ResponseFactory.CreateSuccessfullyResponse(200, $"Deposito realizado con éxito. Su nuevo saldo es: ${account.Value.Money}.");
     }
 
     /// <summary>

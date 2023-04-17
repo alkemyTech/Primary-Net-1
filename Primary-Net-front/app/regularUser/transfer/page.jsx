@@ -17,14 +17,13 @@ const fetchData = async (token) => {
 
 export default async function Transfer() {
   const session = await getServerSession(authOptions);
-
-  if(session){
+  if (session) {
     const data = await fetchData(session.user.accessToken);
 
     const accounts = await data.json();
-  
+
     console.log(accounts);
-  
+
     return (
       <div>
         <AccountList accounts={accounts.data.items} session={session} />
@@ -32,5 +31,4 @@ export default async function Transfer() {
     );
   }
   return redirect('/auth/login');
-  
 }
