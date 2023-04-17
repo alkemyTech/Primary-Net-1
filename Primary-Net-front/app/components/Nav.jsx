@@ -49,7 +49,7 @@ const Navbar = () => {
           <a
             href="/regularUser/transfer"
             className="text-white no-underline hover:text-gray-300">
-            Transacion
+            Transaccion
           </a>
         </li>
         <li className="px-4">
