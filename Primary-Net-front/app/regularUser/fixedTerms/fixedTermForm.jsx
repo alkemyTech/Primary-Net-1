@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
-import Navbar from '../../components/Nav'
+import Navbar from '../../components/Nav';
 
 const FixedTermForm = ({ session }) => {
   const [date, setDate] = useState();
@@ -39,9 +39,10 @@ const FixedTermForm = ({ session }) => {
     <div>
       {/* Navbar */}
       <Navbar />
-      <div className="h-screen flex justify-center items-center bg-gray-100"> 
+      <div className="h-screen flex justify-center items-center bg-gray-100">
         <div className="flex flex-col items-center mb-8">
           <form className="flex flex-col items-center bg-white p-6 rounded-lg">
+            <span className="text-gray-700 font-bold">Ingrese fech:</span>
             <input
               type="date"
               name="date"
@@ -49,6 +50,8 @@ const FixedTermForm = ({ session }) => {
               onChange={(e) => chnageDate(e)}
               className="px-4 py-2 border rounded-lg mb-4"
             />
+
+            <span className="text-gray-700 font-bold">Ingrese monto:</span>
             <input
               type="number"
               name=""
@@ -56,20 +59,24 @@ const FixedTermForm = ({ session }) => {
               onChange={(e) => setAmount(e.target.value)}
               className="px-4 py-2 border rounded-lg mb-4"
             />
+            <span className="text-gray-700 font-bold">
+              Confirme su numero de cuenta:
+            </span>
             <input
               type="number"
               className="px-4 py-2 border rounded-lg mb-4"
               onChange={(e) => setAccountId(e.target.value)}
             />
 
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={(e) => handleSubmit(e)}>
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              onClick={(e) => handleSubmit(e)}>
               enviar
             </button>
           </form>
         </div>
       </div>
     </div>
-    
   );
 };
 
