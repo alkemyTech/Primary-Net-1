@@ -28,7 +28,7 @@ export default async function AccountDetail() {
         <Navbar />
   
         {/* Contenedor de la lista de elementos */}
-        <div class="bg-gray-200 p-4 h-screen flex items-center justify-center">
+        <div class="bg-gray-100 p-4 h-screen flex items-center justify-center">
       <div class="bg-white p-4 rounded-lg shadow-md w-full items-center justify-center">
         <p class="text-lg font-bold mb-2">El detalle de la cuenta es:</p>
         <ul>

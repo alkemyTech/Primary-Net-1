@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import axios from 'axios';
-
+import Navbar from '../../components/Nav'
 const DepositForm = (session) => {
   const [amount, setAmount] = useState();
   const [concept, setConcept] = useState();
@@ -23,24 +23,30 @@ const DepositForm = (session) => {
       .then((res) => console.log(res));
   };
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
-      <div className="flex flex-col">
-        <label htmlFor="Ingrese monto">Ingrese monto de deposito</label>
-        <input
-          type="number"
-          name=""
-          id=""
-          className="border border-black rounded"
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <input
-          type="text"
-          name=""
-          id=""
-          className="border border-black rounded"
-          onChange={(e) => setConcept(e.target.value)}
-        />
-        <button onClick={(e) => handleDeposit(e)}>DEPOSITAR</button>
+    <div>
+      {/* Navbar */}
+      <Navbar />
+      <div className="h-screen flex justify-center items-center bg-gray-100"> 
+        <div className="flex flex-col items-center mb-8">
+          <form className="flex flex-col items-center bg-white p-6 rounded-lg">
+            <span class="text-gray-700 font-bold">Cuenta:</span>
+              <input
+                type="number"
+                name=""
+                id=""
+                className="px-4 py-2 border rounded-lg mb-4"
+                onChange={(e) => setAmount(e.target.value)}
+              />
+              <input
+                type="text"
+                name=""
+                id=""
+                className="px-4 py-2 border rounded-lg mb-4"
+                onChange={(e) => setConcept(e.target.value)}
+              />
+            <button onClick={(e) => handleDeposit(e)} class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">DEPOSITAR</button>
+          </form> 
+        </div>
       </div>
     </div>
   );
